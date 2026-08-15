@@ -16,6 +16,27 @@ Communication Planner helps the user answer:
 - What promise or next action exists?
 - Has this reply passed safety checks before sending?
 
+## Implementation Status
+
+The first MVP implementation is in place with Next.js and TypeScript.
+
+Implemented:
+
+- `GET /health`
+- `GET /version`
+- `GET /contracts/status`
+- `POST /api/channel-events/messages`
+- `GET /api/inbox`
+- `GET /api/persons/{personId}`
+- `GET /api/persons/{personId}/conversations`
+- `GET /api/persons/{personId}/context`
+- `POST /api/conversations/{conversationId}/reply-drafts`
+- `POST /api/reply-drafts/{replyDraftId}/safety-check`
+- `POST /api/reply-drafts/{replyDraftId}/send`
+- LINE/X/Instagram adapter stubs
+
+See [docs/local-api-check.md](docs/local-api-check.md) for local API checks.
+
 ## OSS Strategy
 
 Communication Planner should use proven OSS from GitHub where it helps development speed and safety.
@@ -109,4 +130,5 @@ See:
 - [docs/safety-rules.md](docs/safety-rules.md)
 - [docs/oss-adoption.md](docs/oss-adoption.md)
 - [docs/channel-adapters.md](docs/channel-adapters.md)
+- [docs/local-api-check.md](docs/local-api-check.md)
 - [docs/sprint-1.md](docs/sprint-1.md)
