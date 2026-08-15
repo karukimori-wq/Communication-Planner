@@ -84,6 +84,48 @@ Must emit one of:
 - `communication.message.received.v1`
 - `communication.message.sent.v1`
 
+### `POST /api/adapters/line/webhook`
+
+Ingests a LINE Harness-compatible webhook payload, normalizes it through the LINE adapter, and stores an inbound Communication Planner message.
+
+Required provider data:
+
+- `workspaceId`
+- `externalUserId`, `userId`, or source user id
+- `body`, `text`, or provider message text
+
+Must emit:
+
+- `communication.message.received.v1`
+
+### `POST /api/adapters/x/webhook`
+
+Ingests an X Harness-compatible webhook payload, normalizes it through the X adapter, and stores an inbound Communication Planner message.
+
+Required provider data:
+
+- `workspaceId`
+- `externalUserId`, `senderId`, or sender user id
+- `body`, `text`, or provider message text
+
+Must emit:
+
+- `communication.message.received.v1`
+
+### `POST /api/adapters/instagram/webhook`
+
+Ingests an Instagram Harness-compatible webhook payload, normalizes it through the Instagram adapter, and stores an inbound Communication Planner message.
+
+Required provider data:
+
+- `workspaceId`
+- `externalUserId`, `senderId`, or sender user id
+- `body`, `text`, or provider message text
+
+Must emit:
+
+- `communication.message.received.v1`
+
 ### `GET /api/inbox`
 
 Returns unified inbox items scoped by workspace.
