@@ -37,6 +37,7 @@ Implemented:
 - LINE/X/Instagram adapter stubs
 - PostgreSQL-oriented initial schema in `db/schema.sql`
 - Dependency-free contract tests in `tests/static-contracts.test.mjs`
+- GitHub Actions CI for test and build verification
 
 See [docs/local-api-check.md](docs/local-api-check.md) for local API checks and [docs/testing.md](docs/testing.md) for test coverage.
 
