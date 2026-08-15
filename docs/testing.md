@@ -5,11 +5,22 @@ Communication Planner includes lightweight contract guards for the MVP.
 ## Commands
 
 ```bash
+npm ci
 npm test
 npm run build
 ```
 
 `npm test` runs Node's built-in test runner against `tests/*.test.mjs`.
+
+## CI
+
+GitHub Actions runs the same verification on pushes to `main` and on pull requests:
+
+1. `npm ci`
+2. `npm test`
+3. `npm run build`
+
+The workflow is defined in `.github/workflows/ci.yml`.
 
 ## Current Coverage
 
