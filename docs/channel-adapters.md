@@ -139,3 +139,26 @@ Implement adapter contracts before full provider integration:
 5. Add X adapter stub based on X Harness architecture.
 6. Add Instagram adapter stub based on IG Harness architecture.
 7. Add tests proving outbound sends fail without SafetyCheck authorization.
+
+## Implemented Webhook Entry Points
+
+The MVP now exposes provider-specific webhook entry points:
+
+| Channel | Endpoint | OSS reference |
+| --- | --- | --- |
+| LINE | `POST /api/adapters/line/webhook` | `Shudesu/line-harness-oss` |
+| X | `POST /api/adapters/x/webhook` | `Shudesu/x-harness-oss` |
+| Instagram | `POST /api/adapters/instagram/webhook` | `Shudesu/ig-harness-oss` |
+
+Each endpoint accepts a harness-compatible JSON object and normalizes these provider concepts before core ingestion:
+
+| Provider field family | Canonical field |
+| --- | --- |
+| `workspaceId`, `tenantId`, `teamId` | `workspaceId` |
+| `externalUserId`, `userId`, `senderId`, nested sender/source id | `externalUserId` |
+| `body`, `text`, `messageText`, nested message text | `body` |
+| `eventId`, `messageId`, nested message id | `externalMessageId` |
+| `threadId`, `conversationId`, `roomId`, `chatId` | `externalThreadId` |
+| `displayName`, `senderName`, `username`, nested sender name | `displayName` |
+
+The endpoints emit `communication.message.received.v1`. They do not perform provider send delivery; outbound provider delivery remains behind the ReplyDraft SafetyCheck gate.
