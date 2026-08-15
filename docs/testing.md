@@ -31,6 +31,7 @@ The current test suite verifies that:
 - Send requires a current passing SafetyCheck.
 - Stale or failed SafetyCheck logic remains present.
 - Outbound sends use the original conversation channel.
+- Endpoint-level contract metadata remains available.
 - CORS and `OPTIONS` preflight support remain present.
 
 These tests are intentionally dependency-free so they can run in restricted CI and local environments.
@@ -39,6 +40,7 @@ These tests are intentionally dependency-free so they can run in restricted CI a
 
 The next layer should add route-level request/response tests for:
 
+- `GET /api/contracts/endpoints`
 - `POST /api/channel-events/messages`
 - `POST /api/conversations/{conversationId}/reply-drafts`
 - `POST /api/reply-drafts/{replyDraftId}/safety-check`
