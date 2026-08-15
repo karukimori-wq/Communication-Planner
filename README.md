@@ -27,6 +27,8 @@ Initial references:
 - X Harness for X channel and DM adapter patterns.
 - IG Harness for Instagram DM adapter patterns.
 
+The Harness repositories are primary references for channel adapters. See [docs/channel-adapters.md](docs/channel-adapters.md).
+
 OSS reuse must not override Communication Planner ownership boundaries. See [docs/oss-adoption.md](docs/oss-adoption.md).
 
 ## Source of Truth
@@ -106,4 +108,5 @@ See:
 - [docs/events.md](docs/events.md)
 - [docs/safety-rules.md](docs/safety-rules.md)
 - [docs/oss-adoption.md](docs/oss-adoption.md)
+- [docs/channel-adapters.md](docs/channel-adapters.md)
 - [docs/sprint-1.md](docs/sprint-1.md)
