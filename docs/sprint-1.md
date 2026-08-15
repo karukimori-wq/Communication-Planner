@@ -14,6 +14,12 @@ Initialize Communication Planner as a contract-aligned MVP project and prepare i
 | Add API design | Done |
 | Add stable event list | Done |
 | Add safety rules | Done |
+| Add OSS adoption strategy | Done |
+| Review Chatwoot unified inbox and conversation patterns | Todo |
+| Review LINE Harness adapter architecture | Todo |
+| Review X Harness adapter architecture | Todo |
+| Review IG Harness adapter architecture | Todo |
+| Define adapter event mapping for LINE/X/Instagram | Todo |
 | Choose application stack | Todo |
 | Implement `/health` | Todo |
 | Implement `/version` | Todo |
@@ -23,14 +29,24 @@ Initialize Communication Planner as a contract-aligned MVP project and prepare i
 
 ## Suggested Implementation Order
 
-1. Add app scaffold.
-2. Add contract/status endpoints.
-3. Add in-memory or local persistence model for MVP.
-4. Add channel event ingestion.
-5. Add person-scoped inbox and context reads.
-6. Add reply draft creation.
-7. Add safety check.
-8. Add send gate.
+1. Review OSS references and record what will be reused as architecture, package, or code.
+2. Add app scaffold.
+3. Add contract/status endpoints.
+4. Add in-memory or local persistence model for MVP.
+5. Add channel event ingestion.
+6. Add person-scoped inbox and context reads.
+7. Add reply draft creation.
+8. Add safety check.
+9. Add send gate.
+
+## OSS Review Targets
+
+| OSS | Target Use |
+| --- | --- |
+| Chatwoot | Unified inbox, conversation list, assignment and unread-state patterns |
+| LINE Harness | LINE webhook, identity mapping, message send/receive adapter reference |
+| X Harness | X DM/reply adapter reference |
+| IG Harness | Instagram DM adapter reference |
 
 ## Acceptance Criteria
 
@@ -40,3 +56,5 @@ Initialize Communication Planner as a contract-aligned MVP project and prepare i
 - Context retrieval cannot cross person boundaries.
 - Send rejects unchecked drafts.
 - Send rejects stale or failed checks.
+- Any copied OSS code has a recorded license and ownership review.
+- Any OSS-inspired adapter emits Communication Planner stable events.
