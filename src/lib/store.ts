@@ -35,6 +35,16 @@ export const store: StoreState =
     safetyChecks: []
   });
 
+export function resetStoreForTests() {
+  store.persons.length = 0;
+  store.channelIdentities.length = 0;
+  store.conversations.length = 0;
+  store.messages.length = 0;
+  store.contexts.length = 0;
+  store.replyDrafts.length = 0;
+  store.safetyChecks.length = 0;
+}
+
 function now() {
   return new Date().toISOString();
 }
@@ -196,6 +206,15 @@ export function getPerson(workspaceId: string, personId: string) {
   return store.persons.find((person) => person.workspaceId === workspaceId && person.personId === personId);
 }
 
+export function getConversation(workspaceId: string, personId: string, conversationId: string) {
+  return store.conversations.find(
+    (conversation) =>
+      conversation.workspaceId === workspaceId &&
+      conversation.personId === personId &&
+      conversation.conversationId === conversationId
+  );
+}
+
 export function getPersonConversations(workspaceId: string, personId: string) {
   return store.conversations.filter(
     (conversation) => conversation.workspaceId === workspaceId && conversation.personId === personId
@@ -207,12 +226,7 @@ export function getPersonContext(workspaceId: string, personId: string) {
 }
 
 export async function createReplyDraft(input: { workspaceId: string; personId: string; conversationId: string; body?: string; purpose: string }) {
-  const conversation = store.conversations.find(
-    (candidate) =>
-      candidate.workspaceId === input.workspaceId &&
-      candidate.personId === input.personId &&
-      candidate.conversationId === input.conversationId
-  );
+  const conversation = getConversation(input.workspaceId, input.personId, input.conversationId);
 
   if (!conversation) {
     return null;
