@@ -16,6 +16,19 @@ Communication Planner helps the user answer:
 - What promise or next action exists?
 - Has this reply passed safety checks before sending?
 
+## OSS Strategy
+
+Communication Planner should use proven OSS from GitHub where it helps development speed and safety.
+
+Initial references:
+
+- Chatwoot for unified inbox and conversation operation patterns.
+- LINE Harness for LINE adapter and webhook patterns.
+- X Harness for X channel and DM adapter patterns.
+- IG Harness for Instagram DM adapter patterns.
+
+OSS reuse must not override Communication Planner ownership boundaries. See [docs/oss-adoption.md](docs/oss-adoption.md).
+
 ## Source of Truth
 
 Communication Planner is the source of truth for:
@@ -92,4 +105,5 @@ See:
 - [docs/api-design.md](docs/api-design.md)
 - [docs/events.md](docs/events.md)
 - [docs/safety-rules.md](docs/safety-rules.md)
+- [docs/oss-adoption.md](docs/oss-adoption.md)
 - [docs/sprint-1.md](docs/sprint-1.md)
