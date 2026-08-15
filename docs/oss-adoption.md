@@ -9,16 +9,23 @@ Communication Planner should reuse useful OSS ideas and components from GitHub w
 3. Keep Communication Planner as the owner of Conversation, Message, ConversationContext, ReplyDraft, SafetyCheck, and ChannelAdapterState.
 4. Treat external OSS channel projects as adapter references unless their license and architecture are explicitly approved for deeper reuse.
 5. Every imported package or copied implementation must have a license review before production use.
+6. Use `Shudesu/line-harness-oss`, `Shudesu/x-harness-oss`, and `Shudesu/ig-harness-oss` as the primary adapter references for LINE, X, and Instagram.
 
 ## Recommended OSS References
 
 | OSS | GitHub | Use | Adoption Level | Notes |
 | --- | --- | --- | --- | --- |
 | Chatwoot | `chatwoot/chatwoot` | Unified inbox, conversation assignment, omnichannel support UI, agent workflow patterns | Reference architecture | Strong reference for inbox and conversation operations. Do not adopt its customer master model as Communication Planner's source of truth. |
-| LINE Harness | `Shudesu/line-harness-oss` | LINE channel adapter, webhook handling, message delivery, Cloudflare Workers + D1 deployment reference | Adapter reference | Useful for LINE Official Account integration patterns. Communication Planner should map inbound/outbound events into its own Message and ChannelIdentity model. |
-| X Harness | `Shudesu/x-harness-oss` | X DM/reply/channel automation patterns | Adapter reference | Useful for X-related adapter design. Avoid importing marketing automation concepts into Communication Planner core. |
-| IG Harness | `Shudesu/ig-harness-oss` | Instagram DM adapter patterns | Adapter reference | Useful for Instagram DM integration. Must keep person-scoped context and SafetyCheck in Communication Planner. |
+| LINE Harness | `Shudesu/line-harness-oss` | LINE channel adapter, webhook handling, message delivery, Cloudflare Workers + D1 deployment reference | Primary adapter reference | Use for LINE Official Account integration patterns. Communication Planner should map inbound/outbound events into its own Message and ChannelIdentity model. |
+| X Harness | `Shudesu/x-harness-oss` | X DM/reply/channel automation patterns | Primary adapter reference | Use for X-related adapter design. Avoid importing marketing automation concepts into Communication Planner core. |
+| IG Harness | `Shudesu/ig-harness-oss` | Instagram DM adapter patterns | Primary adapter reference | Use for Instagram DM integration. Must keep person-scoped context and SafetyCheck in Communication Planner. |
 | erxes | `erxes/erxes` | Sales/customer engagement workflow reference | Limited reference | Broad product scope overlaps with Growth Engine. Do not reuse as Communication Planner core. |
+
+## Harness Adapter Strategy
+
+The Harness repositories are not just general references. They are the preferred starting point for channel adapter design.
+
+See [channel-adapters.md](channel-adapters.md) for the canonical mapping from LINE/X/Instagram provider events into Communication Planner domain objects and events.
 
 ## What To Reuse First
 
