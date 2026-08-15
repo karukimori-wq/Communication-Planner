@@ -123,6 +123,7 @@ The adapter can send a message only after Communication Planner Core authorizes 
 ## Implementation Guardrails
 
 - Provider webhook payloads should be normalized before reaching core services.
+- Duplicate provider message ids must not create duplicate Message records.
 - Store raw provider payloads only when needed for debugging or idempotency, and keep them out of reply generation context.
 - Never use one person's context to generate another person's reply.
 - Never allow bulk or broadcast sending through Communication Planner reply APIs.
