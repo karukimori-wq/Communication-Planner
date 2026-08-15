@@ -147,4 +147,5 @@ Expected normalized fields:
 - Webhook endpoints store inbound messages only.
 - Provider payloads are normalized before core ingestion.
 - Raw provider payloads are not part of reply generation context.
+- Raw provider payloads must not be returned from webhook responses.
 - Outbound provider delivery remains behind the ReplyDraft SafetyCheck gate.
