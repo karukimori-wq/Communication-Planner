@@ -32,6 +32,7 @@ Initialize Communication Planner as a contract-aligned MVP project and prepare i
 | Add CORS and `OPTIONS` preflight support | Done |
 | Add initial PostgreSQL schema | Done |
 | Add dependency-free contract tests | Done |
+| Add package lock and GitHub Actions CI | Done |
 | Review Chatwoot unified inbox and conversation patterns | Todo |
 | Review LINE Harness adapter architecture | Todo |
 | Review X Harness adapter architecture | Todo |
@@ -54,6 +55,7 @@ Initialize Communication Planner as a contract-aligned MVP project and prepare i
 12. Add CORS/preflight support for frontend and adapter callers.
 13. Define production database schema.
 14. Add contract tests for core safety rules.
+15. Add CI for test/build verification on main.
 
 ## OSS Review Targets
 
@@ -77,6 +79,7 @@ Initialize Communication Planner as a contract-aligned MVP project and prepare i
 - Preflight `OPTIONS` requests return `204` on API and contract routes.
 - Initial database schema preserves Communication Planner ownership boundaries.
 - Contract tests cover ownership, conversation scoping, SafetyCheck gating, outbound channel preservation, and CORS/preflight guards.
+- GitHub Actions runs install, test, and build verification.
 - Any copied OSS code has a recorded license and ownership review.
 - Any OSS-inspired adapter emits Communication Planner stable events.
 - LINE/X/Instagram adapter stubs cannot send without SafetyCheck authorization.
