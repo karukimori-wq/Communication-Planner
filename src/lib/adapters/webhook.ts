@@ -53,8 +53,8 @@ function resolveProviderBody(payload: JsonObject, message?: JsonObject): string 
 function resolveExternalUserId(payload: JsonObject, source?: JsonObject, sender?: JsonObject): string | undefined {
   return (
     stringAt(payload, ["externalUserId", "userId", "senderId", "fromUserId", "recipientId"]) ??
-    (source ? stringAt(source, ["userId", "externalUserId", "id"]) : undefined) ??
-    (sender ? stringAt(sender, ["id", "userId", "externalUserId"]) : undefined)
+    (sender ? stringAt(sender, ["id", "userId", "externalUserId"]) : undefined) ??
+    (source ? stringAt(source, ["userId", "externalUserId", "id"]) : undefined)
   );
 }
 
