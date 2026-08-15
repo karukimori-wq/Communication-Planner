@@ -27,6 +27,9 @@ Implemented:
 - `GET /contracts/status`
 - `GET /api/contracts/endpoints`
 - `POST /api/channel-events/messages`
+- `POST /api/adapters/line/webhook`
+- `POST /api/adapters/x/webhook`
+- `POST /api/adapters/instagram/webhook`
 - `GET /api/inbox`
 - `GET /api/persons/{personId}`
 - `GET /api/persons/{personId}/conversations`
