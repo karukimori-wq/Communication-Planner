@@ -16,20 +16,25 @@ Initialize Communication Planner as a contract-aligned MVP project and prepare i
 | Add safety rules | Done |
 | Add OSS adoption strategy | Done |
 | Add Harness channel adapter strategy | Done |
+| Choose application stack | Done |
+| Add app scaffold | Done |
+| Implement `/health` | Done |
+| Implement `/version` | Done |
+| Implement `/contracts/status` | Done |
+| Add channel event ingestion | Done |
+| Add person-scoped inbox and context reads | Done |
+| Add LINE adapter stub | Done |
+| Add X adapter stub | Done |
+| Add Instagram adapter stub | Done |
+| Implement reply draft validation requiring `personId` and `conversationId` | Done |
+| Implement SafetyCheck before send gate | Done |
+| Add CORS and `OPTIONS` preflight support | Done |
+| Add initial PostgreSQL schema | Done |
 | Review Chatwoot unified inbox and conversation patterns | Todo |
 | Review LINE Harness adapter architecture | Todo |
 | Review X Harness adapter architecture | Todo |
 | Review IG Harness adapter architecture | Todo |
 | Define adapter event mapping for LINE/X/Instagram | Todo |
-| Add LINE adapter stub | Todo |
-| Add X adapter stub | Todo |
-| Add Instagram adapter stub | Todo |
-| Choose application stack | Todo |
-| Implement `/health` | Todo |
-| Implement `/version` | Todo |
-| Implement `/contracts/status` | Todo |
-| Implement reply draft validation requiring `personId` and `conversationId` | Todo |
-| Implement SafetyCheck before send gate | Todo |
 
 ## Suggested Implementation Order
 
@@ -44,6 +49,8 @@ Initialize Communication Planner as a contract-aligned MVP project and prepare i
 9. Add reply draft creation.
 10. Add safety check.
 11. Add send gate.
+12. Add CORS/preflight support for frontend and adapter callers.
+13. Define production database schema.
 
 ## OSS Review Targets
 
@@ -62,6 +69,9 @@ Initialize Communication Planner as a contract-aligned MVP project and prepare i
 - Context retrieval cannot cross person boundaries.
 - Send rejects unchecked drafts.
 - Send rejects stale or failed checks.
+- API responses include CORS headers.
+- Preflight `OPTIONS` requests return `204` on API and contract routes.
+- Initial database schema preserves Communication Planner ownership boundaries.
 - Any copied OSS code has a recorded license and ownership review.
 - Any OSS-inspired adapter emits Communication Planner stable events.
 - LINE/X/Instagram adapter stubs cannot send without SafetyCheck authorization.
