@@ -21,6 +21,7 @@ Initialize Communication Planner as a contract-aligned MVP project and prepare i
 | Implement `/health` | Done |
 | Implement `/version` | Done |
 | Implement `/contracts/status` | Done |
+| Add endpoint-level contract metadata API | Done |
 | Add channel event ingestion | Done |
 | Add person-scoped inbox and context reads | Done |
 | Add LINE adapter stub | Done |
@@ -56,6 +57,7 @@ Initialize Communication Planner as a contract-aligned MVP project and prepare i
 13. Define production database schema.
 14. Add contract tests for core safety rules.
 15. Add CI for test/build verification on main.
+16. Add endpoint-level metadata for Platform Admin and integration checks.
 
 ## OSS Review Targets
 
@@ -69,6 +71,7 @@ Initialize Communication Planner as a contract-aligned MVP project and prepare i
 ## Acceptance Criteria
 
 - `/contracts/status` returns `status: "success"` when ownership and event rules are aligned.
+- `/api/contracts/endpoints` returns endpoint metadata for Platform Admin and integration checks.
 - Reply draft creation rejects missing `personId`.
 - Reply draft creation rejects missing `conversationId`.
 - Context retrieval cannot cross person boundaries.
@@ -78,7 +81,7 @@ Initialize Communication Planner as a contract-aligned MVP project and prepare i
 - API responses include CORS headers.
 - Preflight `OPTIONS` requests return `204` on API and contract routes.
 - Initial database schema preserves Communication Planner ownership boundaries.
-- Contract tests cover ownership, conversation scoping, SafetyCheck gating, outbound channel preservation, and CORS/preflight guards.
+- Contract tests cover ownership, conversation scoping, SafetyCheck gating, outbound channel preservation, endpoint metadata, and CORS/preflight guards.
 - GitHub Actions runs install, test, and build verification.
 - Any copied OSS code has a recorded license and ownership review.
 - Any OSS-inspired adapter emits Communication Planner stable events.
