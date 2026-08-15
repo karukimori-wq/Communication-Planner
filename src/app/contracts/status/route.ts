@@ -1,3 +1,4 @@
+import { endpointContracts } from "@/lib/contracts";
 import { ok } from "@/lib/http";
 
 export function GET() {
@@ -10,6 +11,9 @@ export function GET() {
     usesLegacyEventNames: false,
     usesReportTerminology: false,
     canonicalOwnershipChecked: true,
+    endpointContractCount: endpointContracts.length,
+    implementedEndpointCount: endpointContracts.filter((endpoint) => endpoint.status === "implemented").length,
+    endpointContractsPath: "/api/contracts/endpoints",
     sourceOfTruth: [
       "Unified Inbox",
       "Communication Person projection",
