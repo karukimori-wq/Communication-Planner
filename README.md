@@ -36,8 +36,9 @@ Implemented:
 - CORS headers and `OPTIONS` preflight handling for API routes
 - LINE/X/Instagram adapter stubs
 - PostgreSQL-oriented initial schema in `db/schema.sql`
+- Dependency-free contract tests in `tests/static-contracts.test.mjs`
 
-See [docs/local-api-check.md](docs/local-api-check.md) for local API checks.
+See [docs/local-api-check.md](docs/local-api-check.md) for local API checks and [docs/testing.md](docs/testing.md) for test coverage.
 
 ## OSS Strategy
 
@@ -135,4 +136,5 @@ See:
 - [docs/channel-adapters.md](docs/channel-adapters.md)
 - [docs/database-schema.md](docs/database-schema.md)
 - [docs/local-api-check.md](docs/local-api-check.md)
+- [docs/testing.md](docs/testing.md)
 - [docs/sprint-1.md](docs/sprint-1.md)
