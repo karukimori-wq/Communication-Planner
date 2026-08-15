@@ -140,6 +140,7 @@ See:
 - [docs/safety-rules.md](docs/safety-rules.md)
 - [docs/oss-adoption.md](docs/oss-adoption.md)
 - [docs/channel-adapters.md](docs/channel-adapters.md)
+- [docs/adapter-webhook-examples.md](docs/adapter-webhook-examples.md)
 - [docs/database-schema.md](docs/database-schema.md)
 - [docs/local-api-check.md](docs/local-api-check.md)
 - [docs/testing.md](docs/testing.md)
