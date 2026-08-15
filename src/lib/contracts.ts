@@ -76,6 +76,39 @@ export const endpointContracts: EndpointContract[] = [
     safetyRules: ["Normalize adapter input into Communication Planner-owned message records"]
   },
   {
+    method: "POST",
+    path: "/api/adapters/line/webhook",
+    operation: "adapters.line.webhook.ingest",
+    status: "implemented",
+    requiredFields: ["workspaceId", "externalUserId or provider user id", "body or provider text message"],
+    prohibitedPayloadFields: prohibitedOwnedPayloadFields,
+    eventName: "communication.message.received.v1",
+    sourceOfTruth: ["LINE Harness-compatible webhook payload", "Message", "Conversation", "ChannelIdentity"],
+    safetyRules: ["Normalize LINE provider payload before core ingestion", "Store inbound messages only"]
+  },
+  {
+    method: "POST",
+    path: "/api/adapters/x/webhook",
+    operation: "adapters.x.webhook.ingest",
+    status: "implemented",
+    requiredFields: ["workspaceId", "externalUserId or provider user id", "body or provider text message"],
+    prohibitedPayloadFields: prohibitedOwnedPayloadFields,
+    eventName: "communication.message.received.v1",
+    sourceOfTruth: ["X Harness-compatible webhook payload", "Message", "Conversation", "ChannelIdentity"],
+    safetyRules: ["Normalize X provider payload before core ingestion", "Do not import marketing automation concepts"]
+  },
+  {
+    method: "POST",
+    path: "/api/adapters/instagram/webhook",
+    operation: "adapters.instagram.webhook.ingest",
+    status: "implemented",
+    requiredFields: ["workspaceId", "externalUserId or provider user id", "body or provider text message"],
+    prohibitedPayloadFields: prohibitedOwnedPayloadFields,
+    eventName: "communication.message.received.v1",
+    sourceOfTruth: ["Instagram Harness-compatible webhook payload", "Message", "Conversation", "ChannelIdentity"],
+    safetyRules: ["Normalize Instagram provider payload before core ingestion", "Store DM messages as person-scoped conversations"]
+  },
+  {
     method: "GET",
     path: "/api/inbox",
     operation: "inbox.list",
