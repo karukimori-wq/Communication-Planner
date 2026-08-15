@@ -17,6 +17,34 @@ API responses should use the platform status vocabulary:
 - `error`
 - `skipped`
 
+## Endpoint Contract Metadata
+
+Communication Planner exposes endpoint-level contract metadata for Platform Admin and integration checks.
+
+### `GET /api/contracts/endpoints`
+
+Returns:
+
+- `appName`
+- `contractVersion`
+- `endpoints`
+- `implementedCount`
+- `plannedCount`
+
+Each endpoint contract includes:
+
+- `method`
+- `path`
+- `operation`
+- `status`
+- `requiredFields`
+- `prohibitedPayloadFields`
+- `eventName`
+- `sourceOfTruth`
+- `safetyRules`
+
+This metadata must not introduce ownership of Customer master, Lead lifecycle, Reservation, Payment, Sales/Revenue, SNS PostDraft, Numeria Report, Velvet Memory, or AI Usage.
+
 ## Endpoints
 
 ### `GET /health`
@@ -41,6 +69,9 @@ Required response fields:
 - `usesLegacyEventNames`
 - `usesReportTerminology`
 - `canonicalOwnershipChecked`
+- `endpointContractCount`
+- `implementedEndpointCount`
+- `endpointContractsPath`
 - `issues`
 - `timestamp`
 
