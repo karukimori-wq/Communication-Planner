@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { withCors } from "./cors";
 import type { ApiError, ApiResponse, PlatformStatus } from "./types";
 
 export function requestMeta(request: Request) {
@@ -19,7 +20,7 @@ export function ok<T>(data: T, init?: { eventName?: string; traceId?: string; co
     timestamp: new Date().toISOString()
   };
 
-  return NextResponse.json(body);
+  return NextResponse.json(body, { headers: withCors() });
 }
 
 export function fail(code: string, message: string, httpStatus = 400, init?: { retryable?: boolean; traceId?: string; correlationId?: string }) {
@@ -36,7 +37,11 @@ export function fail(code: string, message: string, httpStatus = 400, init?: { r
     timestamp: new Date().toISOString()
   };
 
-  return NextResponse.json(body, { status: httpStatus });
+  return NextResponse.json(body, { status: httpStatus, headers: withCors() });
+}
+
+export function options() {
+  return new Response(null, { status: 204, headers: withCors() });
 }
 
 export async function readJson<T>(request: Request): Promise<T | null> {
