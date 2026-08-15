@@ -93,6 +93,20 @@ describe("static contract guards", () => {
     assert.match(adapterDoc, /communication\.message\.received\.v1/);
   });
 
+  it("keeps provider message ingestion idempotent", () => {
+    const store = read("src/lib/store.ts");
+    const webhookRoute = read("src/lib/adapters/webhook-route.ts");
+    const adapterDoc = read("docs/channel-adapters.md");
+
+    assert.match(store, /function findDuplicateMessage\(input: ChannelMessageInput\)/);
+    assert.match(store, /message\.externalMessageId === input\.externalMessageId/);
+    assert.match(store, /duplicate: true/);
+    assert.match(store, /duplicate: false/);
+    assert.match(store, /existingIdentity = store\.channelIdentities\.find/);
+    assert.match(webhookRoute, /duplicate: result\.duplicate/);
+    assert.match(adapterDoc, /Duplicate provider message ids must not create duplicate Message records/);
+  });
+
   it("keeps CORS and preflight support enabled", () => {
     const http = read("src/lib/http.ts");
     const middleware = read("src/middleware.ts");
