@@ -25,7 +25,8 @@ export function createAdapterWebhookRoute(channel: Exclude<Channel, "unknown">) 
         normalizedEvent: responseEvent,
         message: result.message,
         conversation: result.conversation,
-        person: result.person
+        person: result.person,
+        duplicate: result.duplicate
       },
       {
         ...meta,
