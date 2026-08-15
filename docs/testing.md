@@ -32,6 +32,8 @@ The current test suite verifies that:
 - Stale or failed SafetyCheck logic remains present.
 - Outbound sends use the original conversation channel.
 - Endpoint-level contract metadata remains available.
+- Harness-compatible LINE/X/Instagram webhook examples stay parseable and aligned with implemented routes.
+- Adapter webhook error codes remain documented and implemented.
 - CORS and `OPTIONS` preflight support remain present.
 
 These tests are intentionally dependency-free so they can run in restricted CI and local environments.
@@ -42,6 +44,9 @@ The next layer should add route-level request/response tests for:
 
 - `GET /api/contracts/endpoints`
 - `POST /api/channel-events/messages`
+- `POST /api/adapters/line/webhook`
+- `POST /api/adapters/x/webhook`
+- `POST /api/adapters/instagram/webhook`
 - `POST /api/conversations/{conversationId}/reply-drafts`
 - `POST /api/reply-drafts/{replyDraftId}/safety-check`
 - `POST /api/reply-drafts/{replyDraftId}/send`
