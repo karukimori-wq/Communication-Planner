@@ -34,6 +34,7 @@ The current test suite verifies that:
 - Endpoint-level contract metadata remains available.
 - Harness-compatible LINE/X/Instagram webhook examples stay parseable and aligned with implemented routes.
 - LINE/X/Instagram webhook normalizer behavior maps example payload shapes into provider inbound events.
+- Adapter webhook responses do not echo raw provider payloads.
 - Adapter webhook error codes remain documented and implemented.
 - CORS and `OPTIONS` preflight support remain present.
 
