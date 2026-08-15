@@ -57,6 +57,21 @@ describe("static contract guards", () => {
     assert.doesNotMatch(sendRoute, /channel: "unknown"/);
   });
 
+  it("keeps endpoint-level contract metadata available", () => {
+    const contracts = read("src/lib/contracts.ts");
+    const route = read("src/app/api/contracts/endpoints/route.ts");
+    const statusRoute = read("src/app/contracts/status/route.ts");
+    const apiDesign = read("docs/api-design.md");
+
+    assert.match(contracts, /endpointContracts/);
+    assert.match(contracts, /prohibitedOwnedPayloadFields/);
+    assert.match(contracts, /replyDrafts\.send/);
+    assert.match(contracts, /communication\.reply_safety\.checked\.v1/);
+    assert.match(route, /implementedCount/);
+    assert.match(statusRoute, /endpointContractsPath: "\/api\/contracts\/endpoints"/);
+    assert.match(apiDesign, /GET \/api\/contracts\/endpoints/);
+  });
+
   it("keeps CORS and preflight support enabled", () => {
     const http = read("src/lib/http.ts");
     const middleware = read("src/middleware.ts");
