@@ -1,5 +1,5 @@
 import { fail, ok, requestMeta } from "@/lib/http";
-import { canSendReplyDraft, ingestChannelMessage, markReplyDraftSent } from "@/lib/store";
+import { canSendReplyDraft, getConversation, ingestChannelMessage, markReplyDraftSent } from "@/lib/store";
 
 type RouteContext = { params: Promise<{ replyDraftId: string }> };
 
@@ -12,13 +12,19 @@ export async function POST(request: Request, context: RouteContext) {
     return fail(decision.code, decision.message, decision.code === "NOT_FOUND" ? 404 : 409, meta);
   }
 
+  const conversation = getConversation(decision.draft.workspaceId, decision.draft.personId, decision.draft.conversationId);
+  if (!conversation) {
+    return fail("CONVERSATION_SCOPE_MISMATCH", "Conversation must exist and belong to the reply draft person", 409, meta);
+  }
+
   const sentDraft = markReplyDraftSent(replyDraftId);
   const sentMessage = ingestChannelMessage({
     workspaceId: decision.draft.workspaceId,
     personId: decision.draft.personId,
     conversationId: decision.draft.conversationId,
-    channel: "unknown",
+    channel: conversation.channel,
     externalUserId: `person:${decision.draft.personId}`,
+    externalThreadId: conversation.externalThreadId,
     direction: "outbound",
     body: decision.draft.body
   });
