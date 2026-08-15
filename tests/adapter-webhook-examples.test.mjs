@@ -60,6 +60,16 @@ describe("adapter webhook examples", () => {
     assert.match(routeFactory, /ingestChannelMessage\(adapter\.normalizeInbound\(normalized\.event\)\)/);
   });
 
+  it("does not echo raw provider payloads in adapter webhook responses", () => {
+    const routeFactory = read("src/lib/adapters/webhook-route.ts");
+    const adapterDoc = read("docs/adapter-webhook-examples.md");
+
+    assert.match(routeFactory, /const \{ raw: _raw, \.\.\.responseEvent \} = normalized\.event/);
+    assert.match(routeFactory, /normalizedEvent: responseEvent/);
+    assert.doesNotMatch(routeFactory, /normalizedEvent: normalized\.event/);
+    assert.match(adapterDoc, /Raw provider payloads must not be returned from webhook responses/);
+  });
+
   it("documents required webhook error codes", () => {
     const doc = read("docs/adapter-webhook-examples.md");
     const normalizer = read("src/lib/adapters/webhook.ts");
