@@ -17,11 +17,12 @@ export function createAdapterWebhookRoute(channel: Exclude<Channel, "unknown">) 
     if (!adapter) return fail("UNSUPPORTED_CHANNEL", `Unsupported channel: ${channel}`, 400, meta);
 
     const result = ingestChannelMessage(adapter.normalizeInbound(normalized.event));
+    const { raw: _raw, ...responseEvent } = normalized.event;
 
     return ok(
       {
         channel,
-        normalizedEvent: normalized.event,
+        normalizedEvent: responseEvent,
         message: result.message,
         conversation: result.conversation,
         person: result.person
