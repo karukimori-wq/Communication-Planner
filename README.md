@@ -33,7 +33,9 @@ Implemented:
 - `POST /api/conversations/{conversationId}/reply-drafts`
 - `POST /api/reply-drafts/{replyDraftId}/safety-check`
 - `POST /api/reply-drafts/{replyDraftId}/send`
+- CORS headers and `OPTIONS` preflight handling for API routes
 - LINE/X/Instagram adapter stubs
+- PostgreSQL-oriented initial schema in `db/schema.sql`
 
 See [docs/local-api-check.md](docs/local-api-check.md) for local API checks.
 
@@ -96,6 +98,7 @@ Communication Planner must not become the source of truth for:
 | POST | `/api/conversations/{conversationId}/reply-drafts` | Create reply draft |
 | POST | `/api/reply-drafts/{replyDraftId}/safety-check` | Check reply safety |
 | POST | `/api/reply-drafts/{replyDraftId}/send` | Send checked reply |
+| OPTIONS | `/api/*`, `/health`, `/version`, `/contracts/status` | CORS preflight |
 
 ## Stable Events
 
@@ -130,5 +133,6 @@ See:
 - [docs/safety-rules.md](docs/safety-rules.md)
 - [docs/oss-adoption.md](docs/oss-adoption.md)
 - [docs/channel-adapters.md](docs/channel-adapters.md)
+- [docs/database-schema.md](docs/database-schema.md)
 - [docs/local-api-check.md](docs/local-api-check.md)
 - [docs/sprint-1.md](docs/sprint-1.md)
