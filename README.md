@@ -25,6 +25,7 @@ Implemented:
 - `GET /health`
 - `GET /version`
 - `GET /contracts/status`
+- `GET /api/contracts/endpoints`
 - `POST /api/channel-events/messages`
 - `GET /api/inbox`
 - `GET /api/persons/{personId}`
@@ -92,6 +93,7 @@ Communication Planner must not become the source of truth for:
 | GET | `/health` | Service health |
 | GET | `/version` | Build and version metadata |
 | GET | `/contracts/status` | Contract readiness status |
+| GET | `/api/contracts/endpoints` | Endpoint-level contract metadata |
 | POST | `/api/channel-events/messages` | Ingest message events from channel adapters |
 | GET | `/api/inbox` | Unified inbox |
 | GET | `/api/persons/{personId}` | Person projection |
