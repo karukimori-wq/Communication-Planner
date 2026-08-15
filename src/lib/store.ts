@@ -49,9 +49,7 @@ function now() {
   return new Date().toISOString();
 }
 
-function findOrCreatePerson(
-  input: Pick<ChannelMessageInput, "workspaceId" | "personId" | "displayName" | "channel" | "externalUserId">
-): CommunicationPerson {
+function findOrCreatePerson(input: Pick<ChannelMessageInput, "workspaceId" | "personId" | "displayName" | "channel" | "externalUserId">): CommunicationPerson {
   const existing = input.personId
     ? store.persons.find((person) => person.workspaceId === input.workspaceId && person.personId === input.personId)
     : undefined;
@@ -69,9 +67,7 @@ function findOrCreatePerson(
       identity.externalUserId === input.externalUserId
   );
   const existingPerson = existingIdentity
-    ? store.persons.find(
-        (person) => person.workspaceId === input.workspaceId && person.personId === existingIdentity.personId
-      )
+    ? store.persons.find((person) => person.workspaceId === input.workspaceId && person.personId === existingIdentity.personId)
     : undefined;
 
   if (existingPerson) {
@@ -178,10 +174,7 @@ function updateContext(workspaceId: string, personId: string, latestMessage: str
 }
 
 function findDuplicateMessage(input: ChannelMessageInput) {
-  if (!input.externalMessageId) {
-    return undefined;
-  }
-
+  if (!input.externalMessageId) return undefined;
   const direction = input.direction ?? "inbound";
 
   return store.messages.find(
@@ -199,10 +192,7 @@ export function ingestChannelMessage(input: ChannelMessageInput) {
   const duplicateMessage = findDuplicateMessage(input);
 
   if (duplicateMessage) {
-    const duplicateConversation = store.conversations.find(
-      (conversation) => conversation.conversationId === duplicateMessage.conversationId
-    );
-
+    const duplicateConversation = store.conversations.find((conversation) => conversation.conversationId === duplicateMessage.conversationId);
     return {
       person,
       identity,
@@ -313,59 +303,61 @@ export async function createSafetyCheck(replyDraftId: string, input: SafetyCheck
     return null;
   }
 
-  const hash = await contentHash(draft.body);
-  const check: SafetyCheck = {
+  const issues = [...(input.issues ?? [])];
+  if (input.workspaceId && input.workspaceId !== draft.workspaceId) issues.push("workspaceId does not match reply draft");
+  if (input.personId && input.personId !== draft.personId) issues.push("personId does not match reply draft");
+  if (input.conversationId && input.conversationId !== draft.conversationId) issues.push("conversationId does not match reply draft");
+
+  const safetyCheck: SafetyCheck = {
     safetyCheckId: crypto.randomUUID(),
-    workspaceId: draft.workspaceId,
-    replyDraftId,
-    contentHash: hash,
-    result: input.result,
-    reasons: input.reasons ?? [],
-    checkedAt: now()
-  };
-  store.safetyChecks.push(check);
-  draft.status = input.result === "pass" ? "checked" : "blocked";
-  draft.updatedAt = now();
-  return check;
-}
-
-export function sendReplyDraft(replyDraftId: string) {
-  const draft = getReplyDraft(replyDraftId);
-  if (!draft) {
-    return { ok: false, reason: "draft_not_found" as const };
-  }
-
-  const safetyCheck = [...store.safetyChecks]
-    .reverse()
-    .find(
-      (check) =>
-        check.replyDraftId === replyDraftId &&
-        check.contentHash === draft.contentHash &&
-        check.result === "pass"
-    );
-
-  if (!safetyCheck) {
-    return { ok: false, reason: "safety_check_required" as const };
-  }
-
-  const conversation = getConversation(draft.workspaceId, draft.personId, draft.conversationId);
-  if (!conversation) {
-    return { ok: false, reason: "conversation_not_found" as const };
-  }
-
-  const message: Message = {
-    messageId: crypto.randomUUID(),
     workspaceId: draft.workspaceId,
     personId: draft.personId,
     conversationId: draft.conversationId,
-    channel: conversation.channel,
-    direction: "outbound",
-    body: draft.body,
-    sentAt: now(),
-    createdAt: now()
+    replyDraftId: draft.replyDraftId,
+    status: issues.length > 0 ? "failed" : input.status ?? "passed",
+    checkedContentHash: await contentHash(draft.body),
+    issues,
+    checkedAt: now()
   };
-  store.messages.push(message);
+
+  store.safetyChecks.push(safetyCheck);
+  draft.status = "checked";
+  draft.updatedAt = now();
+  return safetyCheck;
+}
+
+export function getLatestSafetyCheck(replyDraftId: string) {
+  return [...store.safetyChecks]
+    .reverse()
+    .find((safetyCheck) => safetyCheck.replyDraftId === replyDraftId);
+}
+
+export function canSendReplyDraft(replyDraftId: string) {
+  const draft = getReplyDraft(replyDraftId);
+  if (!draft) {
+    return { ok: false as const, code: "NOT_FOUND", message: "ReplyDraft not found" };
+  }
+
+  const safetyCheck = getLatestSafetyCheck(replyDraftId);
+  if (!safetyCheck) {
+    return { ok: false as const, code: "SAFETY_CHECK_REQUIRED", message: "SafetyCheck is required before send" };
+  }
+
+  if (safetyCheck.status !== "passed") {
+    return { ok: false as const, code: "SAFETY_CHECK_FAILED", message: "Latest SafetyCheck did not pass" };
+  }
+
+  if (safetyCheck.checkedContentHash !== draft.contentHash) {
+    return { ok: false as const, code: "STALE_SAFETY_CHECK", message: "SafetyCheck is stale for current draft content" };
+  }
+
+  return { ok: true as const, draft, safetyCheck };
+}
+
+export function markReplyDraftSent(replyDraftId: string) {
+  const draft = getReplyDraft(replyDraftId);
+  if (!draft) return null;
   draft.status = "sent";
   draft.updatedAt = now();
-  return { ok: true, message };
+  return draft;
 }
