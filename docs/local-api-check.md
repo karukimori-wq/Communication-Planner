@@ -24,6 +24,34 @@ curl -X POST http://localhost:3000/api/channel-events/messages \
 
 Save the returned `personId` and `conversationId`.
 
+## Adapter Webhooks
+
+LINE:
+
+```bash
+curl -X POST http://localhost:3000/api/adapters/line/webhook \
+  -H 'Content-Type: application/json' \
+  -d '{"workspaceId":"ws_demo","events":[{"eventId":"line_event_1","source":{"userId":"line_user_1"},"message":{"id":"line_message_1","text":"Hello from LINE"}}]}'
+```
+
+X:
+
+```bash
+curl -X POST http://localhost:3000/api/adapters/x/webhook \
+  -H 'Content-Type: application/json' \
+  -d '{"workspaceId":"ws_demo","messages":[{"messageId":"x_message_1","sender":{"id":"x_user_1","username":"x_demo"},"conversationId":"x_thread_1","text":"Hello from X"}]}'
+```
+
+Instagram:
+
+```bash
+curl -X POST http://localhost:3000/api/adapters/instagram/webhook \
+  -H 'Content-Type: application/json' \
+  -d '{"workspaceId":"ws_demo","entries":[{"id":"ig_event_1","sender":{"id":"ig_user_1","username":"ig_demo"},"thread":{"id":"ig_thread_1"},"message":{"id":"ig_message_1","text":"Hello from Instagram"}}]}'
+```
+
+Each adapter webhook should emit `communication.message.received.v1`.
+
 ## Inbox
 
 ```bash
