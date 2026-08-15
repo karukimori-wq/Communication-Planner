@@ -72,6 +72,27 @@ describe("static contract guards", () => {
     assert.match(apiDesign, /GET \/api\/contracts\/endpoints/);
   });
 
+  it("exposes harness-compatible adapter webhook entry points", () => {
+    const contracts = read("src/lib/contracts.ts");
+    const webhookRoute = read("src/lib/adapters/webhook-route.ts");
+    const webhookNormalizer = read("src/lib/adapters/webhook.ts");
+    const lineRoute = read("src/app/api/adapters/line/webhook/route.ts");
+    const xRoute = read("src/app/api/adapters/x/webhook/route.ts");
+    const instagramRoute = read("src/app/api/adapters/instagram/webhook/route.ts");
+    const adapterDoc = read("docs/channel-adapters.md");
+
+    assert.match(contracts, /\/api\/adapters\/line\/webhook/);
+    assert.match(contracts, /\/api\/adapters\/x\/webhook/);
+    assert.match(contracts, /\/api\/adapters\/instagram\/webhook/);
+    assert.match(webhookRoute, /ingestChannelMessage\(adapter\.normalizeInbound\(normalized\.event\)\)/);
+    assert.match(webhookNormalizer, /firstObjectAt\(payload, \["events", "messages", "entries"\]\)/);
+    assert.match(lineRoute, /createAdapterWebhookRoute\("line"\)/);
+    assert.match(xRoute, /createAdapterWebhookRoute\("x"\)/);
+    assert.match(instagramRoute, /createAdapterWebhookRoute\("instagram"\)/);
+    assert.match(adapterDoc, /Shudesu\/line-harness-oss/);
+    assert.match(adapterDoc, /communication\.message\.received\.v1/);
+  });
+
   it("keeps CORS and preflight support enabled", () => {
     const http = read("src/lib/http.ts");
     const middleware = read("src/middleware.ts");
