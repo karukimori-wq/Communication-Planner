@@ -40,6 +40,7 @@ describe("static contract guards", () => {
 
   it("requires a current passing SafetyCheck before send", () => {
     const store = read("src/lib/store.ts");
+    const updateRoute = read("src/app/api/reply-drafts/[replyDraftId]/route.ts");
     const sendRoute = read("src/app/api/reply-drafts/[replyDraftId]/send/route.ts");
     const apiDesign = read("docs/api-design.md");
     const safetyRules = read("docs/safety-rules.md");
@@ -49,7 +50,12 @@ describe("static contract guards", () => {
     assert.match(store, /STALE_SAFETY_CHECK/);
     assert.match(store, /REPLY_DRAFT_ALREADY_SENT/);
     assert.match(store, /draft\.status === "sent"/);
+    assert.match(store, /export async function updateReplyDraft/);
+    assert.match(store, /draft\.contentHash = await contentHash\(draft\.body\)/);
+    assert.match(store, /draft\.status = "draft"/);
     assert.match(store, /safetyCheck\.checkedContentHash !== draft\.contentHash/);
+    assert.match(updateRoute, /export async function PATCH/);
+    assert.match(updateRoute, /communication\.reply_draft\.updated\.v1/);
     assert.match(store, /workspaceId is required for SafetyCheck scope/);
     assert.match(store, /personId is required for SafetyCheck scope/);
     assert.match(store, /conversationId is required for SafetyCheck scope/);
@@ -74,16 +80,22 @@ describe("static contract guards", () => {
     const route = read("src/app/api/contracts/endpoints/route.ts");
     const statusRoute = read("src/app/contracts/status/route.ts");
     const apiDesign = read("docs/api-design.md");
+    const events = read("docs/events.md");
 
     assert.match(contracts, /endpointContracts/);
     assert.match(contracts, /prohibitedOwnedPayloadFields/);
     assert.match(contracts, /replyDrafts\.send/);
+    assert.match(contracts, /method: "PATCH"/);
+    assert.match(contracts, /replyDrafts\.update/);
     assert.match(contracts, /communication\.reply_safety\.checked\.v1/);
+    assert.match(contracts, /communication\.reply_draft\.updated\.v1/);
     assert.match(contracts, /requiredFields: \["replyDraftId", "workspaceId", "personId", "conversationId"\]/);
     assert.match(contracts, /Send confirmation scope must match the reply draft/);
     assert.match(route, /implementedCount/);
     assert.match(statusRoute, /endpointContractsPath: "\/api\/contracts\/endpoints"/);
+    assert.match(statusRoute, /communication\.reply_draft\.updated\.v1/);
     assert.match(apiDesign, /GET \/api\/contracts\/endpoints/);
+    assert.match(events, /communication\.reply_draft\.updated\.v1/);
   });
 
   it("exposes harness-compatible adapter webhook entry points", () => {
@@ -169,6 +181,7 @@ describe("static contract guards", () => {
     const cors = read("src/lib/cors.ts");
 
     assert.match(cors, /Access-Control-Allow-Origin/);
+    assert.match(cors, /GET,POST,PATCH,OPTIONS/);
     assert.match(http, /headers: withCors\(\)/);
     assert.match(middleware, /request\.method === "OPTIONS"/);
     assert.match(middleware, /status: 204/);
