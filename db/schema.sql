@@ -73,6 +73,46 @@ create table if not exists conversation_contexts (
   unique (workspace_id, person_id)
 );
 
+create table if not exists topics (
+  id text primary key,
+  workspace_id text not null,
+  person_id text not null references communication_persons(id) on delete cascade,
+  conversation_id text not null references conversations(id) on delete cascade,
+  source_message_id text not null references messages(id) on delete cascade,
+  label text not null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists idx_topics_person
+  on topics (workspace_id, person_id, created_at desc);
+
+create table if not exists promises (
+  id text primary key,
+  workspace_id text not null,
+  person_id text not null references communication_persons(id) on delete cascade,
+  conversation_id text not null references conversations(id) on delete cascade,
+  source_message_id text not null references messages(id) on delete cascade,
+  body text not null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists idx_promises_person
+  on promises (workspace_id, person_id, created_at desc);
+
+create table if not exists communication_next_actions (
+  id text primary key,
+  workspace_id text not null,
+  person_id text not null references communication_persons(id) on delete cascade,
+  conversation_id text not null references conversations(id) on delete cascade,
+  source_message_id text not null references messages(id) on delete cascade,
+  body text not null,
+  status text not null default 'open' check (status in ('open', 'done')),
+  created_at timestamptz not null default now()
+);
+
+create index if not exists idx_communication_next_actions_person
+  on communication_next_actions (workspace_id, person_id, status, created_at desc);
+
 create table if not exists reply_drafts (
   id text primary key,
   workspace_id text not null,
