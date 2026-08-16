@@ -171,3 +171,9 @@ export type SafetyCheckInput = {
   status?: SafetyStatus;
   issues?: string[];
 };
+
+export type SendReplyDraftInput = {
+  workspaceId?: string;
+  personId?: string;
+  conversationId?: string;
+};
