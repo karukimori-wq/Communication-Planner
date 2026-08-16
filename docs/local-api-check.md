@@ -1,20 +1,46 @@
 # Local API Check
 
-After installing dependencies, run:
+Start the development server:
 
 ```bash
 npm run dev
 ```
 
-## Contract Endpoints
+## Health
 
 ```bash
 curl http://localhost:3000/health
+```
+
+Expected:
+
+- `status` is `success`
+- `data.status` is `success`
+
+## Version
+
+```bash
 curl http://localhost:3000/version
+```
+
+## Contract Status
+
+```bash
 curl http://localhost:3000/contracts/status
 ```
 
-## Message Ingestion
+## Endpoint Contracts
+
+```bash
+curl http://localhost:3000/api/contracts/endpoints
+```
+
+Expected:
+
+- `data.implementedCount` is present
+- `data.endpoints` includes every MVP endpoint
+
+## Ingest Message
 
 ```bash
 curl -X POST http://localhost:3000/api/channel-events/messages \
@@ -22,35 +48,13 @@ curl -X POST http://localhost:3000/api/channel-events/messages \
   -d '{"workspaceId":"ws_demo","channel":"line","externalUserId":"line_user_1","displayName":"Demo User","body":"Hello"}'
 ```
 
-Save the returned `personId` and `conversationId`.
+Expected:
 
-## Adapter Webhooks
-
-LINE:
-
-```bash
-curl -X POST http://localhost:3000/api/adapters/line/webhook \
-  -H 'Content-Type: application/json' \
-  -d '{"workspaceId":"ws_demo","events":[{"eventId":"line_event_1","source":{"userId":"line_user_1"},"message":{"id":"line_message_1","text":"Hello from LINE"}}]}'
-```
-
-X:
-
-```bash
-curl -X POST http://localhost:3000/api/adapters/x/webhook \
-  -H 'Content-Type: application/json' \
-  -d '{"workspaceId":"ws_demo","messages":[{"messageId":"x_message_1","sender":{"id":"x_user_1","username":"x_demo"},"conversationId":"x_thread_1","text":"Hello from X"}]}'
-```
-
-Instagram:
-
-```bash
-curl -X POST http://localhost:3000/api/adapters/instagram/webhook \
-  -H 'Content-Type: application/json' \
-  -d '{"workspaceId":"ws_demo","entries":[{"id":"ig_event_1","sender":{"id":"ig_user_1","username":"ig_demo"},"thread":{"id":"ig_thread_1"},"message":{"id":"ig_message_1","text":"Hello from Instagram"}}]}'
-```
-
-Each adapter webhook should emit `communication.message.received.v1`.
+- Person is created or linked.
+- Conversation is created or reused.
+- Message is stored.
+- Context is updated.
+- `eventName` is `communication.message.received.v1`.
 
 ## Inbox
 
@@ -58,14 +62,18 @@ Each adapter webhook should emit `communication.message.received.v1`.
 curl 'http://localhost:3000/api/inbox?workspaceId=ws_demo'
 ```
 
-## Reply Draft
+## Person Context
 
-This must include `personId` and `conversationId`.
+```bash
+curl 'http://localhost:3000/api/persons/{personId}/context?workspaceId=ws_demo'
+```
+
+## Reply Draft
 
 ```bash
 curl -X POST http://localhost:3000/api/conversations/{conversationId}/reply-drafts \
   -H 'Content-Type: application/json' \
-  -d '{"workspaceId":"ws_demo","personId":"{personId}","purpose":"reply_to_customer"}'
+  -d '{"workspaceId":"ws_demo","personId":"{personId}","purpose":"follow up"}'
 ```
 
 ## Safety Check
@@ -79,7 +87,9 @@ curl -X POST http://localhost:3000/api/reply-drafts/{replyDraftId}/safety-check 
 ## Send
 
 ```bash
-curl -X POST http://localhost:3000/api/reply-drafts/{replyDraftId}/send
+curl -X POST http://localhost:3000/api/reply-drafts/{replyDraftId}/send \
+  -H 'Content-Type: application/json' \
+  -d '{"workspaceId":"ws_demo","personId":"{personId}","conversationId":"{conversationId}"}'
 ```
 
 Expected behavior:
@@ -89,4 +99,6 @@ Expected behavior:
 - Mismatched `personId` and `conversationId` fails with `CONVERSATION_SCOPE_MISMATCH`.
 - Send before SafetyCheck fails with `SAFETY_CHECK_REQUIRED`.
 - Failed SafetyCheck blocks send.
+- Missing send confirmation scope fails with `SEND_CONFIRMATION_REQUIRED`.
+- Mismatched send confirmation scope fails with `SEND_SCOPE_MISMATCH`.
 - Passed fresh SafetyCheck allows send.
