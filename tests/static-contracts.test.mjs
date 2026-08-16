@@ -63,7 +63,10 @@ describe("static contract guards", () => {
     assert.match(store, /export function recordReplySendDecision/);
     assert.match(store, /store\.sendDecisions\.push\(decision\)/);
     assert.match(store, /export function getReplySendDecisions/);
-    assert.match(store, /decision\.replyDraftId === replyDraftId/);
+    assert.match(store, /decision\.replyDraftId === input\.replyDraftId/);
+    assert.match(store, /decision\.workspaceId === input\.workspaceId/);
+    assert.match(store, /decision\.personId === input\.personId/);
+    assert.match(store, /decision\.conversationId === input\.conversationId/);
     assert.match(store, /safetyCheckScopeMatched: true/);
     assert.match(store, /sendScopeConfirmed: true/);
     assert.match(updateRoute, /export async function PATCH/);
@@ -78,7 +81,11 @@ describe("static contract guards", () => {
     assert.match(sendRoute, /recordReplySendDecision/);
     assert.match(sendRoute, /sendDecision/);
     assert.match(sendDecisionsRoute, /export async function GET/);
-    assert.match(sendDecisionsRoute, /getReplySendDecisions\(replyDraftId\)/);
+    assert.match(sendDecisionsRoute, /searchParams\.get\("workspaceId"\)/);
+    assert.match(sendDecisionsRoute, /searchParams\.get\("personId"\)/);
+    assert.match(sendDecisionsRoute, /searchParams\.get\("conversationId"\)/);
+    assert.match(sendDecisionsRoute, /REPLY_DRAFT_SCOPE_MISMATCH/);
+    assert.match(sendDecisionsRoute, /getReplySendDecisions\(\{ replyDraftId, workspaceId, personId, conversationId \}\)/);
     assert.match(schema, /create table if not exists reply_send_decisions/);
     assert.match(schema, /safety_check_id text not null references safety_checks/);
     assert.match(schema, /message_id text not null references messages/);
@@ -88,7 +95,7 @@ describe("static contract guards", () => {
     assert.match(apiDesign, /GET \/api\/reply-drafts\/\{replyDraftId\}\/send-decisions/);
     assert.match(safetyRules, /SafetyCheck must include `workspaceId \+ personId \+ conversationId`/);
     assert.match(safetyRules, /send response includes `sendDecision` audit evidence/);
-    assert.match(safetyRules, /send decision is stored and can be read only by `replyDraftId`/);
+    assert.match(safetyRules, /send decision is stored and can be read only when `replyDraftId \+ workspaceId \+ personId \+ conversationId` match the draft/);
   });
 
   it("sends outbound messages on the original conversation channel", () => {
@@ -119,7 +126,7 @@ describe("static contract guards", () => {
     assert.match(contracts, /Send response must include sendDecision audit evidence/);
     assert.match(contracts, /replyDrafts\.sendDecisions\.list/);
     assert.match(contracts, /\/api\/reply-drafts\/\{replyDraftId\}\/send-decisions/);
-    assert.match(contracts, /Send decision history must be scoped to one replyDraftId/);
+    assert.match(contracts, /Send decision history must be scoped to replyDraftId \+ workspaceId \+ personId \+ conversationId/);
     assert.match(route, /implementedCount/);
     assert.match(statusRoute, /endpointContractsPath: "\/api\/contracts\/endpoints"/);
     assert.match(statusRoute, /communication\.reply_draft\.updated\.v1/);
