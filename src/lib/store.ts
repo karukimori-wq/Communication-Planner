@@ -2,13 +2,16 @@ import { contentHash } from "./hash";
 import type {
   ChannelIdentity,
   ChannelMessageInput,
+  CommunicationNextAction,
   CommunicationPerson,
   Conversation,
   ConversationContext,
   Message,
+  Promise,
   ReplyDraft,
   SafetyCheck,
-  SafetyCheckInput
+  SafetyCheckInput,
+  Topic
 } from "./types";
 
 type StoreState = {
@@ -17,6 +20,9 @@ type StoreState = {
   conversations: Conversation[];
   messages: Message[];
   contexts: ConversationContext[];
+  topics: Topic[];
+  promises: Promise[];
+  nextActions: CommunicationNextAction[];
   replyDrafts: ReplyDraft[];
   safetyChecks: SafetyCheck[];
 };
@@ -31,6 +37,9 @@ export const store: StoreState =
     conversations: [],
     messages: [],
     contexts: [],
+    topics: [],
+    promises: [],
+    nextActions: [],
     replyDrafts: [],
     safetyChecks: []
   });
@@ -41,6 +50,9 @@ export function resetStoreForTests() {
   store.conversations.length = 0;
   store.messages.length = 0;
   store.contexts.length = 0;
+  store.topics.length = 0;
+  store.promises.length = 0;
+  store.nextActions.length = 0;
   store.replyDrafts.length = 0;
   store.safetyChecks.length = 0;
 }
@@ -173,6 +185,84 @@ function updateContext(workspaceId: string, personId: string, latestMessage: str
   return context;
 }
 
+function findOrCreateContext(workspaceId: string, personId: string): ConversationContext {
+  const existing = store.contexts.find((context) => context.workspaceId === workspaceId && context.personId === personId);
+  if (existing) {
+    return existing;
+  }
+
+  const context: ConversationContext = {
+    contextId: crypto.randomUUID(),
+    workspaceId,
+    personId,
+    summary: "",
+    topicIds: [],
+    promiseIds: [],
+    nextActionIds: [],
+    updatedAt: now()
+  };
+  store.contexts.push(context);
+  return context;
+}
+
+function appendContextInsights(input: {
+  workspaceId: string;
+  personId: string;
+  conversationId: string;
+  messageId: string;
+  topics?: string[];
+  promises?: string[];
+  nextActions?: string[];
+}) {
+  const context = findOrCreateContext(input.workspaceId, input.personId);
+  const createdAt = now();
+
+  for (const label of input.topics ?? []) {
+    const topic: Topic = {
+      topicId: crypto.randomUUID(),
+      workspaceId: input.workspaceId,
+      personId: input.personId,
+      conversationId: input.conversationId,
+      label,
+      sourceMessageId: input.messageId,
+      createdAt
+    };
+    store.topics.push(topic);
+    context.topicIds.push(topic.topicId);
+  }
+
+  for (const body of input.promises ?? []) {
+    const promise: Promise = {
+      promiseId: crypto.randomUUID(),
+      workspaceId: input.workspaceId,
+      personId: input.personId,
+      conversationId: input.conversationId,
+      body,
+      sourceMessageId: input.messageId,
+      createdAt
+    };
+    store.promises.push(promise);
+    context.promiseIds.push(promise.promiseId);
+  }
+
+  for (const body of input.nextActions ?? []) {
+    const nextAction: CommunicationNextAction = {
+      nextActionId: crypto.randomUUID(),
+      workspaceId: input.workspaceId,
+      personId: input.personId,
+      conversationId: input.conversationId,
+      body,
+      sourceMessageId: input.messageId,
+      status: "open",
+      createdAt
+    };
+    store.nextActions.push(nextAction);
+    context.nextActionIds.push(nextAction.nextActionId);
+  }
+
+  context.updatedAt = createdAt;
+}
+
 function findDuplicateMessage(input: ChannelMessageInput) {
   if (!input.externalMessageId) return undefined;
   const direction = input.direction ?? "inbound";
@@ -219,6 +309,15 @@ export function ingestChannelMessage(input: ChannelMessageInput) {
   };
   store.messages.push(message);
   updateContext(input.workspaceId, person.personId, input.body);
+  appendContextInsights({
+    workspaceId: input.workspaceId,
+    personId: person.personId,
+    conversationId: conversation.conversationId,
+    messageId: message.messageId,
+    topics: input.topics,
+    promises: input.promises,
+    nextActions: input.nextActions
+  });
 
   return { person, identity, conversation, message, duplicate: false };
 }
@@ -264,7 +363,17 @@ export function getPersonConversations(workspaceId: string, personId: string) {
 }
 
 export function getPersonContext(workspaceId: string, personId: string) {
-  return store.contexts.find((context) => context.workspaceId === workspaceId && context.personId === personId);
+  const context = store.contexts.find((candidate) => candidate.workspaceId === workspaceId && candidate.personId === personId);
+  if (!context) {
+    return undefined;
+  }
+
+  return {
+    ...context,
+    topics: store.topics.filter((topic) => context.topicIds.includes(topic.topicId)),
+    promises: store.promises.filter((promise) => context.promiseIds.includes(promise.promiseId)),
+    nextActions: store.nextActions.filter((nextAction) => context.nextActionIds.includes(nextAction.nextActionId))
+  };
 }
 
 export async function createReplyDraft(input: { workspaceId: string; personId: string; conversationId: string; body?: string; purpose: string }) {
