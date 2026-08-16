@@ -41,12 +41,19 @@ describe("static contract guards", () => {
   it("requires a current passing SafetyCheck before send", () => {
     const store = read("src/lib/store.ts");
     const sendRoute = read("src/app/api/reply-drafts/[replyDraftId]/send/route.ts");
+    const apiDesign = read("docs/api-design.md");
+    const safetyRules = read("docs/safety-rules.md");
 
     assert.match(store, /SAFETY_CHECK_REQUIRED/);
     assert.match(store, /SAFETY_CHECK_FAILED/);
     assert.match(store, /STALE_SAFETY_CHECK/);
     assert.match(store, /safetyCheck\.checkedContentHash !== draft\.contentHash/);
+    assert.match(store, /workspaceId is required for SafetyCheck scope/);
+    assert.match(store, /personId is required for SafetyCheck scope/);
+    assert.match(store, /conversationId is required for SafetyCheck scope/);
     assert.match(sendRoute, /canSendReplyDraft\(replyDraftId\)/);
+    assert.match(apiDesign, /Missing or mismatched scope fields force the SafetyCheck to `failed`/);
+    assert.match(safetyRules, /SafetyCheck must include `workspaceId \+ personId \+ conversationId`/);
   });
 
   it("sends outbound messages on the original conversation channel", () => {
