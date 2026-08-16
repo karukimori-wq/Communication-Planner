@@ -175,6 +175,14 @@ Must emit:
 
 Creates a safety check for a reply draft.
 
+Required body fields:
+
+- `workspaceId`
+- `personId`
+- `conversationId`
+
+Missing or mismatched scope fields force the SafetyCheck to `failed`.
+
 Must emit:
 
 - `communication.reply_safety.checked.v1`
