@@ -16,7 +16,7 @@ Communication Planner must prevent wrong-person and wrong-conversation replies.
 8. Send must fail when SafetyCheck is stale compared with the latest draft content.
 9. ReplyDraft context may include Topic, Promise, and Communication NextAction only from the same `workspaceId + personId`.
 10. SafetyCheck must include `workspaceId + personId + conversationId`; missing or mismatched scope must fail.
-11. Send must include `workspaceId + personId + conversationId`; missing or mismatched confirmation scope must fail.
+11. Send must include `workspaceId + personId + conversationId + channel`; missing or mismatched confirmation scope or channel must fail.
 12. A `sent` ReplyDraft must not be sent again.
 13. Passed send decisions must be stored as reply-draft-scoped audit history.
 
@@ -46,6 +46,7 @@ SafetyCheck should verify:
 - The SafetyCheck status is `passed`.
 - The checked content hash matches the current draft content hash.
 - The send request confirms the same `workspaceId + personId + conversationId` as the draft.
+- The send request confirms the same `channel` as the original conversation.
 - The send response includes `sendDecision` audit evidence for the passed gate checks.
 - The send decision is stored and can be read only when `replyDraftId + workspaceId + personId + conversationId` match the draft.
 
