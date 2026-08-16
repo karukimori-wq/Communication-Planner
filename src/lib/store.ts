@@ -559,8 +559,14 @@ export function recordReplySendDecision(input: { draft: ReplyDraft; safetyCheck:
   return decision;
 }
 
-export function getReplySendDecisions(replyDraftId: string) {
-  return store.sendDecisions.filter((decision) => decision.replyDraftId === replyDraftId);
+export function getReplySendDecisions(input: { replyDraftId: string; workspaceId: string; personId: string; conversationId: string }) {
+  return store.sendDecisions.filter(
+    (decision) =>
+      decision.replyDraftId === input.replyDraftId &&
+      decision.workspaceId === input.workspaceId &&
+      decision.personId === input.personId &&
+      decision.conversationId === input.conversationId
+  );
 }
 
 export function buildReplySendDecision(input: { draft: ReplyDraft; safetyCheck: SafetyCheck; messageId: string }): ReplySendDecision {
