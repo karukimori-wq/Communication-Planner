@@ -177,3 +177,11 @@ export type SendReplyDraftInput = {
   personId?: string;
   conversationId?: string;
 };
+
+export type UpdateReplyDraftInput = {
+  workspaceId?: string;
+  personId?: string;
+  conversationId?: string;
+  body?: string;
+  purpose?: string;
+};
