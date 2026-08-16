@@ -141,6 +141,22 @@ create table if not exists safety_checks (
 create index if not exists idx_safety_checks_latest
   on safety_checks (workspace_id, reply_draft_id, checked_at desc);
 
+create table if not exists reply_send_decisions (
+  id text primary key,
+  workspace_id text not null,
+  person_id text not null references communication_persons(id) on delete cascade,
+  conversation_id text not null references conversations(id) on delete cascade,
+  reply_draft_id text not null references reply_drafts(id) on delete cascade,
+  safety_check_id text not null references safety_checks(id) on delete restrict,
+  message_id text not null references messages(id) on delete restrict,
+  content_hash text not null,
+  checks jsonb not null default '{}'::jsonb,
+  decided_at timestamptz not null default now()
+);
+
+create index if not exists idx_reply_send_decisions_draft
+  on reply_send_decisions (workspace_id, reply_draft_id, decided_at desc);
+
 create table if not exists channel_adapter_states (
   id text primary key,
   workspace_id text not null,
