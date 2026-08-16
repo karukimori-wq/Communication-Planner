@@ -102,3 +102,4 @@ Expected behavior:
 - Missing send confirmation scope fails with `SEND_CONFIRMATION_REQUIRED`.
 - Mismatched send confirmation scope fails with `SEND_SCOPE_MISMATCH`.
 - Passed fresh SafetyCheck allows send.
+- Sending the same reply draft again fails with `REPLY_DRAFT_ALREADY_SENT`.
