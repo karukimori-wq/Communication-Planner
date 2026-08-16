@@ -1,5 +1,5 @@
 import { fail, ok, requestMeta } from "@/lib/http";
-import { buildReplySendDecision, canSendReplyDraft, getConversation, ingestChannelMessage, markReplyDraftSent } from "@/lib/store";
+import { canSendReplyDraft, getConversation, ingestChannelMessage, markReplyDraftSent, recordReplySendDecision } from "@/lib/store";
 import type { SendReplyDraftInput } from "@/lib/types";
 
 type RouteContext = { params: Promise<{ replyDraftId: string }> };
@@ -45,13 +45,18 @@ export async function POST(request: Request, context: RouteContext) {
     direction: "outbound",
     body: decision.draft.body
   });
+  const sendDecision = recordReplySendDecision({
+    draft: decision.draft,
+    safetyCheck: decision.safetyCheck,
+    messageId: sentMessage.message.messageId
+  });
 
   return ok(
     {
       replyDraft: sentDraft,
       message: sentMessage.message,
       safetyCheck: decision.safetyCheck,
-      sendDecision: buildReplySendDecision({ draft: decision.draft, safetyCheck: decision.safetyCheck })
+      sendDecision
     },
     { ...meta, eventName: "communication.message.sent.v1" }
   );
