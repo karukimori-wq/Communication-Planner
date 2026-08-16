@@ -47,6 +47,7 @@ describe("static contract guards", () => {
 
     assert.match(store, /SAFETY_CHECK_REQUIRED/);
     assert.match(store, /SAFETY_CHECK_FAILED/);
+    assert.match(store, /SAFETY_CHECK_SCOPE_MISMATCH/);
     assert.match(store, /STALE_SAFETY_CHECK/);
     assert.match(store, /REPLY_DRAFT_ALREADY_SENT/);
     assert.match(store, /draft\.status === "sent"/);
@@ -54,6 +55,9 @@ describe("static contract guards", () => {
     assert.match(store, /draft\.contentHash = await contentHash\(draft\.body\)/);
     assert.match(store, /draft\.status = "draft"/);
     assert.match(store, /safetyCheck\.checkedContentHash !== draft\.contentHash/);
+    assert.match(store, /export function buildReplySendDecision/);
+    assert.match(store, /safetyCheckScopeMatched: true/);
+    assert.match(store, /sendScopeConfirmed: true/);
     assert.match(updateRoute, /export async function PATCH/);
     assert.match(updateRoute, /communication\.reply_draft\.updated\.v1/);
     assert.match(store, /workspaceId is required for SafetyCheck scope/);
@@ -63,8 +67,11 @@ describe("static contract guards", () => {
     assert.match(sendRoute, /validateSendConfirmation\(body, decision\.draft\)/);
     assert.match(sendRoute, /SEND_CONFIRMATION_REQUIRED/);
     assert.match(sendRoute, /SEND_SCOPE_MISMATCH/);
+    assert.match(sendRoute, /sendDecision: buildReplySendDecision/);
     assert.match(apiDesign, /Missing or mismatched scope fields force the SafetyCheck to `failed`/);
+    assert.match(apiDesign, /Successful responses include `sendDecision` audit evidence/);
     assert.match(safetyRules, /SafetyCheck must include `workspaceId \+ personId \+ conversationId`/);
+    assert.match(safetyRules, /send response includes `sendDecision` audit evidence/);
   });
 
   it("sends outbound messages on the original conversation channel", () => {
@@ -90,7 +97,9 @@ describe("static contract guards", () => {
     assert.match(contracts, /communication\.reply_safety\.checked\.v1/);
     assert.match(contracts, /communication\.reply_draft\.updated\.v1/);
     assert.match(contracts, /requiredFields: \["replyDraftId", "workspaceId", "personId", "conversationId"\]/);
+    assert.match(contracts, /SafetyCheck scope must match the reply draft/);
     assert.match(contracts, /Send confirmation scope must match the reply draft/);
+    assert.match(contracts, /Send response must include sendDecision audit evidence/);
     assert.match(route, /implementedCount/);
     assert.match(statusRoute, /endpointContractsPath: "\/api\/contracts\/endpoints"/);
     assert.match(statusRoute, /communication\.reply_draft\.updated\.v1/);
