@@ -76,6 +76,7 @@ describe("static contract guards", () => {
     assert.match(store, /conversationId is required for SafetyCheck scope/);
     assert.match(sendRoute, /canSendReplyDraft\(replyDraftId\)/);
     assert.match(sendRoute, /validateSendConfirmation\(body, decision\.draft\)/);
+    assert.match(sendRoute, /validateChannelConfirmation\(body, conversation\)/);
     assert.match(sendRoute, /SEND_CONFIRMATION_REQUIRED/);
     assert.match(sendRoute, /SEND_SCOPE_MISMATCH/);
     assert.match(sendRoute, /recordReplySendDecision/);
@@ -92,8 +93,10 @@ describe("static contract guards", () => {
     assert.match(schemaDoc, /reply_send_decisions/);
     assert.match(apiDesign, /Missing or mismatched scope fields force the SafetyCheck to `failed`/);
     assert.match(apiDesign, /Successful responses include `sendDecision` audit evidence/);
+    assert.match(apiDesign, /original conversation channel confirmation/);
     assert.match(apiDesign, /GET \/api\/reply-drafts\/\{replyDraftId\}\/send-decisions/);
     assert.match(safetyRules, /SafetyCheck must include `workspaceId \+ personId \+ conversationId`/);
+    assert.match(safetyRules, /Send must include `workspaceId \+ personId \+ conversationId \+ channel`/);
     assert.match(safetyRules, /send response includes `sendDecision` audit evidence/);
     assert.match(safetyRules, /send decision is stored and can be read only when `replyDraftId \+ workspaceId \+ personId \+ conversationId` match the draft/);
   });
@@ -120,9 +123,10 @@ describe("static contract guards", () => {
     assert.match(contracts, /replyDrafts\.update/);
     assert.match(contracts, /communication\.reply_safety\.checked\.v1/);
     assert.match(contracts, /communication\.reply_draft\.updated\.v1/);
-    assert.match(contracts, /requiredFields: \["replyDraftId", "workspaceId", "personId", "conversationId"\]/);
+    assert.match(contracts, /requiredFields: \["replyDraftId", "workspaceId", "personId", "conversationId", "channel"\]/);
     assert.match(contracts, /SafetyCheck scope must match the reply draft/);
     assert.match(contracts, /Send confirmation scope must match the reply draft/);
+    assert.match(contracts, /Send confirmation channel must match the original conversation channel/);
     assert.match(contracts, /Send response must include sendDecision audit evidence/);
     assert.match(contracts, /replyDrafts\.sendDecisions\.list/);
     assert.match(contracts, /\/api\/reply-drafts\/\{replyDraftId\}\/send-decisions/);
