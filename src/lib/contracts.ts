@@ -1,5 +1,5 @@
 export type EndpointContract = {
-  method: "GET" | "POST" | "OPTIONS";
+  method: "GET" | "POST" | "PATCH" | "OPTIONS";
   path: string;
   operation: string;
   status: "implemented" | "planned";
@@ -169,6 +169,17 @@ export const endpointContracts: EndpointContract[] = [
     eventName: "communication.reply_safety.checked.v1",
     sourceOfTruth: ["SafetyCheck"],
     safetyRules: ["SafetyCheck must be tied to the draft content hash", "SafetyCheck scope must match the reply draft"]
+  },
+  {
+    method: "PATCH",
+    path: "/api/reply-drafts/{replyDraftId}",
+    operation: "replyDrafts.update",
+    status: "implemented",
+    requiredFields: ["replyDraftId", "workspaceId", "personId", "conversationId", "body or purpose"],
+    prohibitedPayloadFields: prohibitedOwnedPayloadFields,
+    eventName: "communication.reply_draft.updated.v1",
+    sourceOfTruth: ["ReplyDraft"],
+    safetyRules: ["ReplyDraft update must match workspaceId + personId + conversationId", "Updating body must refresh content hash and require a new SafetyCheck"]
   },
   {
     method: "POST",
