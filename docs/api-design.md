@@ -215,3 +215,13 @@ Successful responses include `sendDecision` audit evidence with the confirmed dr
 Must emit:
 
 - `communication.message.sent.v1`
+
+### `GET /api/reply-drafts/{replyDraftId}/send-decisions`
+
+Returns stored send decision audit history for one reply draft.
+
+Path fields:
+
+- `replyDraftId`
+
+The response must include only `ReplySendDecision` records scoped to the requested draft.
