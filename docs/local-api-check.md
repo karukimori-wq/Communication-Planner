@@ -97,7 +97,7 @@ curl -X POST http://localhost:3000/api/reply-drafts/{replyDraftId}/safety-check 
 ```bash
 curl -X POST http://localhost:3000/api/reply-drafts/{replyDraftId}/send \
   -H 'Content-Type: application/json' \
-  -d '{"workspaceId":"ws_demo","personId":"{personId}","conversationId":"{conversationId}"}'
+  -d '{"workspaceId":"ws_demo","personId":"{personId}","conversationId":"{conversationId}","channel":"line"}'
 ```
 
 ## Send Decision History
@@ -116,5 +116,7 @@ Expected behavior:
 - Updating a reply draft after SafetyCheck makes the old check stale.
 - Missing send confirmation scope fails with `SEND_CONFIRMATION_REQUIRED`.
 - Mismatched send confirmation scope fails with `SEND_SCOPE_MISMATCH`.
+- Missing send confirmation channel fails with `SEND_CONFIRMATION_REQUIRED`.
+- Mismatched send confirmation channel fails with `SEND_SCOPE_MISMATCH`.
 - Passed fresh SafetyCheck allows send.
 - Sending the same reply draft again fails with `REPLY_DRAFT_ALREADY_SENT`.
