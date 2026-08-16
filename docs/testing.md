@@ -42,12 +42,15 @@ The current test suite verifies that:
 - Provider message ingestion is idempotent by `workspaceId + channel + direction + externalMessageId`.
 - Adapter webhook error codes remain documented and implemented.
 - CORS and `OPTIONS` preflight support remain present.
+- API response envelope helpers preserve CORS, `traceId`, `correlationId`, event names, timestamps, and error shape.
+- Request-scoped routes pass request metadata through success and error envelopes.
+- Static contract/status endpoints return through the common success envelope.
 
 These tests are intentionally dependency-free so they can run in restricted CI and local environments.
 
 ## Next Test Expansion
 
-The next layer should add route-level request/response tests for:
+The next layer should add executable route-level request/response tests for:
 
 - `GET /api/contracts/endpoints`
 - `POST /api/channel-events/messages`
@@ -59,4 +62,4 @@ The next layer should add route-level request/response tests for:
 - `POST /api/reply-drafts/{replyDraftId}/safety-check`
 - `POST /api/reply-drafts/{replyDraftId}/send`
 
-Route-level tests should verify response envelopes, trace headers, correlation IDs, event names, and error codes.
+Route-level tests should execute representative success and validation-error calls against each route.
