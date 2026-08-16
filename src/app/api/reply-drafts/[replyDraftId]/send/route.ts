@@ -3,6 +3,7 @@ import { canSendReplyDraft, getConversation, ingestChannelMessage, markReplyDraf
 import type { SendReplyDraftInput } from "@/lib/types";
 
 type RouteContext = { params: Promise<{ replyDraftId: string }> };
+type SendReplyDraftRequest = SendReplyDraftInput & { channel?: string };
 
 function validateSendConfirmation(input: SendReplyDraftInput | null, draft: { workspaceId: string; personId: string; conversationId: string }) {
   if (!input?.workspaceId) return { ok: false as const, code: "SEND_CONFIRMATION_REQUIRED", message: "workspaceId is required before send" };
@@ -14,10 +15,16 @@ function validateSendConfirmation(input: SendReplyDraftInput | null, draft: { wo
   return { ok: true as const };
 }
 
+function validateChannelConfirmation(input: SendReplyDraftRequest | null, conversation: { channel: string }) {
+  if (!input?.channel) return { ok: false as const, code: "SEND_CONFIRMATION_REQUIRED", message: "channel is required before send" };
+  if (input.channel !== conversation.channel) return { ok: false as const, code: "SEND_SCOPE_MISMATCH", message: "channel does not match conversation" };
+  return { ok: true as const };
+}
+
 export async function POST(request: Request, context: RouteContext) {
   const meta = requestMeta(request);
   const { replyDraftId } = await context.params;
-  const body = await request.json().catch(() => null) as SendReplyDraftInput | null;
+  const body = await request.json().catch(() => null) as SendReplyDraftRequest | null;
   const decision = canSendReplyDraft(replyDraftId);
 
   if (!decision.ok) {
@@ -32,6 +39,11 @@ export async function POST(request: Request, context: RouteContext) {
   const conversation = getConversation(decision.draft.workspaceId, decision.draft.personId, decision.draft.conversationId);
   if (!conversation) {
     return fail("CONVERSATION_SCOPE_MISMATCH", "Conversation must exist and belong to the reply draft person", 409, meta);
+  }
+
+  const channelConfirmation = validateChannelConfirmation(body, conversation);
+  if (!channelConfirmation.ok) {
+    return fail(channelConfirmation.code, channelConfirmation.message, 409, meta);
   }
 
   const sentDraft = markReplyDraftSent(replyDraftId);
