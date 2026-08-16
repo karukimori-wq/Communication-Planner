@@ -186,6 +186,7 @@ export type ReplySendDecision = {
   workspaceId: string;
   personId: string;
   conversationId: string;
+  channel?: Channel;
   contentHash: string;
   checks: {
     draftNotSent: true;
@@ -193,6 +194,7 @@ export type ReplySendDecision = {
     safetyCheckScopeMatched: true;
     safetyCheckFresh: true;
     sendScopeConfirmed: true;
+    channelConfirmed?: true;
   };
   decidedAt: string;
 };
