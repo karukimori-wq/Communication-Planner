@@ -165,6 +165,8 @@ Required fields:
 
 Must reject requests missing `personId` or `conversationId`.
 
+When `body` is omitted, the draft body is composed from the same person's `ConversationContext`, `Topic`, `Promise`, and `CommunicationNextAction` records. It must not use context insight records from another `personId`.
+
 Must emit:
 
 - `communication.reply_draft.created.v1`
