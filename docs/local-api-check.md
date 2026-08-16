@@ -76,6 +76,14 @@ curl -X POST http://localhost:3000/api/conversations/{conversationId}/reply-draf
   -d '{"workspaceId":"ws_demo","personId":"{personId}","purpose":"follow up"}'
 ```
 
+## Update Reply Draft
+
+```bash
+curl -X PATCH http://localhost:3000/api/reply-drafts/{replyDraftId} \
+  -H 'Content-Type: application/json' \
+  -d '{"workspaceId":"ws_demo","personId":"{personId}","conversationId":"{conversationId}","body":"Updated reply body"}'
+```
+
 ## Safety Check
 
 ```bash
@@ -99,6 +107,7 @@ Expected behavior:
 - Mismatched `personId` and `conversationId` fails with `CONVERSATION_SCOPE_MISMATCH`.
 - Send before SafetyCheck fails with `SAFETY_CHECK_REQUIRED`.
 - Failed SafetyCheck blocks send.
+- Updating a reply draft after SafetyCheck makes the old check stale.
 - Missing send confirmation scope fails with `SEND_CONFIRMATION_REQUIRED`.
 - Mismatched send confirmation scope fails with `SEND_SCOPE_MISMATCH`.
 - Passed fresh SafetyCheck allows send.
