@@ -205,12 +205,13 @@ Required body fields:
 - `workspaceId`
 - `personId`
 - `conversationId`
+- `channel`
 
-Missing or mismatched send confirmation scope fails with `SEND_CONFIRMATION_REQUIRED` or `SEND_SCOPE_MISMATCH`.
+Missing or mismatched send confirmation scope or channel fails with `SEND_CONFIRMATION_REQUIRED` or `SEND_SCOPE_MISMATCH`.
 
 Already sent drafts fail with `REPLY_DRAFT_ALREADY_SENT`.
 
-Successful responses include `sendDecision` audit evidence with the confirmed draft scope, SafetyCheck id, content hash, and the send gate checks that passed.
+Successful responses include `sendDecision` audit evidence with the confirmed draft scope, original conversation channel confirmation, SafetyCheck id, content hash, and the send gate checks that passed.
 
 Must emit:
 
