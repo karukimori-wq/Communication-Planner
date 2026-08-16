@@ -107,6 +107,33 @@ describe("static contract guards", () => {
     assert.match(adapterDoc, /Duplicate provider message ids must not create duplicate Message records/);
   });
 
+  it("stores context insights as person-scoped Communication Planner records", () => {
+    const types = read("src/lib/types.ts");
+    const store = read("src/lib/store.ts");
+    const route = read("src/app/api/channel-events/messages/route.ts");
+    const schema = read("db/schema.sql");
+    const schemaDoc = read("docs/database-schema.md");
+
+    assert.match(types, /export type Topic/);
+    assert.match(types, /export type Promise/);
+    assert.match(types, /export type CommunicationNextAction/);
+    assert.match(types, /topics\?: string\[\]/);
+    assert.match(types, /promises\?: string\[\]/);
+    assert.match(types, /nextActions\?: string\[\]/);
+    assert.match(store, /function appendContextInsights/);
+    assert.match(store, /sourceMessageId: input\.messageId/);
+    assert.match(store, /context\.topicIds\.push/);
+    assert.match(store, /context\.promiseIds\.push/);
+    assert.match(store, /context\.nextActionIds\.push/);
+    assert.match(route, /topics: body\.topics/);
+    assert.match(route, /promises: body\.promises/);
+    assert.match(route, /nextActions: body\.nextActions/);
+    assert.match(schema, /create table if not exists topics/);
+    assert.match(schema, /create table if not exists promises/);
+    assert.match(schema, /create table if not exists communication_next_actions/);
+    assert.match(schemaDoc, /source_message_id/);
+  });
+
   it("keeps CORS and preflight support enabled", () => {
     const http = read("src/lib/http.ts");
     const middleware = read("src/middleware.ts");
