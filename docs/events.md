@@ -10,6 +10,7 @@
 | `communication.promise.created.v1` | Communication Planner | Promise was created from conversation |
 | `communication.next_action.created.v1` | Communication Planner | Next action was created |
 | `communication.reply_draft.created.v1` | Communication Planner | Reply draft was created |
+| `communication.reply_draft.updated.v1` | Communication Planner | Reply draft was updated and content hash refreshed |
 | `communication.reply_safety.checked.v1` | Communication Planner | Reply draft safety was checked |
 | `communication.person_channel.linked.v1` | Communication Planner | Channel identity was linked to a person |
 
