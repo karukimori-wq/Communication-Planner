@@ -47,7 +47,7 @@ SafetyCheck should verify:
 - The checked content hash matches the current draft content hash.
 - The send request confirms the same `workspaceId + personId + conversationId` as the draft.
 - The send response includes `sendDecision` audit evidence for the passed gate checks.
-- The send decision is stored and can be read only by `replyDraftId`.
+- The send decision is stored and can be read only when `replyDraftId + workspaceId + personId + conversationId` match the draft.
 
 ## AI Platform Core Boundary
 
