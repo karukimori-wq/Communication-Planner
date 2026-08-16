@@ -45,6 +45,9 @@ The current test suite verifies that:
 - API response envelope helpers preserve CORS, `traceId`, `correlationId`, event names, timestamps, and error shape.
 - Request-scoped routes pass request metadata through success and error envelopes.
 - Static contract/status endpoints return through the common success envelope.
+- Route-level contracts stay aligned for endpoint catalog, channel message ingestion, adapter webhooks, and the reply workflow.
+- Adapter webhook routes preserve OSS harness-compatible payload normalization and avoid returning raw provider payloads.
+- Reply workflow routes keep scoped draft creation, draft update, SafetyCheck, send confirmation, and send decision history contracts aligned.
 
 These tests are intentionally dependency-free so they can run in restricted CI and local environments.
 
@@ -52,8 +55,6 @@ These tests are intentionally dependency-free so they can run in restricted CI a
 
 The next layer should add executable route-level request/response tests for:
 
-- `GET /api/contracts/endpoints`
-- `POST /api/channel-events/messages`
 - `POST /api/adapters/line/webhook`
 - `POST /api/adapters/x/webhook`
 - `POST /api/adapters/instagram/webhook`
