@@ -163,6 +163,23 @@ Must emit:
 
 - `communication.reply_draft.created.v1`
 
+### `PATCH /api/reply-drafts/{replyDraftId}`
+
+Updates an unsent reply draft.
+
+Required body fields:
+
+- `workspaceId`
+- `personId`
+- `conversationId`
+- `body` or `purpose`
+
+The request scope must match the draft's `workspaceId + personId + conversationId`. Updating `body` refreshes `contentHash`, resets the draft status to `draft`, and requires a new SafetyCheck before send. Sent drafts cannot be updated.
+
+Must emit:
+
+- `communication.reply_draft.updated.v1`
+
 ### `POST /api/reply-drafts/{replyDraftId}/safety-check`
 
 Creates a safety check for a reply draft.
