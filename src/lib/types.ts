@@ -179,8 +179,10 @@ export type SendReplyDraftInput = {
 };
 
 export type ReplySendDecision = {
+  sendDecisionId: string;
   replyDraftId: string;
   safetyCheckId: string;
+  messageId: string;
   workspaceId: string;
   personId: string;
   conversationId: string;
@@ -192,6 +194,7 @@ export type ReplySendDecision = {
     safetyCheckFresh: true;
     sendScopeConfirmed: true;
   };
+  decidedAt: string;
 };
 
 export type UpdateReplyDraftInput = {
