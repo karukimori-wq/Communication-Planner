@@ -376,6 +376,28 @@ export function getPersonContext(workspaceId: string, personId: string) {
   };
 }
 
+function formatContextForDraft(context: ReturnType<typeof getPersonContext>) {
+  if (!context) {
+    return "No context yet.";
+  }
+
+  const parts = [`Summary: ${context.summary || "No summary yet."}`];
+
+  if (context.topics.length > 0) {
+    parts.push(`Topics: ${context.topics.map((topic) => topic.label).join(", ")}`);
+  }
+
+  if (context.promises.length > 0) {
+    parts.push(`Promises: ${context.promises.map((promise) => promise.body).join(" | ")}`);
+  }
+
+  if (context.nextActions.length > 0) {
+    parts.push(`Next actions: ${context.nextActions.map((nextAction) => nextAction.body).join(" | ")}`);
+  }
+
+  return parts.join("\n");
+}
+
 export async function createReplyDraft(input: { workspaceId: string; personId: string; conversationId: string; body?: string; purpose: string }) {
   const conversation = getConversation(input.workspaceId, input.personId, input.conversationId);
 
@@ -384,7 +406,7 @@ export async function createReplyDraft(input: { workspaceId: string; personId: s
   }
 
   const context = getPersonContext(input.workspaceId, input.personId);
-  const body = input.body ?? `Draft for ${input.purpose}. Context: ${context?.summary ?? "No context yet."}`;
+  const body = input.body ?? `Draft for ${input.purpose}.\n${formatContextForDraft(context)}`;
   const hash = await contentHash(body);
   const draft: ReplyDraft = {
     replyDraftId: crypto.randomUUID(),
