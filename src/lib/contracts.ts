@@ -164,21 +164,21 @@ export const endpointContracts: EndpointContract[] = [
     path: "/api/reply-drafts/{replyDraftId}/safety-check",
     operation: "replyDrafts.safetyCheck.create",
     status: "implemented",
-    requiredFields: ["replyDraftId"],
+    requiredFields: ["replyDraftId", "workspaceId", "personId", "conversationId"],
     prohibitedPayloadFields: prohibitedOwnedPayloadFields,
     eventName: "communication.reply_safety.checked.v1",
     sourceOfTruth: ["SafetyCheck"],
-    safetyRules: ["SafetyCheck must be tied to the draft content hash"]
+    safetyRules: ["SafetyCheck must be tied to the draft content hash", "SafetyCheck scope must match the reply draft"]
   },
   {
     method: "POST",
     path: "/api/reply-drafts/{replyDraftId}/send",
     operation: "replyDrafts.send",
     status: "implemented",
-    requiredFields: ["replyDraftId"],
+    requiredFields: ["replyDraftId", "workspaceId", "personId", "conversationId"],
     prohibitedPayloadFields: prohibitedOwnedPayloadFields,
     eventName: "communication.message.sent.v1",
     sourceOfTruth: ["Message", "ReplyDraft", "SafetyCheck"],
-    safetyRules: ["Latest SafetyCheck must pass", "SafetyCheck hash must match draft hash", "Outbound message must use the original conversation channel"]
+    safetyRules: ["Latest SafetyCheck must pass", "SafetyCheck hash must match draft hash", "Send confirmation scope must match the reply draft", "Outbound message must use the original conversation channel"]
   }
 ];
