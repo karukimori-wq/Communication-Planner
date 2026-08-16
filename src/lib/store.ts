@@ -7,6 +7,7 @@ import type {
   Conversation,
   ConversationContext,
   Message,
+  ReplySendDecision,
   Promise,
   ReplyDraft,
   SafetyCheck,
@@ -517,11 +518,37 @@ export function canSendReplyDraft(replyDraftId: string) {
     return { ok: false as const, code: "SAFETY_CHECK_FAILED", message: "Latest SafetyCheck did not pass" };
   }
 
+  if (
+    safetyCheck.workspaceId !== draft.workspaceId ||
+    safetyCheck.personId !== draft.personId ||
+    safetyCheck.conversationId !== draft.conversationId
+  ) {
+    return { ok: false as const, code: "SAFETY_CHECK_SCOPE_MISMATCH", message: "Latest SafetyCheck scope does not match reply draft" };
+  }
+
   if (safetyCheck.checkedContentHash !== draft.contentHash) {
     return { ok: false as const, code: "STALE_SAFETY_CHECK", message: "SafetyCheck is stale for current draft content" };
   }
 
   return { ok: true as const, draft, safetyCheck };
+}
+
+export function buildReplySendDecision(input: { draft: ReplyDraft; safetyCheck: SafetyCheck }): ReplySendDecision {
+  return {
+    replyDraftId: input.draft.replyDraftId,
+    safetyCheckId: input.safetyCheck.safetyCheckId,
+    workspaceId: input.draft.workspaceId,
+    personId: input.draft.personId,
+    conversationId: input.draft.conversationId,
+    contentHash: input.draft.contentHash,
+    checks: {
+      draftNotSent: true,
+      safetyCheckPassed: true,
+      safetyCheckScopeMatched: true,
+      safetyCheckFresh: true,
+      sendScopeConfirmed: true
+    }
+  };
 }
 
 export function markReplyDraftSent(replyDraftId: string) {
