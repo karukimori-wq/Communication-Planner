@@ -6,6 +6,13 @@ Each endpoint must return the common API response envelope and emit:
 
 - `communication.message.received.v1`
 
+Each successful webhook response must include normalized channel evidence only:
+
+- `normalizedEvent.channel`
+- `normalizedEvent.externalUserId`
+- `normalizedEvent.externalMessageId`
+- `message.conversationId`
+
 Each endpoint must reject malformed provider payloads with one of:
 
 - `INVALID_JSON`
@@ -149,3 +156,4 @@ Expected normalized fields:
 - Raw provider payloads are not part of reply generation context.
 - Raw provider payloads must not be returned from webhook responses.
 - Outbound provider delivery remains behind the ReplyDraft SafetyCheck gate.
+- Send confirmation must use the stored conversation channel, not a provider payload channel override.

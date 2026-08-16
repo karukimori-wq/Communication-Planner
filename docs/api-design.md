@@ -211,7 +211,7 @@ Missing or mismatched send confirmation scope or channel fails with `SEND_CONFIR
 
 Already sent drafts fail with `REPLY_DRAFT_ALREADY_SENT`.
 
-Successful responses include `sendDecision` audit evidence with the confirmed draft scope, original conversation channel confirmation, SafetyCheck id, content hash, and the send gate checks that passed.
+Successful responses include `sendDecision` audit evidence with the confirmed draft scope, confirmed original conversation `channel`, SafetyCheck id, content hash, and the send gate checks that passed.
 
 Must emit:
 
@@ -231,4 +231,4 @@ Query fields:
 - `personId`
 - `conversationId`
 
-The request scope must match the draft's `workspaceId + personId + conversationId`. The response must include only `ReplySendDecision` records scoped to the requested draft and confirmed request scope.
+The request scope must match the draft's `workspaceId + personId + conversationId`. The response must include only `ReplySendDecision` records scoped to the requested draft and confirmed request scope. Stored decisions include the channel that was confirmed at send time.

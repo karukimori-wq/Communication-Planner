@@ -68,6 +68,9 @@ describe("adapter webhook examples", () => {
     assert.match(routeFactory, /normalizedEvent: responseEvent/);
     assert.doesNotMatch(routeFactory, /normalizedEvent: normalized\.event/);
     assert.match(adapterDoc, /Raw provider payloads must not be returned from webhook responses/);
+    assert.match(adapterDoc, /normalizedEvent\.channel/);
+    assert.match(adapterDoc, /message\.conversationId/);
+    assert.match(adapterDoc, /stored conversation channel/);
   });
 
   it("documents required webhook error codes", () => {

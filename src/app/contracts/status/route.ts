@@ -14,6 +14,11 @@ export function GET() {
     endpointContractCount: endpointContracts.length,
     implementedEndpointCount: endpointContracts.filter((endpoint) => endpoint.status === "implemented").length,
     endpointContractsPath: "/api/contracts/endpoints",
+    readinessChecks: {
+      sendDecisionChannelAudit: true,
+      adapterWebhookRawPayloadExcluded: true,
+      sendRequiresChannelConfirmation: true
+    },
     sourceOfTruth: [
       "Unified Inbox",
       "Communication Person projection",
@@ -23,6 +28,7 @@ export function GET() {
       "ConversationContext",
       "ReplyDraft",
       "SafetyCheck",
+      "ReplySendDecision",
       "ChannelAdapter integration state"
     ],
     stableEvents: [

@@ -38,8 +38,10 @@ describe("send decision history route contract", () => {
     assert.match(contracts, /operation: "replyDrafts\.sendDecisions\.list"/);
     assert.match(contracts, /requiredFields: \["replyDraftId", "workspaceId", "personId", "conversationId"\]/);
     assert.match(contracts, /Send decision history must be scoped to replyDraftId \+ workspaceId \+ personId \+ conversationId/);
+    assert.match(contracts, /Send decision audit must store the confirmed channel/);
     assert.match(apiDesign, /Query fields:\n\n- `workspaceId`\n- `personId`\n- `conversationId`/);
     assert.match(apiDesign, /The request scope must match the draft's `workspaceId \+ personId \+ conversationId`/);
+    assert.match(apiDesign, /channel that was confirmed at send time/);
     assert.match(localApiCheck, /send-decisions\?workspaceId=ws_demo&personId=\{personId\}&conversationId=\{conversationId\}/);
     assert.match(testing, /Send decision history route requires `workspaceId \+ personId \+ conversationId` before returning audit records/);
   });

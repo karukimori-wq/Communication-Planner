@@ -149,6 +149,7 @@ create table if not exists reply_send_decisions (
   reply_draft_id text not null references reply_drafts(id) on delete cascade,
   safety_check_id text not null references safety_checks(id) on delete restrict,
   message_id text not null references messages(id) on delete restrict,
+  channel text not null check (channel in ('line', 'x', 'instagram')),
   content_hash text not null,
   checks jsonb not null default '{}'::jsonb,
   decided_at timestamptz not null default now()
@@ -156,6 +157,9 @@ create table if not exists reply_send_decisions (
 
 create index if not exists idx_reply_send_decisions_draft
   on reply_send_decisions (workspace_id, reply_draft_id, decided_at desc);
+
+create index if not exists idx_reply_send_decisions_channel_audit
+  on reply_send_decisions (workspace_id, conversation_id, channel, decided_at desc);
 
 create table if not exists channel_adapter_states (
   id text primary key,
