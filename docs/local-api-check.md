@@ -100,6 +100,12 @@ curl -X POST http://localhost:3000/api/reply-drafts/{replyDraftId}/send \
   -d '{"workspaceId":"ws_demo","personId":"{personId}","conversationId":"{conversationId}"}'
 ```
 
+## Send Decision History
+
+```bash
+curl 'http://localhost:3000/api/reply-drafts/{replyDraftId}/send-decisions?workspaceId=ws_demo&personId={personId}&conversationId={conversationId}'
+```
+
 Expected behavior:
 
 - Missing `personId` in reply draft creation fails.
