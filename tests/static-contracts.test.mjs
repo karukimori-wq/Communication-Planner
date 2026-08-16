@@ -134,6 +134,21 @@ describe("static contract guards", () => {
     assert.match(schemaDoc, /source_message_id/);
   });
 
+  it("uses only same-person context insights for generated reply drafts", () => {
+    const store = read("src/lib/store.ts");
+    const safetyRules = read("docs/safety-rules.md");
+    const apiDesign = read("docs/api-design.md");
+
+    assert.match(store, /function formatContextForDraft/);
+    assert.match(store, /Topics: \$\{context\.topics\.map/);
+    assert.match(store, /Promises: \$\{context\.promises\.map/);
+    assert.match(store, /Next actions: \$\{context\.nextActions\.map/);
+    assert.match(store, /getPersonContext\(input\.workspaceId, input\.personId\)/);
+    assert.match(store, /formatContextForDraft\(context\)/);
+    assert.match(safetyRules, /ReplyDraft context may include Topic, Promise, and Communication NextAction only from the same `workspaceId \+ personId`/);
+    assert.match(apiDesign, /must not use context insight records from another `personId`/);
+  });
+
   it("keeps CORS and preflight support enabled", () => {
     const http = read("src/lib/http.ts");
     const middleware = read("src/middleware.ts");
