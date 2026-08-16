@@ -11,7 +11,8 @@ import type {
   ReplyDraft,
   SafetyCheck,
   SafetyCheckInput,
-  Topic
+  Topic,
+  UpdateReplyDraftInput
 } from "./types";
 
 type StoreState = {
@@ -426,6 +427,37 @@ export async function createReplyDraft(input: { workspaceId: string; personId: s
 
 export function getReplyDraft(replyDraftId: string) {
   return store.replyDrafts.find((draft) => draft.replyDraftId === replyDraftId);
+}
+
+export async function updateReplyDraft(replyDraftId: string, input: UpdateReplyDraftInput) {
+  const draft = getReplyDraft(replyDraftId);
+  if (!draft) {
+    return { ok: false as const, code: "NOT_FOUND", message: "ReplyDraft not found" };
+  }
+
+  if (draft.status === "sent") {
+    return { ok: false as const, code: "REPLY_DRAFT_ALREADY_SENT", message: "Sent ReplyDraft cannot be updated" };
+  }
+
+  if (!input.workspaceId) return { ok: false as const, code: "VALIDATION_ERROR", message: "workspaceId is required" };
+  if (!input.personId) return { ok: false as const, code: "VALIDATION_ERROR", message: "personId is required" };
+  if (!input.conversationId) return { ok: false as const, code: "VALIDATION_ERROR", message: "conversationId is required" };
+  if (input.workspaceId !== draft.workspaceId) return { ok: false as const, code: "REPLY_DRAFT_SCOPE_MISMATCH", message: "workspaceId does not match reply draft" };
+  if (input.personId !== draft.personId) return { ok: false as const, code: "REPLY_DRAFT_SCOPE_MISMATCH", message: "personId does not match reply draft" };
+  if (input.conversationId !== draft.conversationId) return { ok: false as const, code: "REPLY_DRAFT_SCOPE_MISMATCH", message: "conversationId does not match reply draft" };
+
+  if (typeof input.body === "string" && input.body.trim().length > 0) {
+    draft.body = input.body.trim();
+    draft.contentHash = await contentHash(draft.body);
+  }
+
+  if (typeof input.purpose === "string" && input.purpose.trim().length > 0) {
+    draft.purpose = input.purpose.trim();
+  }
+
+  draft.status = "draft";
+  draft.updatedAt = now();
+  return { ok: true as const, draft };
 }
 
 export async function createSafetyCheck(replyDraftId: string, input: SafetyCheckInput) {
