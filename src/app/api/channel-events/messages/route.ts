@@ -26,7 +26,10 @@ export async function POST(request: Request) {
     externalThreadId: body.externalThreadId,
     displayName: body.displayName,
     personId: body.personId,
-    conversationId: body.conversationId
+    conversationId: body.conversationId,
+    topics: body.topics,
+    promises: body.promises,
+    nextActions: body.nextActions
   });
 
   return ok(result, {
