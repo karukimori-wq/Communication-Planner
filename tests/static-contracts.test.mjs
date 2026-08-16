@@ -52,6 +52,9 @@ describe("static contract guards", () => {
     assert.match(store, /personId is required for SafetyCheck scope/);
     assert.match(store, /conversationId is required for SafetyCheck scope/);
     assert.match(sendRoute, /canSendReplyDraft\(replyDraftId\)/);
+    assert.match(sendRoute, /validateSendConfirmation\(body, decision\.draft\)/);
+    assert.match(sendRoute, /SEND_CONFIRMATION_REQUIRED/);
+    assert.match(sendRoute, /SEND_SCOPE_MISMATCH/);
     assert.match(apiDesign, /Missing or mismatched scope fields force the SafetyCheck to `failed`/);
     assert.match(safetyRules, /SafetyCheck must include `workspaceId \+ personId \+ conversationId`/);
   });
@@ -74,6 +77,8 @@ describe("static contract guards", () => {
     assert.match(contracts, /prohibitedOwnedPayloadFields/);
     assert.match(contracts, /replyDrafts\.send/);
     assert.match(contracts, /communication\.reply_safety\.checked\.v1/);
+    assert.match(contracts, /requiredFields: \["replyDraftId", "workspaceId", "personId", "conversationId"\]/);
+    assert.match(contracts, /Send confirmation scope must match the reply draft/);
     assert.match(route, /implementedCount/);
     assert.match(statusRoute, /endpointContractsPath: "\/api\/contracts\/endpoints"/);
     assert.match(apiDesign, /GET \/api\/contracts\/endpoints/);
