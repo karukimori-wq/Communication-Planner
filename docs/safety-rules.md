@@ -17,6 +17,7 @@ Communication Planner must prevent wrong-person and wrong-conversation replies.
 9. ReplyDraft context may include Topic, Promise, and Communication NextAction only from the same `workspaceId + personId`.
 10. SafetyCheck must include `workspaceId + personId + conversationId`; missing or mismatched scope must fail.
 11. Send must include `workspaceId + personId + conversationId`; missing or mismatched confirmation scope must fail.
+12. A `sent` ReplyDraft must not be sent again.
 
 ## SafetyCheck Scope
 
@@ -38,6 +39,7 @@ SafetyCheck should verify:
 - The draft has `workspaceId`.
 - The draft has `personId`.
 - The draft has `conversationId`.
+- The draft status is not `sent`.
 - The latest SafetyCheck belongs to the same draft.
 - The latest SafetyCheck includes matching `workspaceId + personId + conversationId`.
 - The SafetyCheck status is `passed`.
