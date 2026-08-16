@@ -178,6 +178,22 @@ export type SendReplyDraftInput = {
   conversationId?: string;
 };
 
+export type ReplySendDecision = {
+  replyDraftId: string;
+  safetyCheckId: string;
+  workspaceId: string;
+  personId: string;
+  conversationId: string;
+  contentHash: string;
+  checks: {
+    draftNotSent: true;
+    safetyCheckPassed: true;
+    safetyCheckScopeMatched: true;
+    safetyCheckFresh: true;
+    sendScopeConfirmed: true;
+  };
+};
+
 export type UpdateReplyDraftInput = {
   workspaceId?: string;
   personId?: string;
