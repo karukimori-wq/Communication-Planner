@@ -33,6 +33,7 @@ The current test suite verifies that:
 - Stale or failed SafetyCheck logic remains present.
 - Successful sends expose `sendDecision` audit evidence for the passed gate checks.
 - Send decisions are stored as reply-draft-scoped audit history.
+- Send decision history route requires `workspaceId + personId + conversationId` before returning audit records.
 - Outbound sends use the original conversation channel.
 - Endpoint-level contract metadata remains available.
 - Harness-compatible LINE/X/Instagram webhook examples stay parseable and aligned with implemented routes.
@@ -57,6 +58,5 @@ The next layer should add route-level request/response tests for:
 - `PATCH /api/reply-drafts/{replyDraftId}`
 - `POST /api/reply-drafts/{replyDraftId}/safety-check`
 - `POST /api/reply-drafts/{replyDraftId}/send`
-- `GET /api/reply-drafts/{replyDraftId}/send-decisions?workspaceId=&personId=&conversationId=`
 
 Route-level tests should verify response envelopes, trace headers, correlation IDs, event names, and error codes.
