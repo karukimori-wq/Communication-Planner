@@ -191,5 +191,15 @@ export const endpointContracts: EndpointContract[] = [
     eventName: "communication.message.sent.v1",
     sourceOfTruth: ["Message", "ReplyDraft", "SafetyCheck"],
     safetyRules: ["Latest SafetyCheck must pass", "SafetyCheck hash must match draft hash", "SafetyCheck scope must match the reply draft", "Send confirmation scope must match the reply draft", "Send response must include sendDecision audit evidence", "Outbound message must use the original conversation channel"]
+  },
+  {
+    method: "GET",
+    path: "/api/reply-drafts/{replyDraftId}/send-decisions",
+    operation: "replyDrafts.sendDecisions.list",
+    status: "implemented",
+    requiredFields: ["replyDraftId"],
+    prohibitedPayloadFields: prohibitedOwnedPayloadFields,
+    sourceOfTruth: ["ReplySendDecision"],
+    safetyRules: ["Send decision history must be scoped to one replyDraftId"]
   }
 ];
