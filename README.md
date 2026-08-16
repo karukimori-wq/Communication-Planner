@@ -108,7 +108,7 @@ Communication Planner must not become the source of truth for:
 | PATCH | `/api/reply-drafts/{replyDraftId}` | Update reply draft |
 | POST | `/api/reply-drafts/{replyDraftId}/safety-check` | Check reply safety |
 | POST | `/api/reply-drafts/{replyDraftId}/send` | Send checked reply |
-| GET | `/api/reply-drafts/{replyDraftId}/send-decisions` | Send decision history |
+| GET | `/api/reply-drafts/{replyDraftId}/send-decisions?workspaceId=&personId=&conversationId=` | Send decision history |
 | OPTIONS | `/api/*`, `/health`, `/version`, `/contracts/status` | CORS preflight |
 
 ## Stable Events
