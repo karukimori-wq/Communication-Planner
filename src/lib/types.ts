@@ -75,6 +75,37 @@ export type ConversationContext = {
   updatedAt: string;
 };
 
+export type Topic = {
+  topicId: string;
+  workspaceId: string;
+  personId: string;
+  conversationId: string;
+  label: string;
+  sourceMessageId: string;
+  createdAt: string;
+};
+
+export type Promise = {
+  promiseId: string;
+  workspaceId: string;
+  personId: string;
+  conversationId: string;
+  body: string;
+  sourceMessageId: string;
+  createdAt: string;
+};
+
+export type CommunicationNextAction = {
+  nextActionId: string;
+  workspaceId: string;
+  personId: string;
+  conversationId: string;
+  body: string;
+  sourceMessageId: string;
+  status: "open" | "done";
+  createdAt: string;
+};
+
 export type ReplyDraft = {
   replyDraftId: string;
   workspaceId: string;
@@ -120,6 +151,9 @@ export type ChannelMessageInput = {
   displayName?: string;
   personId?: string;
   conversationId?: string;
+  topics?: string[];
+  promises?: string[];
+  nextActions?: string[];
 };
 
 export type CreateReplyDraftInput = {
