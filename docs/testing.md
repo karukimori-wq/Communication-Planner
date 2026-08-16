@@ -31,6 +31,7 @@ The current test suite verifies that:
 - Reply draft updates refresh content hash and force a new SafetyCheck.
 - Send requires a current passing SafetyCheck.
 - Stale or failed SafetyCheck logic remains present.
+- Successful sends expose `sendDecision` audit evidence for the passed gate checks.
 - Outbound sends use the original conversation channel.
 - Endpoint-level contract metadata remains available.
 - Harness-compatible LINE/X/Instagram webhook examples stay parseable and aligned with implemented routes.
