@@ -191,6 +191,8 @@ Required body fields:
 
 Missing or mismatched send confirmation scope fails with `SEND_CONFIRMATION_REQUIRED` or `SEND_SCOPE_MISMATCH`.
 
+Already sent drafts fail with `REPLY_DRAFT_ALREADY_SENT`.
+
 Must emit:
 
 - `communication.message.sent.v1`
