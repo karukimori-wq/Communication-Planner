@@ -28,6 +28,7 @@ The current test suite verifies that:
 
 - Communication Planner ownership exclusions remain documented.
 - Reply draft creation stays scoped to `workspaceId + personId + conversationId`.
+- Reply draft updates refresh content hash and force a new SafetyCheck.
 - Send requires a current passing SafetyCheck.
 - Stale or failed SafetyCheck logic remains present.
 - Outbound sends use the original conversation channel.
@@ -51,6 +52,7 @@ The next layer should add route-level request/response tests for:
 - `POST /api/adapters/x/webhook`
 - `POST /api/adapters/instagram/webhook`
 - `POST /api/conversations/{conversationId}/reply-drafts`
+- `PATCH /api/reply-drafts/{replyDraftId}`
 - `POST /api/reply-drafts/{replyDraftId}/safety-check`
 - `POST /api/reply-drafts/{replyDraftId}/send`
 
