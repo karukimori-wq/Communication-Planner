@@ -38,6 +38,7 @@ Implemented:
 - `PATCH /api/reply-drafts/{replyDraftId}`
 - `POST /api/reply-drafts/{replyDraftId}/safety-check`
 - `POST /api/reply-drafts/{replyDraftId}/send`
+- `GET /api/reply-drafts/{replyDraftId}/send-decisions`
 - CORS headers and `OPTIONS` preflight handling for API routes
 - LINE/X/Instagram adapter stubs
 - PostgreSQL-oriented initial schema in `db/schema.sql`
@@ -107,6 +108,7 @@ Communication Planner must not become the source of truth for:
 | PATCH | `/api/reply-drafts/{replyDraftId}` | Update reply draft |
 | POST | `/api/reply-drafts/{replyDraftId}/safety-check` | Check reply safety |
 | POST | `/api/reply-drafts/{replyDraftId}/send` | Send checked reply |
+| GET | `/api/reply-drafts/{replyDraftId}/send-decisions` | Send decision history |
 | OPTIONS | `/api/*`, `/health`, `/version`, `/contracts/status` | CORS preflight |
 
 ## Stable Events
@@ -130,7 +132,8 @@ Communication Planner must not become the source of truth for:
 5. Send must fail when the latest SafetyCheck is missing, stale, or failed.
 6. Successful sends must return `sendDecision` audit evidence for the passed send gate checks.
 7. Send must include the same `workspaceId + personId + conversationId` as the reply draft.
-8. Channel adapter state is integration state only. It must not override person, conversation, or message ownership.
+8. Send decisions must be stored as reply-draft-scoped audit history.
+9. Channel adapter state is integration state only. It must not override person, conversation, or message ownership.
 
 ## Repository Status
 
