@@ -32,6 +32,7 @@ export function GET() {
       "communication.promise.created.v1",
       "communication.next_action.created.v1",
       "communication.reply_draft.created.v1",
+      "communication.reply_draft.updated.v1",
       "communication.reply_safety.checked.v1",
       "communication.person_channel.linked.v1"
     ],
