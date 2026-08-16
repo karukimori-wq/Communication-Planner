@@ -197,9 +197,9 @@ export const endpointContracts: EndpointContract[] = [
     path: "/api/reply-drafts/{replyDraftId}/send-decisions",
     operation: "replyDrafts.sendDecisions.list",
     status: "implemented",
-    requiredFields: ["replyDraftId"],
+    requiredFields: ["replyDraftId", "workspaceId", "personId", "conversationId"],
     prohibitedPayloadFields: prohibitedOwnedPayloadFields,
     sourceOfTruth: ["ReplySendDecision"],
-    safetyRules: ["Send decision history must be scoped to one replyDraftId"]
+    safetyRules: ["Send decision history must be scoped to replyDraftId + workspaceId + personId + conversationId"]
   }
 ];
