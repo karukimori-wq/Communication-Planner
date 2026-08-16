@@ -209,6 +209,8 @@ Required body fields:
 
 Missing or mismatched send confirmation scope or channel fails with `SEND_CONFIRMATION_REQUIRED` or `SEND_SCOPE_MISMATCH`.
 
+The send request acts as original conversation channel confirmation and must match the stored conversation channel.
+
 Already sent drafts fail with `REPLY_DRAFT_ALREADY_SENT`.
 
 Successful responses include `sendDecision` audit evidence with the confirmed draft scope, confirmed original conversation `channel`, SafetyCheck id, content hash, and the send gate checks that passed.
