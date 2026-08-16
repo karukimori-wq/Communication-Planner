@@ -27,6 +27,7 @@ type StoreState = {
   nextActions: CommunicationNextAction[];
   replyDrafts: ReplyDraft[];
   safetyChecks: SafetyCheck[];
+  sendDecisions: ReplySendDecision[];
 };
 
 const globalStore = globalThis as typeof globalThis & { communicationPlannerStore?: StoreState };
@@ -43,7 +44,8 @@ export const store: StoreState =
     promises: [],
     nextActions: [],
     replyDrafts: [],
-    safetyChecks: []
+    safetyChecks: [],
+    sendDecisions: []
   });
 
 export function resetStoreForTests() {
@@ -57,6 +59,7 @@ export function resetStoreForTests() {
   store.nextActions.length = 0;
   store.replyDrafts.length = 0;
   store.safetyChecks.length = 0;
+  store.sendDecisions.length = 0;
 }
 
 function now() {
@@ -533,8 +536,38 @@ export function canSendReplyDraft(replyDraftId: string) {
   return { ok: true as const, draft, safetyCheck };
 }
 
-export function buildReplySendDecision(input: { draft: ReplyDraft; safetyCheck: SafetyCheck }): ReplySendDecision {
+export function recordReplySendDecision(input: { draft: ReplyDraft; safetyCheck: SafetyCheck; messageId: string }): ReplySendDecision {
+  const decision: ReplySendDecision = {
+    sendDecisionId: crypto.randomUUID(),
+    messageId: input.messageId,
+    decidedAt: now(),
+    replyDraftId: input.draft.replyDraftId,
+    safetyCheckId: input.safetyCheck.safetyCheckId,
+    workspaceId: input.draft.workspaceId,
+    personId: input.draft.personId,
+    conversationId: input.draft.conversationId,
+    contentHash: input.draft.contentHash,
+    checks: {
+      draftNotSent: true,
+      safetyCheckPassed: true,
+      safetyCheckScopeMatched: true,
+      safetyCheckFresh: true,
+      sendScopeConfirmed: true
+    }
+  };
+  store.sendDecisions.push(decision);
+  return decision;
+}
+
+export function getReplySendDecisions(replyDraftId: string) {
+  return store.sendDecisions.filter((decision) => decision.replyDraftId === replyDraftId);
+}
+
+export function buildReplySendDecision(input: { draft: ReplyDraft; safetyCheck: SafetyCheck; messageId: string }): ReplySendDecision {
   return {
+    sendDecisionId: crypto.randomUUID(),
+    messageId: input.messageId,
+    decidedAt: now(),
     replyDraftId: input.draft.replyDraftId,
     safetyCheckId: input.safetyCheck.safetyCheckId,
     workspaceId: input.draft.workspaceId,
