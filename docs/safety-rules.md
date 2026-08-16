@@ -16,6 +16,7 @@ Communication Planner must prevent wrong-person and wrong-conversation replies.
 8. Send must fail when SafetyCheck is stale compared with the latest draft content.
 9. ReplyDraft context may include Topic, Promise, and Communication NextAction only from the same `workspaceId + personId`.
 10. SafetyCheck must include `workspaceId + personId + conversationId`; missing or mismatched scope must fail.
+11. Send must include `workspaceId + personId + conversationId`; missing or mismatched confirmation scope must fail.
 
 ## SafetyCheck Scope
 
@@ -41,6 +42,7 @@ SafetyCheck should verify:
 - The latest SafetyCheck includes matching `workspaceId + personId + conversationId`.
 - The SafetyCheck status is `passed`.
 - The checked content hash matches the current draft content hash.
+- The send request confirms the same `workspaceId + personId + conversationId` as the draft.
 
 ## AI Platform Core Boundary
 
