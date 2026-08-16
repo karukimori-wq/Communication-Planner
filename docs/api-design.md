@@ -210,6 +210,8 @@ Missing or mismatched send confirmation scope fails with `SEND_CONFIRMATION_REQU
 
 Already sent drafts fail with `REPLY_DRAFT_ALREADY_SENT`.
 
+Successful responses include `sendDecision` audit evidence with the confirmed draft scope, SafetyCheck id, content hash, and the send gate checks that passed.
+
 Must emit:
 
 - `communication.message.sent.v1`
