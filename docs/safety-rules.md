@@ -14,6 +14,7 @@ Communication Planner must prevent wrong-person and wrong-conversation replies.
 6. Send must fail when SafetyCheck is missing.
 7. Send must fail when SafetyCheck failed.
 8. Send must fail when SafetyCheck is stale compared with the latest draft content.
+9. ReplyDraft context may include Topic, Promise, and Communication NextAction only from the same `workspaceId + personId`.
 
 ## SafetyCheck Scope
 
@@ -23,6 +24,7 @@ SafetyCheck should verify:
 - Conversation fit
 - Context consistency
 - Prohibited cross-person context
+- Cross-person Topic, Promise, or NextAction leakage
 - Sensitive or source-of-truth payload leakage
 - Basic tone and professionalism
 
