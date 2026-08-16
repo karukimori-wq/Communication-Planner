@@ -128,8 +128,9 @@ Communication Planner must not become the source of truth for:
 3. Context from another person must never be used for reply generation.
 4. A reply must pass SafetyCheck before send.
 5. Send must fail when the latest SafetyCheck is missing, stale, or failed.
-6. Send must include the same `workspaceId + personId + conversationId` as the reply draft.
-7. Channel adapter state is integration state only. It must not override person, conversation, or message ownership.
+6. Successful sends must return `sendDecision` audit evidence for the passed send gate checks.
+7. Send must include the same `workspaceId + personId + conversationId` as the reply draft.
+8. Channel adapter state is integration state only. It must not override person, conversation, or message ownership.
 
 ## Repository Status
 
