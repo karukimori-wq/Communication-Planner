@@ -47,6 +47,8 @@ describe("static contract guards", () => {
     assert.match(store, /SAFETY_CHECK_REQUIRED/);
     assert.match(store, /SAFETY_CHECK_FAILED/);
     assert.match(store, /STALE_SAFETY_CHECK/);
+    assert.match(store, /REPLY_DRAFT_ALREADY_SENT/);
+    assert.match(store, /draft\.status === "sent"/);
     assert.match(store, /safetyCheck\.checkedContentHash !== draft\.contentHash/);
     assert.match(store, /workspaceId is required for SafetyCheck scope/);
     assert.match(store, /personId is required for SafetyCheck scope/);
