@@ -1,106 +1,77 @@
 # Communication Planner API Design
 
-## Common Headers
-
-| Header | Required | Purpose |
-| --- | --- | --- |
-| `X-Trace-Id` | Recommended | Request trace |
-| `X-Correlation-Id` | Recommended | Cross-app correlation |
-| `X-Source-App` | Recommended | Calling app |
-
-## Common Status Values
-
-API responses should use the platform status vocabulary:
-
-- `success`
-- `warning`
-- `error`
-- `skipped`
-
-## Endpoint Contract Metadata
-
-Communication Planner exposes endpoint-level contract metadata for Platform Admin and integration checks.
-
-### `GET /api/contracts/endpoints`
-
-Returns:
-
-- `appName`
-- `contractVersion`
-- `endpoints`
-- `implementedCount`
-- `plannedCount`
-
-Each endpoint contract includes:
-
-- `method`
-- `path`
-- `operation`
-- `status`
-- `requiredFields`
-- `prohibitedPayloadFields`
-- `eventName`
-- `sourceOfTruth`
-- `safetyRules`
-
-This metadata must not introduce ownership of Customer master, Lead lifecycle, Reservation, Payment, Sales/Revenue, SNS PostDraft, Numeria Report, Velvet Memory, or AI Usage.
-
-## Endpoints
+## Contract Endpoints
 
 ### `GET /health`
 
-Returns service health.
+Returns service health with shared platform status vocabulary.
+
+Must not return business-owned records.
 
 ### `GET /version`
 
-Returns app version and build metadata.
+Returns build metadata.
 
 ### `GET /contracts/status`
 
-Returns contract readiness.
+Returns contract readiness status for Platform Admin.
 
-Required response fields:
+### `GET /api/contracts/endpoints`
 
-- `appName`
-- `status`
-- `contractVersion`
-- `identityMode`
-- `professionalIdRequired`
-- `usesLegacyEventNames`
-- `usesReportTerminology`
-- `canonicalOwnershipChecked`
-- `endpointContractCount`
-- `implementedEndpointCount`
-- `endpointContractsPath`
-- `issues`
-- `timestamp`
+Returns endpoint-level contract metadata.
+
+This endpoint is used by Platform Admin and integration checks to verify:
+
+- implemented endpoint paths
+- required fields
+- prohibited owned payload fields
+- event names
+- source-of-truth boundaries
+- safety rules
+
+## MVP API
 
 ### `POST /api/channel-events/messages`
 
-Ingests incoming or outgoing message events from channel adapters.
+Ingests normalized message events from channel adapters.
 
-Optional context insight fields:
+Required fields:
 
+- `workspaceId`
+- `externalUserId`
+- `body`
+
+Optional fields:
+
+- `channel`
+- `personId`
+- `conversationId`
+- `externalMessageId`
+- `externalThreadId`
+- `displayName`
+- `direction`
 - `topics`
 - `promises`
 - `nextActions`
 
 When supplied, these fields are stored as Communication Planner-owned person-scoped context records tied to the ingested message. They must not contain Customer master, Reservation, Payment, Sales, or external app source-of-truth data.
 
-Must emit one of:
+Must emit:
 
-- `communication.message.received.v1`
-- `communication.message.sent.v1`
+- `communication.message.received.v1` for inbound messages
+- `communication.message.sent.v1` for outbound messages
 
 ### `POST /api/adapters/line/webhook`
 
-Ingests a LINE Harness-compatible webhook payload, normalizes it through the LINE adapter, and stores an inbound Communication Planner message.
+Accepts LINE Harness-compatible webhook payloads and normalizes them into `POST /api/channel-events/messages` input.
 
-Required provider data:
+Required normalized fields:
 
 - `workspaceId`
 - `externalUserId`, `userId`, or source user id
-- `body`, `text`, or provider message text
+- `body`, `text`, or nested message text
+
+The endpoint returns normalized Communication Planner records and does not echo the raw provider payload.
 
 Must emit:
 
@@ -108,13 +79,15 @@ Must emit:
 
 ### `POST /api/adapters/x/webhook`
 
-Ingests an X Harness-compatible webhook payload, normalizes it through the X adapter, and stores an inbound Communication Planner message.
+Accepts X Harness-compatible webhook payloads and normalizes them into `POST /api/channel-events/messages` input.
 
-Required provider data:
+Required normalized fields:
 
 - `workspaceId`
 - `externalUserId`, `senderId`, or sender user id
-- `body`, `text`, or provider message text
+- `body`, `text`, or nested message text
+
+The endpoint returns normalized Communication Planner records and does not echo the raw provider payload.
 
 Must emit:
 
@@ -122,13 +95,15 @@ Must emit:
 
 ### `POST /api/adapters/instagram/webhook`
 
-Ingests an Instagram Harness-compatible webhook payload, normalizes it through the Instagram adapter, and stores an inbound Communication Planner message.
+Accepts Instagram Harness-compatible webhook payloads and normalizes them into `POST /api/channel-events/messages` input.
 
-Required provider data:
+Required normalized fields:
 
 - `workspaceId`
 - `externalUserId`, `senderId`, or sender user id
-- `body`, `text`, or provider message text
+- `body`, `text`, or nested message text
+
+The endpoint returns normalized Communication Planner records and does not echo the raw provider payload.
 
 Must emit:
 
@@ -136,36 +111,53 @@ Must emit:
 
 ### `GET /api/inbox`
 
-Returns unified inbox items scoped by workspace.
+Returns conversations for one workspace.
+
+Required query:
+
+- `workspaceId`
 
 ### `GET /api/persons/{personId}`
 
 Returns Communication Person projection.
 
+Required query:
+
+- `workspaceId`
+
 ### `GET /api/persons/{personId}/conversations`
 
-Returns conversations for one person only.
+Returns conversations for a Communication Person.
+
+Required query:
+
+- `workspaceId`
 
 ### `GET /api/persons/{personId}/context`
 
-Returns context for `workspaceId + personId`.
+Returns person-scoped communication context.
 
-This endpoint must not accept arbitrary conversation context from another person.
+Required query:
+
+- `workspaceId`
+
+The returned context must be scoped by `workspaceId + personId` and must not include context from any other person.
 
 ### `POST /api/conversations/{conversationId}/reply-drafts`
 
-Creates a reply draft.
+Creates a reply draft for a specific person and conversation.
 
-Required fields:
+Required body fields:
 
 - `workspaceId`
 - `personId`
-- `conversationId`
 - `purpose`
 
-Must reject requests missing `personId` or `conversationId`.
+Path fields:
 
-When `body` is omitted, the draft body is composed from the same person's `ConversationContext`, `Topic`, `Promise`, and `CommunicationNextAction` records. It must not use context insight records from another `personId`.
+- `conversationId`
+
+If `body` is omitted, the draft may be composed from same-person context insights only. Generated reply drafts must not use context insight records from another `personId`.
 
 Must emit:
 
@@ -190,6 +182,14 @@ Must emit:
 ### `POST /api/reply-drafts/{replyDraftId}/send`
 
 Sends a reply draft only when the latest SafetyCheck has passed.
+
+Required body fields:
+
+- `workspaceId`
+- `personId`
+- `conversationId`
+
+Missing or mismatched send confirmation scope fails with `SEND_CONFIRMATION_REQUIRED` or `SEND_SCOPE_MISMATCH`.
 
 Must emit:
 
