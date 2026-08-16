@@ -472,6 +472,10 @@ export function canSendReplyDraft(replyDraftId: string) {
     return { ok: false as const, code: "NOT_FOUND", message: "ReplyDraft not found" };
   }
 
+  if (draft.status === "sent") {
+    return { ok: false as const, code: "REPLY_DRAFT_ALREADY_SENT", message: "ReplyDraft has already been sent" };
+  }
+
   const safetyCheck = getLatestSafetyCheck(replyDraftId);
   if (!safetyCheck) {
     return { ok: false as const, code: "SAFETY_CHECK_REQUIRED", message: "SafetyCheck is required before send" };
