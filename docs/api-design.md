@@ -79,6 +79,14 @@ Required response fields:
 
 Ingests incoming or outgoing message events from channel adapters.
 
+Optional context insight fields:
+
+- `topics`
+- `promises`
+- `nextActions`
+
+When supplied, these fields are stored as Communication Planner-owned person-scoped context records tied to the ingested message. They must not contain Customer master, Reservation, Payment, Sales, or external app source-of-truth data.
+
 Must emit one of:
 
 - `communication.message.received.v1`
