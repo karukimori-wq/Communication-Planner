@@ -35,6 +35,7 @@ Implemented:
 - `GET /api/persons/{personId}/conversations`
 - `GET /api/persons/{personId}/context`
 - `POST /api/conversations/{conversationId}/reply-drafts`
+- `PATCH /api/reply-drafts/{replyDraftId}`
 - `POST /api/reply-drafts/{replyDraftId}/safety-check`
 - `POST /api/reply-drafts/{replyDraftId}/send`
 - CORS headers and `OPTIONS` preflight handling for API routes
@@ -103,6 +104,7 @@ Communication Planner must not become the source of truth for:
 | GET | `/api/persons/{personId}/conversations` | Person-scoped conversations |
 | GET | `/api/persons/{personId}/context` | Person-scoped context |
 | POST | `/api/conversations/{conversationId}/reply-drafts` | Create reply draft |
+| PATCH | `/api/reply-drafts/{replyDraftId}` | Update reply draft |
 | POST | `/api/reply-drafts/{replyDraftId}/safety-check` | Check reply safety |
 | POST | `/api/reply-drafts/{replyDraftId}/send` | Send checked reply |
 | OPTIONS | `/api/*`, `/health`, `/version`, `/contracts/status` | CORS preflight |
@@ -115,6 +117,7 @@ Communication Planner must not become the source of truth for:
 - `communication.promise.created.v1`
 - `communication.next_action.created.v1`
 - `communication.reply_draft.created.v1`
+- `communication.reply_draft.updated.v1`
 - `communication.reply_safety.checked.v1`
 - `communication.person_channel.linked.v1`
 
