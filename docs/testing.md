@@ -57,6 +57,6 @@ The next layer should add route-level request/response tests for:
 - `PATCH /api/reply-drafts/{replyDraftId}`
 - `POST /api/reply-drafts/{replyDraftId}/safety-check`
 - `POST /api/reply-drafts/{replyDraftId}/send`
-- `GET /api/reply-drafts/{replyDraftId}/send-decisions`
+- `GET /api/reply-drafts/{replyDraftId}/send-decisions?workspaceId=&personId=&conversationId=`
 
 Route-level tests should verify response envelopes, trace headers, correlation IDs, event names, and error codes.
