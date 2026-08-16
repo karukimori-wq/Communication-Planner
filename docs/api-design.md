@@ -224,4 +224,10 @@ Path fields:
 
 - `replyDraftId`
 
-The response must include only `ReplySendDecision` records scoped to the requested draft.
+Query fields:
+
+- `workspaceId`
+- `personId`
+- `conversationId`
+
+The request scope must match the draft's `workspaceId + personId + conversationId`. The response must include only `ReplySendDecision` records scoped to the requested draft and confirmed request scope.
