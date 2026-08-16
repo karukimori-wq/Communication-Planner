@@ -435,6 +435,9 @@ export async function createSafetyCheck(replyDraftId: string, input: SafetyCheck
   }
 
   const issues = [...(input.issues ?? [])];
+  if (!input.workspaceId) issues.push("workspaceId is required for SafetyCheck scope");
+  if (!input.personId) issues.push("personId is required for SafetyCheck scope");
+  if (!input.conversationId) issues.push("conversationId is required for SafetyCheck scope");
   if (input.workspaceId && input.workspaceId !== draft.workspaceId) issues.push("workspaceId does not match reply draft");
   if (input.personId && input.personId !== draft.personId) issues.push("personId does not match reply draft");
   if (input.conversationId && input.conversationId !== draft.conversationId) issues.push("conversationId does not match reply draft");
