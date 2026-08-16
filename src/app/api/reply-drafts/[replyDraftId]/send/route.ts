@@ -62,6 +62,8 @@ export async function POST(request: Request, context: RouteContext) {
     safetyCheck: decision.safetyCheck,
     messageId: sentMessage.message.messageId
   });
+  sendDecision.channel = conversation.channel;
+  sendDecision.checks.channelConfirmed = true;
 
   return ok(
     {
