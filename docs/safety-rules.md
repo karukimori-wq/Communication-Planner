@@ -45,6 +45,7 @@ SafetyCheck should verify:
 - The SafetyCheck status is `passed`.
 - The checked content hash matches the current draft content hash.
 - The send request confirms the same `workspaceId + personId + conversationId` as the draft.
+- The send response includes `sendDecision` audit evidence for the passed gate checks.
 
 ## AI Platform Core Boundary
 
