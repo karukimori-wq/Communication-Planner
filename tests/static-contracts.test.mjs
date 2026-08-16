@@ -42,8 +42,11 @@ describe("static contract guards", () => {
     const store = read("src/lib/store.ts");
     const updateRoute = read("src/app/api/reply-drafts/[replyDraftId]/route.ts");
     const sendRoute = read("src/app/api/reply-drafts/[replyDraftId]/send/route.ts");
+    const sendDecisionsRoute = read("src/app/api/reply-drafts/[replyDraftId]/send-decisions/route.ts");
     const apiDesign = read("docs/api-design.md");
     const safetyRules = read("docs/safety-rules.md");
+    const schema = read("db/schema.sql");
+    const schemaDoc = read("docs/database-schema.md");
 
     assert.match(store, /SAFETY_CHECK_REQUIRED/);
     assert.match(store, /SAFETY_CHECK_FAILED/);
@@ -56,6 +59,11 @@ describe("static contract guards", () => {
     assert.match(store, /draft\.status = "draft"/);
     assert.match(store, /safetyCheck\.checkedContentHash !== draft\.contentHash/);
     assert.match(store, /export function buildReplySendDecision/);
+    assert.match(store, /sendDecisions: ReplySendDecision\[\]/);
+    assert.match(store, /export function recordReplySendDecision/);
+    assert.match(store, /store\.sendDecisions\.push\(decision\)/);
+    assert.match(store, /export function getReplySendDecisions/);
+    assert.match(store, /decision\.replyDraftId === replyDraftId/);
     assert.match(store, /safetyCheckScopeMatched: true/);
     assert.match(store, /sendScopeConfirmed: true/);
     assert.match(updateRoute, /export async function PATCH/);
@@ -67,11 +75,20 @@ describe("static contract guards", () => {
     assert.match(sendRoute, /validateSendConfirmation\(body, decision\.draft\)/);
     assert.match(sendRoute, /SEND_CONFIRMATION_REQUIRED/);
     assert.match(sendRoute, /SEND_SCOPE_MISMATCH/);
-    assert.match(sendRoute, /sendDecision: buildReplySendDecision/);
+    assert.match(sendRoute, /recordReplySendDecision/);
+    assert.match(sendRoute, /sendDecision/);
+    assert.match(sendDecisionsRoute, /export async function GET/);
+    assert.match(sendDecisionsRoute, /getReplySendDecisions\(replyDraftId\)/);
+    assert.match(schema, /create table if not exists reply_send_decisions/);
+    assert.match(schema, /safety_check_id text not null references safety_checks/);
+    assert.match(schema, /message_id text not null references messages/);
+    assert.match(schemaDoc, /reply_send_decisions/);
     assert.match(apiDesign, /Missing or mismatched scope fields force the SafetyCheck to `failed`/);
     assert.match(apiDesign, /Successful responses include `sendDecision` audit evidence/);
+    assert.match(apiDesign, /GET \/api\/reply-drafts\/\{replyDraftId\}\/send-decisions/);
     assert.match(safetyRules, /SafetyCheck must include `workspaceId \+ personId \+ conversationId`/);
     assert.match(safetyRules, /send response includes `sendDecision` audit evidence/);
+    assert.match(safetyRules, /send decision is stored and can be read only by `replyDraftId`/);
   });
 
   it("sends outbound messages on the original conversation channel", () => {
@@ -100,6 +117,9 @@ describe("static contract guards", () => {
     assert.match(contracts, /SafetyCheck scope must match the reply draft/);
     assert.match(contracts, /Send confirmation scope must match the reply draft/);
     assert.match(contracts, /Send response must include sendDecision audit evidence/);
+    assert.match(contracts, /replyDrafts\.sendDecisions\.list/);
+    assert.match(contracts, /\/api\/reply-drafts\/\{replyDraftId\}\/send-decisions/);
+    assert.match(contracts, /Send decision history must be scoped to one replyDraftId/);
     assert.match(route, /implementedCount/);
     assert.match(statusRoute, /endpointContractsPath: "\/api\/contracts\/endpoints"/);
     assert.match(statusRoute, /communication\.reply_draft\.updated\.v1/);
