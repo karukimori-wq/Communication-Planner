@@ -226,4 +226,32 @@ describe("static contract guards", () => {
     assert.match(middleware, /request\.method === "OPTIONS"/);
     assert.match(middleware, /status: 204/);
   });
+
+  it("exposes the operator dashboard safety workflow", () => {
+    const page = read("src/app/page.tsx");
+    const dashboardClient = read("src/app/dashboard-client.tsx");
+    const dashboardData = read("src/lib/dashboard.ts");
+    const dashboardDoc = read("docs/operator-dashboard.md");
+    const sprint = read("docs/sprint-1.md");
+
+    assert.match(page, /CommunicationDashboard/);
+    assert.match(page, /dashboardSnapshot/);
+    assert.match(dashboardClient, /aria-label="inbox"/);
+    assert.match(dashboardClient, /aria-label="person context"/);
+    assert.match(dashboardClient, /aria-label="reply safety"/);
+    assert.match(dashboardClient, /data-send-gate=\{sendUnlocked \? "unlocked" : "locked"\}/);
+    assert.match(dashboardClient, /disabled=\{!sendUnlocked\}/);
+    assert.match(dashboardClient, /workspace \+ person \+ conversation confirmed/);
+    assert.match(dashboardClient, /latest SafetyCheck passed for current draft hash/);
+    assert.match(dashboardData, /Shudesu\/line-harness-oss/);
+    assert.match(dashboardData, /Shudesu\/x-harness-oss/);
+    assert.match(dashboardData, /Shudesu\/ig-harness-oss/);
+    assert.match(dashboardData, /reply\.generate/);
+    assert.match(dashboardData, /safety_check/);
+    assert.match(dashboardData, /context\.summarize/);
+    assert.match(dashboardDoc, /The API remains the source of truth/);
+    assert.match(dashboardDoc, /Send stays locked until scope, channel, context, and SafetyCheck are confirmed/);
+    assert.match(sprint, /Add operator dashboard UI shell \| Done/);
+    assert.match(sprint, /Add dashboard UI contract tests and docs \| Done/);
+  });
 });

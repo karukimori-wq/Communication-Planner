@@ -35,6 +35,12 @@ Initialize Communication Planner as a contract-aligned MVP project and prepare i
 | Add dependency-free contract tests | Done |
 | Add package lock and GitHub Actions CI | Done |
 | Add LINE/X/Instagram harness-compatible webhook entry points | Done |
+| Add operator dashboard UI shell | Done |
+| Add visible person/context/reply draft panels | Done |
+| Add UI send safety gate controls | Done |
+| Add AI Platform Core task boundary display | Done |
+| Add adapter operations status display | Done |
+| Add dashboard UI contract tests and docs | Done |
 | Review Chatwoot unified inbox and conversation patterns | Todo |
 | Review LINE Harness adapter architecture | Todo |
 | Review X Harness adapter architecture | Todo |

@@ -1,15 +1,25 @@
+import { CommunicationDashboard } from "./dashboard-client";
+import { dashboardSnapshot } from "@/lib/dashboard";
+
 export default function Home() {
   return (
-    <main>
-      <h1>Communication Planner</h1>
-      <p>1-to-1 communication management for person-scoped inboxes, reply drafts, and send safety checks.</p>
-      <section className="card">
-        <h2>MVP API</h2>
-        <p>
-          Start with <code>/health</code>, <code>/version</code>, <code>/contracts/status</code>, channel message ingestion,
-          person-scoped context, reply drafts, safety checks, and the send gate.
-        </p>
-      </section>
+    <main className="app-shell">
+      <header className="workspace-header">
+        <div>
+          <p className="eyebrow">Communication Planner</p>
+          <h1>1-to-1 inbox with reply safety gates</h1>
+          <p className="lede">
+            Person-scoped conversations, context, draft review, and send confirmation for LINE, X, and Instagram adapters.
+          </p>
+        </div>
+        <div className="workspace-status" aria-label="workspace readiness">
+          <span>Workspace</span>
+          <strong>{dashboardSnapshot.workspaceId}</strong>
+          <small>{dashboardSnapshot.contractStatus}</small>
+        </div>
+      </header>
+
+      <CommunicationDashboard snapshot={dashboardSnapshot} />
     </main>
   );
 }
