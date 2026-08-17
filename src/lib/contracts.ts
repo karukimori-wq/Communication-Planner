@@ -120,6 +120,16 @@ export const endpointContracts: EndpointContract[] = [
   },
   {
     method: "GET",
+    path: "/api/dashboard",
+    operation: "dashboard.read",
+    status: "implemented",
+    requiredFields: ["workspaceId"],
+    prohibitedPayloadFields: prohibitedOwnedPayloadFields,
+    sourceOfTruth: ["Unified Inbox", "ConversationContext", "ReplyDraft", "SafetyCheck", "ChannelAdapter integration state"],
+    safetyRules: ["Read one workspace dashboard snapshot", "Expose send readiness without bypassing the API send gate"]
+  },
+  {
+    method: "GET",
     path: "/api/persons/{personId}",
     operation: "persons.read",
     status: "implemented",

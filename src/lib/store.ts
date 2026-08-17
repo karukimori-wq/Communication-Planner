@@ -1,4 +1,5 @@
 import { contentHash } from "./hash";
+import { dashboardOperations, dashboardSeedWorkspaceId, type DashboardConversation, type DashboardSnapshot } from "./dashboard";
 import type {
   ChannelIdentity,
   ChannelMessageInput,
@@ -64,6 +65,106 @@ export function resetStoreForTests() {
 
 function now() {
   return new Date().toISOString();
+}
+
+function addDemoMessage(input: ChannelMessageInput) {
+  return ingestChannelMessage(input);
+}
+
+async function addDemoReplyDraft(input: {
+  replyDraftId: string;
+  workspaceId: string;
+  personId: string;
+  conversationId: string;
+  body: string;
+  purpose: string;
+}) {
+  if (store.replyDrafts.some((draft) => draft.replyDraftId === input.replyDraftId)) return;
+
+  const hash = await contentHash(input.body);
+  store.replyDrafts.push({
+    replyDraftId: input.replyDraftId,
+    workspaceId: input.workspaceId,
+    personId: input.personId,
+    conversationId: input.conversationId,
+    body: input.body,
+    purpose: input.purpose,
+    contentHash: hash,
+    status: "draft",
+    createdAt: now(),
+    updatedAt: now()
+  });
+}
+
+export async function ensureDemoWorkspaceSeeded(workspaceId = dashboardSeedWorkspaceId) {
+  if (store.conversations.some((conversation) => conversation.workspaceId === workspaceId)) return;
+
+  addDemoMessage({
+    workspaceId,
+    channel: "line",
+    externalUserId: "line-user-aoi",
+    externalMessageId: "demo-line-message-001",
+    externalThreadId: "line-thread-aoi",
+    personId: "person-aoi",
+    conversationId: "conv-line-001",
+    displayName: "Aoi Tanaka",
+    body: "Can you confirm the latest schedule and next action?",
+    topics: ["schedule confirmation", "follow-up timing"],
+    promises: ["Send a clear confirmation after checking the current conversation"],
+    nextActions: ["Review same-person context before drafting the reply"]
+  });
+  addDemoMessage({
+    workspaceId,
+    channel: "x",
+    externalUserId: "x-user-ren",
+    externalMessageId: "demo-x-message-001",
+    externalThreadId: "x-thread-ren",
+    personId: "person-ren",
+    conversationId: "conv-x-001",
+    displayName: "Ren Sato",
+    body: "Please summarize where we left off.",
+    topics: ["conversation recap"],
+    nextActions: ["Create a scoped reply draft"]
+  });
+  addDemoMessage({
+    workspaceId,
+    channel: "instagram",
+    externalUserId: "ig-user-mika",
+    externalMessageId: "demo-ig-message-001",
+    externalThreadId: "ig-thread-mika",
+    personId: "person-mika",
+    conversationId: "conv-ig-001",
+    displayName: "Mika Ito",
+    body: "Could you remind me what was promised?",
+    topics: ["promise follow-up"],
+    promises: ["Share the confirmed note after review"],
+    nextActions: ["Run SafetyCheck after editing the draft"]
+  });
+
+  await addDemoReplyDraft({
+    replyDraftId: "draft-line-001",
+    workspaceId,
+    personId: "person-aoi",
+    conversationId: "conv-line-001",
+    body: "Thanks for the message. I will confirm the latest details and reply with the next step shortly.",
+    purpose: "confirm next action"
+  });
+  await addDemoReplyDraft({
+    replyDraftId: "draft-x-001",
+    workspaceId,
+    personId: "person-ren",
+    conversationId: "conv-x-001",
+    body: "Here is a concise recap of the current thread and the next step we discussed.",
+    purpose: "summarize context"
+  });
+  await addDemoReplyDraft({
+    replyDraftId: "draft-ig-001",
+    workspaceId,
+    personId: "person-mika",
+    conversationId: "conv-ig-001",
+    body: "I will check the saved note for this conversation and send the confirmed promise clearly.",
+    purpose: "promise follow-up"
+  });
 }
 
 function findOrCreatePerson(input: Pick<ChannelMessageInput, "workspaceId" | "personId" | "displayName" | "channel" | "externalUserId">): CommunicationPerson {
@@ -346,6 +447,80 @@ export function getInbox(workspaceId: string) {
       };
     })
     .sort((a, b) => (b.lastMessageAt ?? "").localeCompare(a.lastMessageAt ?? ""));
+}
+
+function getLatestReplyDraft(workspaceId: string, personId: string, conversationId: string) {
+  return [...store.replyDrafts]
+    .reverse()
+    .find(
+      (draft) =>
+        draft.workspaceId === workspaceId &&
+        draft.personId === personId &&
+        draft.conversationId === conversationId
+    );
+}
+
+function getDashboardWaitingState(conversation: Conversation, replyDraft: ReplyDraft | undefined) {
+  if (!replyDraft) return "draft needed";
+  if (replyDraft.status === "sent") return "sent";
+  const safetyCheck = getLatestSafetyCheck(replyDraft.replyDraftId);
+  if (!safetyCheck) return "safety check needed";
+  if (safetyCheck.status === "failed") return "safety blocked";
+  const sendDecision = canSendReplyDraft(replyDraft.replyDraftId);
+  if (!sendDecision.ok) return sendDecision.code;
+  return `ready on ${conversation.channel}`;
+}
+
+export async function getDashboardSnapshot(workspaceId = dashboardSeedWorkspaceId) {
+  if (workspaceId === dashboardSeedWorkspaceId) {
+    await ensureDemoWorkspaceSeeded(workspaceId);
+  }
+
+  const conversations: DashboardConversation[] = getInbox(workspaceId).map((item) => {
+    const context = getPersonContext(workspaceId, item.personId);
+    const replyDraft = getLatestReplyDraft(workspaceId, item.personId, item.conversationId);
+    const latestSafetyCheck = replyDraft ? getLatestSafetyCheck(replyDraft.replyDraftId) : undefined;
+    const sendDecision = replyDraft ? canSendReplyDraft(replyDraft.replyDraftId) : undefined;
+    const conversation = getConversation(workspaceId, item.personId, item.conversationId);
+
+    return {
+      conversationId: item.conversationId,
+      personId: item.personId,
+      displayName: item.displayName ?? item.personId,
+      channel: item.channel,
+      lastMessagePreview: item.lastMessagePreview ?? "",
+      waitingState: conversation ? getDashboardWaitingState(conversation, replyDraft) : "conversation missing",
+      context: {
+        summary: context?.summary ?? "",
+        topics: context?.topics.map((topic) => topic.label) ?? [],
+        promises: context?.promises.map((promise) => promise.body) ?? [],
+        nextActions: context?.nextActions.map((nextAction) => nextAction.body) ?? []
+      },
+      replyDraft: replyDraft
+        ? {
+            replyDraftId: replyDraft.replyDraftId,
+            body: replyDraft.body,
+            purpose: replyDraft.purpose,
+            contentHash: replyDraft.contentHash,
+            status: replyDraft.status
+          }
+        : null,
+      safety: {
+        latestSafetyCheckId: latestSafetyCheck?.safetyCheckId,
+        latestSafetyCheckStatus: latestSafetyCheck?.status,
+        sendReady: sendDecision?.ok ?? false,
+        blockedReason: sendDecision && !sendDecision.ok ? sendDecision.code : undefined
+      }
+    };
+  });
+
+  return {
+    workspaceId,
+    contractStatus: "success" as const,
+    conversations,
+    adapterStates: dashboardOperations.adapterStates,
+    aiTasks: dashboardOperations.aiTasks
+  };
 }
 
 export function getPerson(workspaceId: string, personId: string) {

@@ -1,7 +1,10 @@
 import { CommunicationDashboard } from "./dashboard-client";
-import { dashboardSnapshot } from "@/lib/dashboard";
+import { dashboardSeedWorkspaceId } from "@/lib/dashboard";
+import { getDashboardSnapshot } from "@/lib/store";
 
-export default function Home() {
+export default async function Home() {
+  const snapshot = await getDashboardSnapshot(dashboardSeedWorkspaceId);
+
   return (
     <main className="app-shell">
       <header className="workspace-header">
@@ -14,12 +17,12 @@ export default function Home() {
         </div>
         <div className="workspace-status" aria-label="workspace readiness">
           <span>Workspace</span>
-          <strong>{dashboardSnapshot.workspaceId}</strong>
-          <small>{dashboardSnapshot.contractStatus}</small>
+          <strong>{snapshot.workspaceId}</strong>
+          <small>{snapshot.contractStatus}</small>
         </div>
       </header>
 
-      <CommunicationDashboard snapshot={dashboardSnapshot} />
+      <CommunicationDashboard snapshot={snapshot} />
     </main>
   );
 }

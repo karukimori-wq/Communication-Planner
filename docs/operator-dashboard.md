@@ -12,6 +12,16 @@ The first UI surface is a single-workspace operator dashboard for the safest 1-t
 | Safety Gate | Confirm send prerequisites before enabling send | Send stays locked until scope, channel, context, and SafetyCheck are confirmed |
 | Operations | Show adapter and AI task readiness | OSS harness references stay adapter-scoped and AI tasks stay behind Communication Planner boundaries |
 
+## Implemented Actions
+
+The dashboard now reads from `GET /api/dashboard?workspaceId=...` and refreshes after every operator action.
+
+| Action | API | Gate |
+| --- | --- | --- |
+| Save draft | `PATCH /api/reply-drafts/{replyDraftId}` | Requires `workspaceId + personId + conversationId` |
+| Run SafetyCheck | `POST /api/reply-drafts/{replyDraftId}/safety-check` | Requires full draft scope |
+| Send reply | `POST /api/reply-drafts/{replyDraftId}/send` | Requires full scope, original channel, and API send readiness |
+
 ## Send Unlock Rules
 
 The UI must keep the send button disabled until all of these are true:
@@ -23,6 +33,8 @@ The UI must keep the send button disabled until all of these are true:
 - The ReplyDraft is not already sent.
 
 These UI rules mirror the API send gate. The API remains the source of truth and still rejects unsafe send attempts.
+
+The UI additionally displays the API readiness reason, such as `SAFETY_CHECK_REQUIRED`, `STALE_SAFETY_CHECK`, or `REPLY_DRAFT_ALREADY_SENT`, so operators can see why a send is blocked.
 
 ## AI Platform Core Boundary
 
@@ -41,3 +53,13 @@ The Operations panel lists LINE, X, and Instagram adapter readiness with the cor
 - `Shudesu/ig-harness-oss`
 
 Adapters may normalize provider events and prepare provider sends, but final outbound sends remain blocked by Communication Planner's SafetyCheck and send confirmation rules.
+
+## Pilot Readiness
+
+Minimum pilot readiness requires:
+
+- Dashboard data loaded from the Communication Planner store.
+- Draft editing through the scoped ReplyDraft API.
+- SafetyCheck creation through the scoped SafetyCheck API.
+- Send attempts blocked by the API until the dashboard and API agree on scope, channel, and current draft hash.
+- Adapter operations shown as readiness state, with provider delivery still behind the send gate.

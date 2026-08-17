@@ -41,6 +41,14 @@ Initialize Communication Planner as a contract-aligned MVP project and prepare i
 | Add AI Platform Core task boundary display | Done |
 | Add adapter operations status display | Done |
 | Add dashboard UI contract tests and docs | Done |
+| Add store-backed dashboard snapshot API | Done |
+| Add deterministic demo workspace seed | Done |
+| Add dashboard draft edit action | Done |
+| Add dashboard SafetyCheck action | Done |
+| Add dashboard send action | Done |
+| Add API send readiness display | Done |
+| Add dashboard pilot readiness docs | Done |
+| Add dashboard action contract guards | Done |
 | Review Chatwoot unified inbox and conversation patterns | Todo |
 | Review LINE Harness adapter architecture | Todo |
 | Review X Harness adapter architecture | Todo |

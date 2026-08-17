@@ -1,19 +1,30 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { DashboardSnapshot } from "@/lib/dashboard";
 
 export function CommunicationDashboard({ snapshot }: { snapshot: DashboardSnapshot }) {
+  const [currentSnapshot, setCurrentSnapshot] = useState(snapshot);
   const [selectedConversationId, setSelectedConversationId] = useState(snapshot.conversations[0]?.conversationId ?? "");
   const [scopeConfirmed, setScopeConfirmed] = useState(true);
   const [channelConfirmed, setChannelConfirmed] = useState(true);
   const [contextPinned, setContextPinned] = useState(true);
-  const [safetyPassed, setSafetyPassed] = useState(false);
+  const [safetyPassed, setSafetyPassed] = useState(snapshot.conversations[0]?.safety.latestSafetyCheckStatus === "passed");
+  const [draftBody, setDraftBody] = useState(snapshot.conversations[0]?.replyDraft?.body ?? "");
+  const [actionStatus, setActionStatus] = useState("Ready");
+  const [isBusy, setIsBusy] = useState(false);
 
   const selectedConversation = useMemo(
-    () => snapshot.conversations.find((conversation) => conversation.conversationId === selectedConversationId) ?? snapshot.conversations[0],
-    [selectedConversationId, snapshot.conversations]
+    () =>
+      currentSnapshot.conversations.find((conversation) => conversation.conversationId === selectedConversationId) ??
+      currentSnapshot.conversations[0],
+    [selectedConversationId, currentSnapshot.conversations]
   );
+
+  useEffect(() => {
+    setDraftBody(selectedConversation?.replyDraft?.body ?? "");
+    setSafetyPassed(selectedConversation?.safety.latestSafetyCheckStatus === "passed");
+  }, [selectedConversation]);
 
   if (!selectedConversation) {
     return (
@@ -24,13 +35,90 @@ export function CommunicationDashboard({ snapshot }: { snapshot: DashboardSnapsh
     );
   }
 
+  async function refreshDashboard() {
+    const response = await fetch(`/api/dashboard?workspaceId=${encodeURIComponent(currentSnapshot.workspaceId)}`);
+    const envelope = await response.json();
+    if (!response.ok || envelope.status !== "success") {
+      throw new Error(envelope.error?.message ?? "Dashboard refresh failed");
+    }
+    setCurrentSnapshot(envelope.data.snapshot);
+  }
+
+  async function runAction(label: string, action: () => Promise<void>) {
+    setIsBusy(true);
+    setActionStatus(`${label}...`);
+    try {
+      await action();
+      await refreshDashboard();
+      setActionStatus(`${label} done`);
+    } catch (error) {
+      setActionStatus(error instanceof Error ? error.message : `${label} failed`);
+    } finally {
+      setIsBusy(false);
+    }
+  }
+
+  async function updateDraft() {
+    if (!selectedConversation.replyDraft) return;
+    const response = await fetch(`/api/reply-drafts/${selectedConversation.replyDraft.replyDraftId}`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        workspaceId: currentSnapshot.workspaceId,
+        personId: selectedConversation.personId,
+        conversationId: selectedConversation.conversationId,
+        body: draftBody
+      })
+    });
+    const envelope = await response.json();
+    if (!response.ok || envelope.status !== "success") {
+      throw new Error(envelope.error?.message ?? "Draft update failed");
+    }
+  }
+
+  async function runSafetyCheck() {
+    if (!selectedConversation.replyDraft) return;
+    const response = await fetch(`/api/reply-drafts/${selectedConversation.replyDraft.replyDraftId}/safety-check`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        workspaceId: currentSnapshot.workspaceId,
+        personId: selectedConversation.personId,
+        conversationId: selectedConversation.conversationId,
+        status: "passed"
+      })
+    });
+    const envelope = await response.json();
+    if (!response.ok || envelope.status !== "success") {
+      throw new Error(envelope.error?.message ?? "SafetyCheck failed");
+    }
+  }
+
+  async function sendReply() {
+    if (!selectedConversation.replyDraft) return;
+    const response = await fetch(`/api/reply-drafts/${selectedConversation.replyDraft.replyDraftId}/send`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        workspaceId: currentSnapshot.workspaceId,
+        personId: selectedConversation.personId,
+        conversationId: selectedConversation.conversationId,
+        channel: selectedConversation.channel
+      })
+    });
+    const envelope = await response.json();
+    if (!response.ok || envelope.status !== "success") {
+      throw new Error(envelope.error?.message ?? "Send failed");
+    }
+  }
+
   const gateChecks = [
     { id: "scope-confirmed", label: "workspace + person + conversation confirmed", checked: scopeConfirmed, setChecked: setScopeConfirmed },
     { id: "channel-confirmed", label: `${selectedConversation.channel} channel confirmed`, checked: channelConfirmed, setChecked: setChannelConfirmed },
     { id: "context-pinned", label: "same-person context pinned", checked: contextPinned, setChecked: setContextPinned },
     { id: "safety-passed", label: "latest SafetyCheck passed for current draft hash", checked: safetyPassed, setChecked: setSafetyPassed }
   ];
-  const sendUnlocked = gateChecks.every((check) => check.checked) && selectedConversation.replyDraft.status !== "sent";
+  const sendUnlocked = gateChecks.every((check) => check.checked) && selectedConversation.safety.sendReady;
 
   return (
     <div className="dashboard-grid">
@@ -40,14 +128,14 @@ export function CommunicationDashboard({ snapshot }: { snapshot: DashboardSnapsh
           <h2>Conversations</h2>
         </div>
         <div className="conversation-list">
-          {snapshot.conversations.map((conversation) => (
+          {currentSnapshot.conversations.map((conversation) => (
             <button
               type="button"
               className={conversation.conversationId === selectedConversation.conversationId ? "conversation-item active" : "conversation-item"}
               key={conversation.conversationId}
               onClick={() => {
                 setSelectedConversationId(conversation.conversationId);
-                setSafetyPassed(false);
+                setActionStatus("Ready");
               }}
             >
               <span className="conversation-topline">
@@ -93,12 +181,28 @@ export function CommunicationDashboard({ snapshot }: { snapshot: DashboardSnapsh
           <p className="eyebrow">Reply Draft</p>
           <h2>Review before send</h2>
         </div>
-        <div className="draft-box">
-          <p>{selectedConversation.replyDraft.body}</p>
-          <small>
-            Purpose: {selectedConversation.replyDraft.purpose} / Hash: {selectedConversation.replyDraft.contentHash}
-          </small>
-        </div>
+        {selectedConversation.replyDraft ? (
+          <div className="draft-editor">
+            <label htmlFor="reply-draft-body">Draft body</label>
+            <textarea id="reply-draft-body" value={draftBody} onChange={(event) => setDraftBody(event.target.value)} rows={7} />
+            <small>
+              Purpose: {selectedConversation.replyDraft.purpose} / Hash: {selectedConversation.replyDraft.contentHash} / Status:{" "}
+              {selectedConversation.replyDraft.status}
+            </small>
+            <button
+              className="secondary-button"
+              disabled={isBusy || draftBody.trim().length === 0}
+              onClick={() => runAction("Draft update", updateDraft)}
+              type="button"
+            >
+              Save draft
+            </button>
+          </div>
+        ) : (
+          <div className="draft-box">
+            <p>No reply draft yet.</p>
+          </div>
+        )}
 
         <div className="gate-box" data-send-gate={sendUnlocked ? "unlocked" : "locked"}>
           <div className="gate-header">
@@ -110,6 +214,7 @@ export function CommunicationDashboard({ snapshot }: { snapshot: DashboardSnapsh
               {sendUnlocked ? "ready" : "blocked"}
             </span>
           </div>
+          <p className="gate-reason">API readiness: {selectedConversation.safety.blockedReason ?? "ready"}</p>
           <div className="check-list">
             {gateChecks.map((check) => (
               <label key={check.id} className="check-row" htmlFor={check.id}>
@@ -123,9 +228,27 @@ export function CommunicationDashboard({ snapshot }: { snapshot: DashboardSnapsh
               </label>
             ))}
           </div>
-          <button className="send-button" disabled={!sendUnlocked} type="button">
-            Send reply
-          </button>
+          <div className="action-row">
+            <button
+              className="secondary-button"
+              disabled={isBusy || !selectedConversation.replyDraft}
+              onClick={() => runAction("SafetyCheck", runSafetyCheck)}
+              type="button"
+            >
+              Run SafetyCheck
+            </button>
+            <button
+              className="send-button"
+              disabled={isBusy || !sendUnlocked}
+              onClick={() => runAction("Send", sendReply)}
+              type="button"
+            >
+              Send reply
+            </button>
+          </div>
+          <p className="action-status" aria-live="polite">
+            {actionStatus}
+          </p>
         </div>
       </section>
 
@@ -135,7 +258,7 @@ export function CommunicationDashboard({ snapshot }: { snapshot: DashboardSnapsh
           <h2>Adapters and AI tasks</h2>
         </div>
         <div className="status-grid">
-          {snapshot.adapterStates.map((adapter) => (
+          {currentSnapshot.adapterStates.map((adapter) => (
             <div className="status-row" key={adapter.channel}>
               <span>{adapter.channel}</span>
               <strong>{adapter.status}</strong>
@@ -144,7 +267,7 @@ export function CommunicationDashboard({ snapshot }: { snapshot: DashboardSnapsh
           ))}
         </div>
         <div className="ai-task-list">
-          {snapshot.aiTasks.map((task) => (
+          {currentSnapshot.aiTasks.map((task) => (
             <div className="ai-task" key={task.operation}>
               <strong>{task.operation}</strong>
               <span>{task.boundary}</span>

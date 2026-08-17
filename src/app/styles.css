@@ -199,8 +199,31 @@ p {
   padding-left: 18px;
 }
 
-.draft-box {
+.draft-box,
+.draft-editor {
   margin-bottom: 16px;
+}
+
+.draft-editor {
+  display: grid;
+  gap: 10px;
+}
+
+.draft-editor label {
+  color: #5d6b7f;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.draft-editor textarea {
+  border: 1px solid #d8dee8;
+  border-radius: 8px;
+  color: inherit;
+  font: inherit;
+  line-height: 1.5;
+  padding: 12px;
+  resize: vertical;
 }
 
 .gate-box {
@@ -229,7 +252,8 @@ p {
   gap: 10px;
 }
 
-.send-button {
+.send-button,
+.secondary-button {
   background: #18212f;
   border: 0;
   border-radius: 8px;
@@ -241,9 +265,30 @@ p {
   width: 100%;
 }
 
-.send-button:disabled {
+.secondary-button {
+  background: #e8edf5;
+  color: #18212f;
+  margin-top: 0;
+}
+
+.send-button:disabled,
+.secondary-button:disabled {
   background: #b8c0cc;
   cursor: not-allowed;
+}
+
+.action-row {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 16px;
+}
+
+.gate-reason,
+.action-status {
+  color: #5d6b7f;
+  font-size: 13px;
+  margin: 10px 0 0;
 }
 
 .status-grid {
@@ -276,7 +321,8 @@ code {
 
   .dashboard-grid,
   .status-grid,
-  .ai-task-list {
+  .ai-task-list,
+  .action-row {
     grid-template-columns: 1fr;
   }
 }

@@ -119,6 +119,16 @@ Required query:
 
 - `workspaceId`
 
+### `GET /api/dashboard`
+
+Returns the operator dashboard snapshot for one workspace.
+
+Required query:
+
+- `workspaceId`
+
+The snapshot joins inbox, same-person context, latest reply draft, latest SafetyCheck, send readiness, adapter status, and AI task boundaries. It is read-only and must not bypass the SafetyCheck send gate.
+
 ### `GET /api/persons/{personId}`
 
 Returns Communication Person projection.
