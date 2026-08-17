@@ -1,3 +1,5 @@
+import { getProviderRateLimitPolicy } from "@/lib/adapters/rate-limit";
+import { getWebhookSignatureSecretStatus } from "@/lib/adapters/security";
 import type { Channel } from "@/lib/types";
 
 type ProviderReadinessRequirement = {
@@ -13,7 +15,13 @@ export type ProviderReadiness = {
   liveSendReady: boolean;
   adapterReference: string;
   credentialRequirements: ProviderReadinessRequirement[];
+  webhookSignatureSecrets: ProviderReadinessRequirement[];
   operationalRequirements: ProviderReadinessRequirement[];
+  rateLimitPolicy: {
+    enabled: boolean;
+    windowMs: number;
+    maxRequests: number;
+  };
   blockers: string[];
 };
 
@@ -49,17 +57,23 @@ export function getRequestedProviderDeliveryMode() {
 
 export function getProviderSendReadiness(channel: ProviderReadiness["channel"]): ProviderReadiness {
   const requestedDeliveryMode = getRequestedProviderDeliveryMode();
+  const rateLimitPolicy = getProviderRateLimitPolicy();
   const credentialRequirements = credentialKeys[channel].map((key) => ({
     key,
     description: `${channel} provider credential must be configured`,
     met: configured(process.env[key])
+  }));
+  const webhookSignatureSecrets = getWebhookSignatureSecretStatus(channel).map((secret) => ({
+    key: secret.key,
+    description: `${channel} webhook signature secret may verify inbound provider payloads`,
+    met: secret.configured
   }));
   const operationalRequirements = operationalKeys.map((key) => ({
     key,
     description: `${key} must be enabled before live provider send`,
     met: enabled(process.env[key])
   }));
-  const blockers = [...credentialRequirements, ...operationalRequirements]
+  const blockers = [...credentialRequirements, ...webhookSignatureSecrets, ...operationalRequirements]
     .filter((requirement) => !requirement.met)
     .map((requirement) => requirement.key);
   const liveSendReady = blockers.length === 0;
@@ -71,7 +85,9 @@ export function getProviderSendReadiness(channel: ProviderReadiness["channel"]):
     liveSendReady,
     adapterReference: adapterReferences[channel],
     credentialRequirements,
+    webhookSignatureSecrets,
     operationalRequirements,
+    rateLimitPolicy,
     blockers
   };
 }

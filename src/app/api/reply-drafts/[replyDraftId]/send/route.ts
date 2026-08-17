@@ -67,7 +67,10 @@ export async function POST(request: Request, context: RouteContext) {
     meta
   });
   if (!adapterDelivery.ok) {
-    return fail(adapterDelivery.code, adapterDelivery.message, 409, meta);
+    return fail(adapterDelivery.code, adapterDelivery.message, adapterDelivery.httpStatus ?? 409, {
+      ...meta,
+      retryable: adapterDelivery.retryable
+    });
   }
 
   const sentDraft = markReplyDraftSent(replyDraftId);

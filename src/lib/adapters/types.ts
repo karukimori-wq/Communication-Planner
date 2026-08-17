@@ -33,6 +33,13 @@ export type ProviderSendResult = {
   idempotencyKey: string;
   externalMessageId?: string;
   reason?: string;
+  providerStatus?: number;
+  providerCode?: string;
+  rateLimit?: {
+    limit: number;
+    remaining: number;
+    resetAt: string;
+  };
 };
 
 export type ChannelAdapter = {

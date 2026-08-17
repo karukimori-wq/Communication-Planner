@@ -1,7 +1,10 @@
 import { endpointContracts } from "@/lib/contracts";
 import { ok } from "@/lib/http";
+import { getAllProviderSendReadiness } from "@/lib/adapters/readiness";
 
 export function GET() {
+  const adapterReadiness = getAllProviderSendReadiness();
+
   return ok({
     appName: "communication-planner",
     status: "success",
@@ -17,8 +20,21 @@ export function GET() {
     readinessChecks: {
       sendDecisionChannelAudit: true,
       adapterWebhookRawPayloadExcluded: true,
-      sendRequiresChannelConfirmation: true
+      sendRequiresChannelConfirmation: true,
+      adapterWebhookSignatureVerification: adapterReadiness.every((adapter) =>
+        adapter.operationalRequirements.some(
+          (requirement) => requirement.key === "COMMUNICATION_PLANNER_WEBHOOK_SIGNATURE_VERIFICATION" && requirement.met
+        )
+      ),
+      adapterRateLimitPolicy: adapterReadiness.every((adapter) =>
+        adapter.operationalRequirements.some((requirement) => requirement.key === "COMMUNICATION_PLANNER_PROVIDER_RATE_LIMIT_POLICY" && requirement.met)
+      ),
+      adapterErrorMapping: adapterReadiness.every((adapter) =>
+        adapter.operationalRequirements.some((requirement) => requirement.key === "COMMUNICATION_PLANNER_PROVIDER_ERROR_MAPPING" && requirement.met)
+      ),
+      providerLiveSendReady: adapterReadiness.every((adapter) => adapter.liveSendReady)
     },
+    adapterReadinessPath: "/api/adapters/readiness",
     sourceOfTruth: [
       "Unified Inbox",
       "Communication Person projection",

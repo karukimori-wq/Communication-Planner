@@ -196,6 +196,13 @@ export type ReplySendDecision = {
     idempotencyKey: string;
     externalMessageId?: string;
     reason?: string;
+    providerStatus?: number;
+    providerCode?: string;
+    rateLimit?: {
+      limit: number;
+      remaining: number;
+      resetAt: string;
+    };
   };
   checks: {
     draftNotSent: true;
