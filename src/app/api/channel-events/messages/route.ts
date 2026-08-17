@@ -1,6 +1,19 @@
 import { fail, ok, readJson, requestMeta, requireString } from "@/lib/http";
 import { ingestChannelMessage } from "@/lib/store";
-import type { ChannelMessageInput } from "@/lib/types";
+import type { Channel, ChannelMessageInput, MessageDirection } from "@/lib/types";
+
+const supportedChannels = new Set<Channel>(["line", "x", "instagram", "unknown"]);
+const supportedDirections = new Set<MessageDirection>(["inbound", "outbound"]);
+
+function normalizeChannel(channel: Partial<ChannelMessageInput>["channel"]) {
+  const normalized = channel ?? "unknown";
+  return supportedChannels.has(normalized) ? normalized : null;
+}
+
+function normalizeDirection(direction: Partial<ChannelMessageInput>["direction"]) {
+  const normalized = direction ?? "inbound";
+  return supportedDirections.has(normalized) ? normalized : null;
+}
 
 export async function POST(request: Request) {
   const meta = requestMeta(request);
@@ -16,12 +29,18 @@ export async function POST(request: Request) {
   const messageBody = requireString(body.body, "body");
   if (typeof messageBody !== "string") return fail(messageBody.code, messageBody.message, 400, meta);
 
+  const channel = normalizeChannel(body.channel);
+  if (!channel) return fail("UNSUPPORTED_CHANNEL", "channel must be one of line, x, instagram, or unknown", 400, meta);
+
+  const direction = normalizeDirection(body.direction);
+  if (!direction) return fail("UNSUPPORTED_DIRECTION", "direction must be inbound or outbound", 400, meta);
+
   const result = ingestChannelMessage({
     workspaceId,
-    channel: body.channel ?? "unknown",
+    channel,
     externalUserId,
     body: messageBody,
-    direction: body.direction ?? "inbound",
+    direction,
     externalMessageId: body.externalMessageId,
     externalThreadId: body.externalThreadId,
     displayName: body.displayName,

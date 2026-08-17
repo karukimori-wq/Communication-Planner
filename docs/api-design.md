@@ -54,6 +54,8 @@ Optional fields:
 - `promises`
 - `nextActions`
 
+When supplied, `channel` must be one of `line`, `x`, `instagram`, or `unknown`. When supplied, `direction` must be `inbound` or `outbound`.
+
 When supplied, these fields are stored as Communication Planner-owned person-scoped context records tied to the ingested message. They must not contain Customer master, Reservation, Payment, Sales, or external app source-of-truth data.
 
 Must emit:
@@ -213,7 +215,7 @@ The send request acts as original conversation channel confirmation and must mat
 
 Already sent drafts fail with `REPLY_DRAFT_ALREADY_SENT`.
 
-Successful responses include `sendDecision` audit evidence with the confirmed draft scope, confirmed original conversation `channel`, SafetyCheck id, content hash, and the send gate checks that passed.
+Successful responses include `sendDecision` audit evidence with the confirmed draft scope, confirmed original conversation `channel`, SafetyCheck id, content hash, and the send gate checks that passed. The `sendDecision.channel` value is written when the decision is recorded.
 
 Must emit:
 

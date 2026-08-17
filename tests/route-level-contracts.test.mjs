@@ -31,7 +31,11 @@ describe("route-level contract guards", () => {
     assert.match(route, /requireString\(body\.workspaceId, "workspaceId"\)/);
     assert.match(route, /requireString\(body\.externalUserId, "externalUserId"\)/);
     assert.match(route, /requireString\(body\.body, "body"\)/);
-    assert.match(route, /direction: body\.direction \?\? "inbound"/);
+    assert.match(route, /normalizeChannel\(body\.channel\)/);
+    assert.match(route, /normalizeDirection\(body\.direction\)/);
+    assert.match(route, /UNSUPPORTED_CHANNEL/);
+    assert.match(route, /UNSUPPORTED_DIRECTION/);
+    assert.match(route, /direction,/);
     assert.match(route, /eventName: result\.message\.direction === "outbound" \? "communication\.message\.sent\.v1" : "communication\.message\.received\.v1"/);
     assert.match(store, /findOrCreatePerson\(input\)/);
     assert.match(store, /findOrCreateChannelIdentity\(input, person\)/);

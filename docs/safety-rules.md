@@ -48,7 +48,7 @@ SafetyCheck should verify:
 - The send request confirms the same `workspaceId + personId + conversationId` as the draft.
 - The send request confirms the same `channel` as the original conversation.
 - The send decision stores the confirmed original conversation `channel`.
-- The send decision stores `channelConfirmed` in the passed gate checks.
+- The send decision receives the confirmed channel at record time and stores `channelConfirmed` in the passed gate checks.
 - The send response includes `sendDecision` audit evidence for the passed gate checks.
 - The send decision is stored and can be read only when `replyDraftId + workspaceId + personId + conversationId` match the draft.
 

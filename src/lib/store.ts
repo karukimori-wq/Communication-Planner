@@ -536,7 +536,12 @@ export function canSendReplyDraft(replyDraftId: string) {
   return { ok: true as const, draft, safetyCheck };
 }
 
-export function recordReplySendDecision(input: { draft: ReplyDraft; safetyCheck: SafetyCheck; messageId: string }): ReplySendDecision {
+export function recordReplySendDecision(input: {
+  draft: ReplyDraft;
+  safetyCheck: SafetyCheck;
+  messageId: string;
+  channel: ReplySendDecision["channel"];
+}): ReplySendDecision {
   const decision: ReplySendDecision = {
     sendDecisionId: crypto.randomUUID(),
     messageId: input.messageId,
@@ -546,13 +551,15 @@ export function recordReplySendDecision(input: { draft: ReplyDraft; safetyCheck:
     workspaceId: input.draft.workspaceId,
     personId: input.draft.personId,
     conversationId: input.draft.conversationId,
+    channel: input.channel,
     contentHash: input.draft.contentHash,
     checks: {
       draftNotSent: true,
       safetyCheckPassed: true,
       safetyCheckScopeMatched: true,
       safetyCheckFresh: true,
-      sendScopeConfirmed: true
+      sendScopeConfirmed: true,
+      channelConfirmed: true
     }
   };
   store.sendDecisions.push(decision);
@@ -569,7 +576,12 @@ export function getReplySendDecisions(input: { replyDraftId: string; workspaceId
   );
 }
 
-export function buildReplySendDecision(input: { draft: ReplyDraft; safetyCheck: SafetyCheck; messageId: string }): ReplySendDecision {
+export function buildReplySendDecision(input: {
+  draft: ReplyDraft;
+  safetyCheck: SafetyCheck;
+  messageId: string;
+  channel: ReplySendDecision["channel"];
+}): ReplySendDecision {
   return {
     sendDecisionId: crypto.randomUUID(),
     messageId: input.messageId,
@@ -579,13 +591,15 @@ export function buildReplySendDecision(input: { draft: ReplyDraft; safetyCheck: 
     workspaceId: input.draft.workspaceId,
     personId: input.draft.personId,
     conversationId: input.draft.conversationId,
+    channel: input.channel,
     contentHash: input.draft.contentHash,
     checks: {
       draftNotSent: true,
       safetyCheckPassed: true,
       safetyCheckScopeMatched: true,
       safetyCheckFresh: true,
-      sendScopeConfirmed: true
+      sendScopeConfirmed: true,
+      channelConfirmed: true
     }
   };
 }

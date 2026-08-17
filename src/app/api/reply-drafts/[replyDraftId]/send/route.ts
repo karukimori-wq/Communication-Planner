@@ -60,10 +60,9 @@ export async function POST(request: Request, context: RouteContext) {
   const sendDecision = recordReplySendDecision({
     draft: decision.draft,
     safetyCheck: decision.safetyCheck,
-    messageId: sentMessage.message.messageId
+    messageId: sentMessage.message.messageId,
+    channel: conversation.channel
   });
-  sendDecision.channel = conversation.channel;
-  sendDecision.checks.channelConfirmed = true;
 
   return ok(
     {
