@@ -23,7 +23,7 @@ describe("channel audit contract guards", () => {
     assert.match(apiDesign, /`direction` must be `inbound` or `outbound`/);
   });
 
-  it("records send decision channel as immutable audit input", () => {
+  it("records send decision channel and adapter delivery as immutable audit input", () => {
     const store = read("src/lib/store.ts");
     const sendRoute = read("src/app/api/reply-drafts/[replyDraftId]/send/route.ts");
     const types = read("src/lib/types.ts");
@@ -32,14 +32,20 @@ describe("channel audit contract guards", () => {
 
     assert.match(types, /channel\?: Channel/);
     assert.match(types, /channelConfirmed: true/);
-    assert.match(store, /recordReplySendDecision\(input: \{\n  draft: ReplyDraft;\n  safetyCheck: SafetyCheck;\n  messageId: string;\n  channel: ReplySendDecision\["channel"\];\n\}\)/);
+    assert.match(types, /adapterDelivery: \{/);
+    assert.match(store, /adapterDelivery: ReplySendDecision\["adapterDelivery"\]/);
     assert.match(store, /channel: input\.channel/);
+    assert.match(store, /adapterDelivery: input\.adapterDelivery/);
     assert.match(store, /channelConfirmed: true/);
-    assert.match(store, /buildReplySendDecision\(input: \{\n  draft: ReplyDraft;\n  safetyCheck: SafetyCheck;\n  messageId: string;\n  channel: ReplySendDecision\["channel"\];\n\}\)/);
-    assert.match(sendRoute, /recordReplySendDecision\(\{\n    draft: decision\.draft,\n    safetyCheck: decision\.safetyCheck,\n    messageId: sentMessage\.message\.messageId,\n    channel: conversation\.channel\n  \}\)/);
+    assert.match(sendRoute, /getChannelIdentityForPerson\(decision\.draft\.workspaceId, decision\.draft\.personId, conversation\.channel\)/);
+    assert.match(sendRoute, /sendThroughChannelAdapter/);
+    assert.match(sendRoute, /CHANNEL_IDENTITY_REQUIRED/);
+    assert.match(sendRoute, /channel: conversation\.channel,\n    adapterDelivery: adapterDelivery\.result/);
     assert.doesNotMatch(sendRoute, /sendDecision\.channel = conversation\.channel/);
     assert.doesNotMatch(sendRoute, /sendDecision\.checks\.channelConfirmed = true/);
-    assert.match(safetyRules, /confirmed channel at record time/);
+    assert.match(safetyRules, /confirmed original conversation `channel`/);
+    assert.match(safetyRules, /ReplySendDecision\.adapterDelivery/);
     assert.match(apiDesign, /`sendDecision\.channel` value is written when the decision is recorded/);
+    assert.match(apiDesign, /sendDecision\.adapterDelivery/);
   });
 });

@@ -12,13 +12,25 @@ export type ProviderInboundEvent = {
 
 export type ProviderSendRequest = {
   workspaceId: string;
+  personId: string;
+  conversationId: string;
   replyDraftId: string;
+  safetyCheckId: string;
+  contentHash: string;
+  externalThreadId?: string;
   externalUserId: string;
   body: string;
+  deliveryMode: "dry_run" | "live";
+  idempotencyKey: string;
+  traceId?: string;
+  correlationId?: string;
 };
 
 export type ProviderSendResult = {
   accepted: boolean;
+  deliveryMode: "dry_run" | "live";
+  adapterReference: string;
+  idempotencyKey: string;
   externalMessageId?: string;
   reason?: string;
 };

@@ -151,6 +151,7 @@ create table if not exists reply_send_decisions (
   message_id text not null references messages(id) on delete restrict,
   channel text not null check (channel in ('line', 'x', 'instagram')),
   content_hash text not null,
+  adapter_delivery jsonb not null default '{}'::jsonb,
   checks jsonb not null default '{}'::jsonb,
   decided_at timestamptz not null default now()
 );

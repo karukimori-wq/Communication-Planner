@@ -199,8 +199,8 @@ export const endpointContracts: EndpointContract[] = [
     requiredFields: ["replyDraftId", "workspaceId", "personId", "conversationId", "channel"],
     prohibitedPayloadFields: prohibitedOwnedPayloadFields,
     eventName: "communication.message.sent.v1",
-    sourceOfTruth: ["Message", "ReplyDraft", "SafetyCheck", "ReplySendDecision"],
-    safetyRules: ["Latest SafetyCheck must pass", "SafetyCheck hash must match draft hash", "SafetyCheck scope must match the reply draft", "Send confirmation scope must match the reply draft", "Send confirmation channel must match the original conversation channel", "Send decision audit must store the confirmed channel", "Send response must include sendDecision audit evidence", "Outbound message must use the original conversation channel"]
+    sourceOfTruth: ["Message", "ReplyDraft", "SafetyCheck", "ReplySendDecision", "ChannelAdapter integration state"],
+    safetyRules: ["Latest SafetyCheck must pass", "SafetyCheck hash must match draft hash", "SafetyCheck scope must match the reply draft", "Send confirmation scope must match the reply draft", "Send confirmation channel must match the original conversation channel", "ChannelIdentity must exist before provider send", "Send decision audit must store the confirmed channel", "Send decision audit must store adapter delivery evidence", "Send response must include sendDecision audit evidence", "Outbound message must use the original conversation channel"]
   },
   {
     method: "GET",

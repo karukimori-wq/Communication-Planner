@@ -542,6 +542,15 @@ export function getPersonConversations(workspaceId: string, personId: string) {
   );
 }
 
+export function getChannelIdentityForPerson(workspaceId: string, personId: string, channel: ReplySendDecision["channel"]) {
+  return store.channelIdentities.find(
+    (identity) =>
+      identity.workspaceId === workspaceId &&
+      identity.personId === personId &&
+      identity.channel === channel
+  );
+}
+
 export function getPersonContext(workspaceId: string, personId: string) {
   const context = store.contexts.find((candidate) => candidate.workspaceId === workspaceId && candidate.personId === personId);
   if (!context) {
@@ -716,6 +725,7 @@ export function recordReplySendDecision(input: {
   safetyCheck: SafetyCheck;
   messageId: string;
   channel: ReplySendDecision["channel"];
+  adapterDelivery: ReplySendDecision["adapterDelivery"];
 }): ReplySendDecision {
   const decision: ReplySendDecision = {
     sendDecisionId: crypto.randomUUID(),
@@ -728,6 +738,7 @@ export function recordReplySendDecision(input: {
     conversationId: input.draft.conversationId,
     channel: input.channel,
     contentHash: input.draft.contentHash,
+    adapterDelivery: input.adapterDelivery,
     checks: {
       draftNotSent: true,
       safetyCheckPassed: true,
@@ -756,6 +767,7 @@ export function buildReplySendDecision(input: {
   safetyCheck: SafetyCheck;
   messageId: string;
   channel: ReplySendDecision["channel"];
+  adapterDelivery: ReplySendDecision["adapterDelivery"];
 }): ReplySendDecision {
   return {
     sendDecisionId: crypto.randomUUID(),
@@ -768,6 +780,7 @@ export function buildReplySendDecision(input: {
     conversationId: input.draft.conversationId,
     channel: input.channel,
     contentHash: input.draft.contentHash,
+    adapterDelivery: input.adapterDelivery,
     checks: {
       draftNotSent: true,
       safetyCheckPassed: true,

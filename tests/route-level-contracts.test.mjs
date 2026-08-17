@@ -87,7 +87,11 @@ describe("route-level contract guards", () => {
     assert.match(sendRoute, /validateSendConfirmation\(body, decision\.draft\)/);
     assert.match(sendRoute, /getConversation\(decision\.draft\.workspaceId, decision\.draft\.personId, decision\.draft\.conversationId\)/);
     assert.match(sendRoute, /validateChannelConfirmation\(body, conversation\)/);
+    assert.match(sendRoute, /getChannelIdentityForPerson/);
+    assert.match(sendRoute, /sendThroughChannelAdapter/);
+    assert.match(sendRoute, /CHANNEL_IDENTITY_REQUIRED/);
     assert.match(sendRoute, /recordReplySendDecision/);
+    assert.match(sendRoute, /adapterDelivery: adapterDelivery\.result/);
     assert.match(sendRoute, /communication\.message\.sent\.v1/);
 
     assert.match(sendDecisionsRoute, /searchParams\.get\("workspaceId"\)/);

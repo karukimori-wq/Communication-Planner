@@ -227,6 +227,19 @@ Already sent drafts fail with `REPLY_DRAFT_ALREADY_SENT`.
 
 Successful responses include `sendDecision` audit evidence with the confirmed draft scope, confirmed original conversation `channel`, SafetyCheck id, content hash, and the send gate checks that passed. The `sendDecision.channel` value is written when the decision is recorded.
 
+The send route resolves the matching `ChannelIdentity` and calls the channel adapter only after the SafetyCheck gate passes. Current adapter delivery is `dry_run`; live provider delivery remains disabled until credentials and provider error handling are configured.
+
+Response includes:
+
+- `adapterDelivery.accepted`
+- `adapterDelivery.deliveryMode`
+- `adapterDelivery.adapterReference`
+- `adapterDelivery.idempotencyKey`
+- `adapterDelivery.externalMessageId`
+- `sendDecision.adapterDelivery`
+
+If no matching channel identity exists, the route returns `CHANNEL_IDENTITY_REQUIRED`.
+
 Must emit:
 
 - `communication.message.sent.v1`
@@ -245,4 +258,4 @@ Query fields:
 - `personId`
 - `conversationId`
 
-The request scope must match the draft's `workspaceId + personId + conversationId`. The response must include only `ReplySendDecision` records scoped to the requested draft and confirmed request scope. Stored decisions include the channel that was confirmed at send time.
+The request scope must match the draft's `workspaceId + personId + conversationId`. The response must include only `ReplySendDecision` records scoped to the requested draft and confirmed request scope. Stored decisions include the channel that was confirmed at send time and adapter delivery evidence.

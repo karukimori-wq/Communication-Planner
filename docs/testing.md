@@ -31,7 +31,7 @@ The current test suite verifies that:
 - Reply draft updates refresh content hash and force a new SafetyCheck.
 - Send requires a current passing SafetyCheck.
 - Stale or failed SafetyCheck logic remains present.
-- Successful sends expose `sendDecision` audit evidence for the passed gate checks.
+- Successful sends expose `sendDecision` audit evidence for the passed gate checks and adapter dry-run delivery evidence.
 - Send decisions are stored as reply-draft-scoped audit history.
 - Send decision history route requires `workspaceId + personId + conversationId` before returning audit records.
 - Outbound sends use the original conversation channel.

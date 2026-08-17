@@ -54,6 +54,14 @@ Initialize Communication Planner as a contract-aligned MVP project and prepare i
 | Review X Harness adapter architecture | Todo |
 | Review IG Harness adapter architecture | Todo |
 | Define adapter event mapping for LINE/X/Instagram | Done |
+| Review LINE Harness metadata and license gate | Done |
+| Review X Harness metadata and license gate | Done |
+| Review IG Harness metadata and license gate | Done |
+| Add provider send request contract | Done |
+| Add adapter dry-run send results | Done |
+| Require ChannelIdentity before provider send | Done |
+| Store adapter delivery evidence on sendDecision | Done |
+| Add adapter send contract docs/tests | Done |
 
 ## Suggested Implementation Order
 

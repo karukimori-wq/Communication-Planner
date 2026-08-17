@@ -14,10 +14,14 @@ export const instagramAdapter: ChannelAdapter = {
       body: event.body
     };
   },
-  async send(_request: ProviderSendRequest) {
+  async send(request: ProviderSendRequest) {
     return {
-      accepted: false,
-      reason: "Instagram provider send is not wired yet. Enable only after ReplyDraft SafetyCheck integration."
+      accepted: true,
+      deliveryMode: request.deliveryMode,
+      adapterReference: "Shudesu/ig-harness-oss",
+      idempotencyKey: request.idempotencyKey,
+      externalMessageId: `instagram-dry-run:${request.replyDraftId}`,
+      reason: "Instagram provider delivery is dry-run until production credentials are configured."
     };
   }
 };

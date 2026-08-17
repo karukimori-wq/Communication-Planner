@@ -14,10 +14,14 @@ export const lineAdapter: ChannelAdapter = {
       body: event.body
     };
   },
-  async send(_request: ProviderSendRequest) {
+  async send(request: ProviderSendRequest) {
     return {
-      accepted: false,
-      reason: "LINE provider send is not wired yet. Use ReplyDraft send gate before enabling adapter delivery."
+      accepted: true,
+      deliveryMode: request.deliveryMode,
+      adapterReference: "Shudesu/line-harness-oss",
+      idempotencyKey: request.idempotencyKey,
+      externalMessageId: `line-dry-run:${request.replyDraftId}`,
+      reason: "LINE provider delivery is dry-run until production credentials are configured."
     };
   }
 };

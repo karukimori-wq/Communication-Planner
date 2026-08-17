@@ -18,7 +18,7 @@ The database stores only 1-to-1 communication operation data. It does not store 
 | `communication_next_actions` | Person-scoped follow-up actions extracted or supplied from messages |
 | `reply_drafts` | Draft replies tied to one person and one conversation |
 | `safety_checks` | Safety result for a specific draft content hash |
-| `reply_send_decisions` | Reply-draft-scoped audit history for successful send gates, including confirmed channel |
+| `reply_send_decisions` | Reply-draft-scoped audit history for successful send gates, including confirmed channel and adapter delivery evidence |
 | `channel_adapter_states` | Integration cursors, webhook state, and channel health |
 
 ## Ownership Rules
@@ -29,7 +29,7 @@ The database stores only 1-to-1 communication operation data. It does not store 
 - Topic, Promise, and Communication NextAction rows must keep `workspace_id + person_id + conversation_id + source_message_id`.
 - A reply draft must include both `person_id` and `conversation_id`.
 - A send operation must require a passing `safety_checks` row with the same `reply_draft_id` and `checked_content_hash`.
-- A send decision must keep `workspace_id + person_id + conversation_id + reply_draft_id + safety_check_id + message_id + channel`.
+- A send decision must keep `workspace_id + person_id + conversation_id + reply_draft_id + safety_check_id + message_id + channel + adapter_delivery`.
 - Send decision channel audit uses `workspace_id + conversation_id + channel + decided_at`.
 - `channel_adapter_states` is integration state only and cannot override canonical Communication Planner records.
 

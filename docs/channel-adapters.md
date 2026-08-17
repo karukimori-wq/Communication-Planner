@@ -163,3 +163,26 @@ Each endpoint accepts a harness-compatible JSON object and normalizes these prov
 | `displayName`, `senderName`, `username`, nested sender name | `displayName` |
 
 The endpoints emit `communication.message.received.v1`. They do not perform provider send delivery; outbound provider delivery remains behind the ReplyDraft SafetyCheck gate.
+
+## Implemented Send Adapter Flow
+
+Outbound delivery now uses the `ChannelAdapter.send` contract after the API send gate passes.
+
+Current production-safe behavior:
+
+- `POST /api/reply-drafts/{replyDraftId}/send` still owns the final send decision.
+- The route requires `workspaceId + personId + conversationId + channel`.
+- The route resolves the original conversation and the matching `ChannelIdentity`.
+- The route calls the channel adapter only after the latest SafetyCheck is passed and fresh.
+- LINE, X, and Instagram adapters return `deliveryMode: "dry_run"` until production credentials and provider-specific delivery are configured.
+- `ReplySendDecision.adapterDelivery` stores adapter reference, delivery mode, idempotency key, accepted flag, and provider/dry-run message id.
+
+Harness references verified on 2026-08-17:
+
+| Channel | Repository | Current adoption |
+| --- | --- | --- |
+| LINE | `Shudesu/line-harness-oss` | Primary send/receive adapter reference; dry-run send enabled |
+| X | `Shudesu/x-harness-oss` | DM/reply adapter reference; dry-run send enabled, marketing automation excluded |
+| Instagram | `Shudesu/ig-harness-oss` | DM adapter reference; dry-run send enabled |
+
+Live provider sends must remain disabled until credentials, rate-limit handling, webhook signature checks, and provider-specific error mapping are added.

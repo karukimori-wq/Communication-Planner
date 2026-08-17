@@ -27,6 +27,18 @@ The Harness repositories are not just general references. They are the preferred
 
 See [channel-adapters.md](channel-adapters.md) for the canonical mapping from LINE/X/Instagram provider events into Communication Planner domain objects and events.
 
+## Harness Review Snapshot
+
+Reviewed via GitHub metadata on 2026-08-17:
+
+| OSS | Language | License state | Recent activity | Decision |
+| --- | --- | --- | --- | --- |
+| `Shudesu/line-harness-oss` | TypeScript | License not declared in repository metadata | Updated 2026-08-16 | Reference only until license is clarified |
+| `Shudesu/x-harness-oss` | TypeScript | MIT | Updated 2026-08-16 | Reference-safe for adapter patterns |
+| `Shudesu/ig-harness-oss` | TypeScript | MIT | Updated 2026-08-15 | Reference-safe for adapter patterns |
+
+No source files are copied into Communication Planner. The current implementation reuses the repositories as architecture references and records adapter attribution in dry-run send results.
+
 ## What To Reuse First
 
 ### Unified Inbox Patterns
@@ -86,8 +98,8 @@ Those belong to Growth Engine, SNS Planner, AI Platform Core, or other platform 
 | Task | Output |
 | --- | --- |
 | Review Chatwoot inbox and conversation concepts | Inbox model notes and UI candidate list |
-| Review LINE Harness adapter architecture | LINE adapter event mapping draft |
-| Review X Harness and IG Harness adapter architecture | X/Instagram adapter event mapping draft |
+| Review LINE Harness adapter architecture | LINE adapter event mapping and dry-run send evidence |
+| Review X Harness and IG Harness adapter architecture | X/Instagram adapter event mapping and dry-run send evidence |
 | Define OSS license review checklist | Production adoption gate |
 | Add adapter boundary document | Clear split between ChannelAdapterState and core domain |
 

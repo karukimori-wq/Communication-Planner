@@ -51,6 +51,10 @@ SafetyCheck should verify:
 - The send decision receives the confirmed channel at record time and stores `channelConfirmed` in the passed gate checks.
 - The send response includes `sendDecision` audit evidence for the passed gate checks.
 - The send decision is stored and can be read only when `replyDraftId + workspaceId + personId + conversationId` match the draft.
+- Provider adapter delivery may run only after the API send gate passes.
+- Provider adapter delivery must resolve a matching `ChannelIdentity` before send.
+- Current provider delivery must stay `dry_run` until production credentials, signature verification, rate-limit handling, and provider error mapping are configured.
+- `ReplySendDecision.adapterDelivery` must store delivery mode, adapter reference, idempotency key, and external provider/dry-run message id.
 
 ## AI Platform Core Boundary
 

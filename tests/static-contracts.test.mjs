@@ -62,6 +62,7 @@ describe("static contract guards", () => {
     assert.match(store, /sendDecisions: ReplySendDecision\[\]/);
     assert.match(store, /export function recordReplySendDecision/);
     assert.match(store, /store\.sendDecisions\.push\(decision\)/);
+    assert.match(store, /adapterDelivery: input\.adapterDelivery/);
     assert.match(store, /export function getReplySendDecisions/);
     assert.match(store, /decision\.replyDraftId === input\.replyDraftId/);
     assert.match(store, /decision\.workspaceId === input\.workspaceId/);
@@ -77,6 +78,10 @@ describe("static contract guards", () => {
     assert.match(sendRoute, /canSendReplyDraft\(replyDraftId\)/);
     assert.match(sendRoute, /validateSendConfirmation\(body, decision\.draft\)/);
     assert.match(sendRoute, /validateChannelConfirmation\(body, conversation\)/);
+    assert.match(sendRoute, /getChannelIdentityForPerson\(decision\.draft\.workspaceId, decision\.draft\.personId, conversation\.channel\)/);
+    assert.match(sendRoute, /CHANNEL_IDENTITY_REQUIRED/);
+    assert.match(sendRoute, /sendThroughChannelAdapter/);
+    assert.match(sendRoute, /adapterDelivery: adapterDelivery\.result/);
     assert.match(sendRoute, /SEND_CONFIRMATION_REQUIRED/);
     assert.match(sendRoute, /SEND_SCOPE_MISMATCH/);
     assert.match(sendRoute, /recordReplySendDecision/);
@@ -90,15 +95,20 @@ describe("static contract guards", () => {
     assert.match(schema, /create table if not exists reply_send_decisions/);
     assert.match(schema, /safety_check_id text not null references safety_checks/);
     assert.match(schema, /message_id text not null references messages/);
+    assert.match(schema, /adapter_delivery jsonb not null default '\{\}'::jsonb/);
     assert.match(schemaDoc, /reply_send_decisions/);
+    assert.match(schemaDoc, /adapter_delivery/);
     assert.match(apiDesign, /Missing or mismatched scope fields force the SafetyCheck to `failed`/);
     assert.match(apiDesign, /Successful responses include `sendDecision` audit evidence/);
+    assert.match(apiDesign, /CHANNEL_IDENTITY_REQUIRED/);
+    assert.match(apiDesign, /adapterDelivery\.idempotencyKey/);
     assert.match(apiDesign, /original conversation channel confirmation/);
     assert.match(apiDesign, /GET \/api\/reply-drafts\/\{replyDraftId\}\/send-decisions/);
     assert.match(safetyRules, /SafetyCheck must include `workspaceId \+ personId \+ conversationId`/);
     assert.match(safetyRules, /Send must include `workspaceId \+ personId \+ conversationId \+ channel`/);
     assert.match(safetyRules, /send response includes `sendDecision` audit evidence/);
     assert.match(safetyRules, /send decision is stored and can be read only when `replyDraftId \+ workspaceId \+ personId \+ conversationId` match the draft/);
+    assert.match(safetyRules, /Provider adapter delivery may run only after the API send gate passes/);
   });
 
   it("sends outbound messages on the original conversation channel", () => {
@@ -157,6 +167,32 @@ describe("static contract guards", () => {
     assert.match(instagramRoute, /createAdapterWebhookRoute\("instagram"\)/);
     assert.match(adapterDoc, /Shudesu\/line-harness-oss/);
     assert.match(adapterDoc, /communication\.message\.received\.v1/);
+    assert.match(adapterDoc, /Implemented Send Adapter Flow/);
+    assert.match(adapterDoc, /deliveryMode: "dry_run"/);
+  });
+
+  it("keeps adapter provider send dry-run until production credentials are configured", () => {
+    const adapterTypes = read("src/lib/adapters/types.ts");
+    const adapterSend = read("src/lib/adapters/send.ts");
+    const lineAdapter = read("src/lib/adapters/line.ts");
+    const xAdapter = read("src/lib/adapters/x.ts");
+    const instagramAdapter = read("src/lib/adapters/instagram.ts");
+    const ossAdoption = read("docs/oss-adoption.md");
+    const sprint = read("docs/sprint-1.md");
+
+    assert.match(adapterTypes, /deliveryMode: "dry_run" \| "live"/);
+    assert.match(adapterTypes, /idempotencyKey: string/);
+    assert.match(adapterTypes, /adapterReference: string/);
+    assert.match(adapterSend, /buildProviderSendIdempotencyKey/);
+    assert.match(adapterSend, /deliveryMode: "dry_run"/);
+    assert.match(adapterSend, /ADAPTER_SEND_REJECTED/);
+    assert.match(lineAdapter, /Shudesu\/line-harness-oss/);
+    assert.match(xAdapter, /Shudesu\/x-harness-oss/);
+    assert.match(instagramAdapter, /Shudesu\/ig-harness-oss/);
+    assert.match(ossAdoption, /Harness Review Snapshot/);
+    assert.match(ossAdoption, /License not declared in repository metadata/);
+    assert.match(sprint, /Add adapter dry-run send results \| Done/);
+    assert.match(sprint, /Store adapter delivery evidence on sendDecision \| Done/);
   });
 
   it("keeps provider message ingestion idempotent", () => {

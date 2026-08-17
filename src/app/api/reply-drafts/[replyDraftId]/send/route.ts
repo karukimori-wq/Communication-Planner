@@ -1,5 +1,13 @@
 import { fail, ok, requestMeta } from "@/lib/http";
-import { canSendReplyDraft, getConversation, ingestChannelMessage, markReplyDraftSent, recordReplySendDecision } from "@/lib/store";
+import { sendThroughChannelAdapter } from "@/lib/adapters/send";
+import {
+  canSendReplyDraft,
+  getChannelIdentityForPerson,
+  getConversation,
+  ingestChannelMessage,
+  markReplyDraftSent,
+  recordReplySendDecision
+} from "@/lib/store";
 import type { SendReplyDraftInput } from "@/lib/types";
 
 type RouteContext = { params: Promise<{ replyDraftId: string }> };
@@ -46,14 +54,31 @@ export async function POST(request: Request, context: RouteContext) {
     return fail(channelConfirmation.code, channelConfirmation.message, 409, meta);
   }
 
+  const channelIdentity = getChannelIdentityForPerson(decision.draft.workspaceId, decision.draft.personId, conversation.channel);
+  if (!channelIdentity) {
+    return fail("CHANNEL_IDENTITY_REQUIRED", "A channel identity is required before provider send", 409, meta);
+  }
+
+  const adapterDelivery = await sendThroughChannelAdapter({
+    draft: decision.draft,
+    safetyCheck: decision.safetyCheck,
+    conversation,
+    channelIdentity,
+    meta
+  });
+  if (!adapterDelivery.ok) {
+    return fail(adapterDelivery.code, adapterDelivery.message, 409, meta);
+  }
+
   const sentDraft = markReplyDraftSent(replyDraftId);
   const sentMessage = ingestChannelMessage({
     workspaceId: decision.draft.workspaceId,
     personId: decision.draft.personId,
     conversationId: decision.draft.conversationId,
     channel: conversation.channel,
-    externalUserId: `person:${decision.draft.personId}`,
+    externalUserId: channelIdentity.externalUserId,
     externalThreadId: conversation.externalThreadId,
+    externalMessageId: adapterDelivery.result.externalMessageId,
     direction: "outbound",
     body: decision.draft.body
   });
@@ -61,7 +86,8 @@ export async function POST(request: Request, context: RouteContext) {
     draft: decision.draft,
     safetyCheck: decision.safetyCheck,
     messageId: sentMessage.message.messageId,
-    channel: conversation.channel
+    channel: conversation.channel,
+    adapterDelivery: adapterDelivery.result
   });
 
   return ok(
@@ -69,6 +95,7 @@ export async function POST(request: Request, context: RouteContext) {
       replyDraft: sentDraft,
       message: sentMessage.message,
       safetyCheck: decision.safetyCheck,
+      adapterDelivery: adapterDelivery.result,
       sendDecision
     },
     { ...meta, eventName: "communication.message.sent.v1" }

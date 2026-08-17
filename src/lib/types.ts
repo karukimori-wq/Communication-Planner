@@ -189,6 +189,14 @@ export type ReplySendDecision = {
   conversationId: string;
   channel: Channel;
   contentHash: string;
+  adapterDelivery: {
+    accepted: boolean;
+    deliveryMode: "dry_run" | "live";
+    adapterReference: string;
+    idempotencyKey: string;
+    externalMessageId?: string;
+    reason?: string;
+  };
   checks: {
     draftNotSent: true;
     safetyCheckPassed: true;

@@ -14,10 +14,14 @@ export const xAdapter: ChannelAdapter = {
       body: event.body
     };
   },
-  async send(_request: ProviderSendRequest) {
+  async send(request: ProviderSendRequest) {
     return {
-      accepted: false,
-      reason: "X provider send is not wired yet. Marketing automation concepts must stay outside Communication Planner core."
+      accepted: true,
+      deliveryMode: request.deliveryMode,
+      adapterReference: "Shudesu/x-harness-oss",
+      idempotencyKey: request.idempotencyKey,
+      externalMessageId: `x-dry-run:${request.replyDraftId}`,
+      reason: "X provider delivery is dry-run and excludes marketing automation concepts."
     };
   }
 };
