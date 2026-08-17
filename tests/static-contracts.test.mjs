@@ -184,8 +184,8 @@ describe("static contract guards", () => {
     assert.match(adapterTypes, /idempotencyKey: string/);
     assert.match(adapterTypes, /adapterReference: string/);
     assert.match(adapterSend, /buildProviderSendIdempotencyKey/);
-    assert.match(adapterSend, /deliveryMode: "dry_run"/);
-    assert.match(adapterSend, /ADAPTER_SEND_REJECTED/);
+    assert.match(adapterSend, /deliveryMode: readiness\.effectiveDeliveryMode/);
+    assert.match(adapterSend, /mapProviderError/);
     assert.match(lineAdapter, /Shudesu\/line-harness-oss/);
     assert.match(xAdapter, /Shudesu\/x-harness-oss/);
     assert.match(instagramAdapter, /Shudesu\/ig-harness-oss/);
