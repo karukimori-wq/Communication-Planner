@@ -1,4 +1,5 @@
 import { getAdapter } from "@/lib/adapters";
+import { getProviderSendReadiness } from "@/lib/adapters/readiness";
 import type { ProviderSendResult } from "@/lib/adapters/types";
 import type { ChannelIdentity, Conversation, ReplyDraft, SafetyCheck } from "@/lib/types";
 
@@ -26,6 +27,15 @@ export async function sendThroughChannelAdapter(input: {
       message: `Unsupported channel: ${input.conversation.channel}`
     };
   }
+  if (input.conversation.channel === "unknown") {
+    return {
+      ok: false as const,
+      code: "UNSUPPORTED_CHANNEL",
+      message: "Unknown channel cannot be sent through a provider adapter"
+    };
+  }
+
+  const readiness = getProviderSendReadiness(input.conversation.channel);
 
   const result = await adapter.send({
     workspaceId: input.draft.workspaceId,
@@ -37,7 +47,7 @@ export async function sendThroughChannelAdapter(input: {
     externalUserId: input.channelIdentity.externalUserId,
     externalThreadId: input.conversation.externalThreadId,
     body: input.draft.body,
-    deliveryMode: "dry_run",
+    deliveryMode: readiness.effectiveDeliveryMode,
     idempotencyKey: buildProviderSendIdempotencyKey(input.draft),
     traceId: input.meta.traceId,
     correlationId: input.meta.correlationId
