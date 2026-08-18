@@ -50,9 +50,10 @@ Initialize Communication Planner as a contract-aligned MVP project and prepare i
 | Add dashboard pilot readiness docs | Done |
 | Add dashboard action contract guards | Done |
 | Review Chatwoot unified inbox and conversation patterns | Todo |
-| Review LINE Harness adapter architecture | Todo |
-| Review X Harness adapter architecture | Todo |
-| Review IG Harness adapter architecture | Todo |
+| Review Chatwoot unified inbox and conversation patterns | Done |
+| Review LINE Harness adapter architecture | Done |
+| Review X Harness adapter architecture | Done |
+| Review IG Harness adapter architecture | Done |
 | Define adapter event mapping for LINE/X/Instagram | Done |
 | Review LINE Harness metadata and license gate | Done |
 | Review X Harness metadata and license gate | Done |
@@ -62,6 +63,13 @@ Initialize Communication Planner as a contract-aligned MVP project and prepare i
 | Require ChannelIdentity before provider send | Done |
 | Store adapter delivery evidence on sendDecision | Done |
 | Add adapter send contract docs/tests | Done |
+| Add provider production readiness endpoint | Done |
+| Add live send fallback gate | Done |
+| Add Harness OSS structure review decisions | Done |
+| Add webhook signature verification | Done |
+| Add provider rate-limit policy | Done |
+| Add provider error mapping | Done |
+| Add provider operation executable tests | Done |
 
 ## Suggested Implementation Order
 
