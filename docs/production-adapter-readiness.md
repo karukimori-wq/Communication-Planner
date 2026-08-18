@@ -51,6 +51,23 @@ The limit key is `workspaceId + channel + externalUserId`, so one person's provi
 | X | `X_API_KEY`, `X_API_SECRET`, `X_ACCESS_TOKEN`, `X_ACCESS_TOKEN_SECRET` | `Shudesu/x-harness-oss` |
 | Instagram | `INSTAGRAM_PAGE_ACCESS_TOKEN`, `INSTAGRAM_APP_SECRET` | `Shudesu/ig-harness-oss` |
 
+## Production Rollout Status
+
+Deployment readiness was checked on 2026-08-18.
+
+| Step | Status | Notes |
+| --- | --- | --- |
+| GitHub main source sync | Done | Latest synced commit: `a38d081f800cb77c8376e40929423f7bfc480e2c` |
+| Local production build | Done | `npm run build` completed successfully |
+| Vercel project discovery | Blocked | No existing `communication-planner` project was found in the connected Vercel team |
+| Vercel production deploy | Blocked | Vercel CLI is logged out and the connector deploy call returned `INVALID_ARGUMENT` without a linked project |
+| Production runtime URL | Blocked | Cannot be finalized until a Vercel project or approved hosting target exists |
+| Production env vars | Blocked | Provider credentials and secrets must be supplied outside source control |
+| Platform Admin runtime URL registration | Blocked | Requires the finalized Communication Planner production URL |
+| LINE/X/Instagram live E2E verification | Blocked | Requires provider credentials, webhook URLs, and real provider callback configuration |
+
+Until those blockers are cleared, provider delivery must remain `dry_run`.
+
 ## Provider Error Mapping
 
 Provider adapters must map provider failures into stable Communication Planner outcomes before live delivery is enabled:
