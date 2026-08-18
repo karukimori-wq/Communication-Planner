@@ -70,6 +70,12 @@ Initialize Communication Planner as a contract-aligned MVP project and prepare i
 | Add provider rate-limit policy | Done |
 | Add provider error mapping | Done |
 | Add provider operation executable tests | Done |
+| Sync docs/tests to GitHub main | Done |
+| Verify local production build | Done |
+| Create or link Vercel production project | Blocked |
+| Configure production runtime env vars | Blocked |
+| Register Communication Planner runtime URL in Platform Admin | Blocked |
+| Verify LINE/X/Instagram live webhook/send E2E | Blocked |
 
 ## Suggested Implementation Order
 
@@ -119,3 +125,5 @@ Initialize Communication Planner as a contract-aligned MVP project and prepare i
 - Any copied OSS code has a recorded license and ownership review.
 - Any OSS-inspired adapter emits Communication Planner stable events.
 - LINE/X/Instagram adapter stubs cannot send without SafetyCheck authorization.
+- Production deployment is not considered ready until a hosted runtime URL is finalized and `/health`, `/version`, `/contracts/status`, and `/api/adapters/readiness` pass against that URL.
+- Live provider delivery remains disabled until provider credentials, webhook signature verification, rate-limit policy, and provider error mapping are configured in production.
