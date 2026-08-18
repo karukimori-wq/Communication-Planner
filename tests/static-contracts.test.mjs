@@ -156,6 +156,7 @@ describe("static contract guards", () => {
     const xRoute = read("src/app/api/adapters/x/webhook/route.ts");
     const instagramRoute = read("src/app/api/adapters/instagram/webhook/route.ts");
     const adapterDoc = read("docs/channel-adapters.md");
+    const readinessRoute = read("src/app/api/adapters/readiness/route.ts");
 
     assert.match(contracts, /\/api\/adapters\/line\/webhook/);
     assert.match(contracts, /\/api\/adapters\/x\/webhook/);
@@ -165,15 +166,20 @@ describe("static contract guards", () => {
     assert.match(lineRoute, /createAdapterWebhookRoute\("line"\)/);
     assert.match(xRoute, /createAdapterWebhookRoute\("x"\)/);
     assert.match(instagramRoute, /createAdapterWebhookRoute\("instagram"\)/);
+    assert.match(readinessRoute, /getAllProviderSendReadiness/);
     assert.match(adapterDoc, /Shudesu\/line-harness-oss/);
     assert.match(adapterDoc, /communication\.message\.received\.v1/);
     assert.match(adapterDoc, /Implemented Send Adapter Flow/);
     assert.match(adapterDoc, /deliveryMode: "dry_run"/);
+    assert.match(adapterDoc, /GET \/api\/adapters\/readiness/);
   });
 
   it("keeps adapter provider send dry-run until production credentials are configured", () => {
     const adapterTypes = read("src/lib/adapters/types.ts");
     const adapterSend = read("src/lib/adapters/send.ts");
+    const adapterSecurity = read("src/lib/adapters/security.ts");
+    const adapterRateLimit = read("src/lib/adapters/rate-limit.ts");
+    const adapterErrors = read("src/lib/adapters/errors.ts");
     const lineAdapter = read("src/lib/adapters/line.ts");
     const xAdapter = read("src/lib/adapters/x.ts");
     const instagramAdapter = read("src/lib/adapters/instagram.ts");
@@ -184,8 +190,16 @@ describe("static contract guards", () => {
     assert.match(adapterTypes, /idempotencyKey: string/);
     assert.match(adapterTypes, /adapterReference: string/);
     assert.match(adapterSend, /buildProviderSendIdempotencyKey/);
+    assert.match(adapterSend, /getProviderSendReadiness/);
     assert.match(adapterSend, /deliveryMode: readiness\.effectiveDeliveryMode/);
+    assert.match(adapterSend, /checkProviderRateLimit/);
     assert.match(adapterSend, /mapProviderError/);
+    assert.match(adapterSecurity, /verifyAdapterWebhookSignature/);
+    assert.match(adapterSecurity, /timingSafeEqual/);
+    assert.match(adapterRateLimit, /ADAPTER_RATE_LIMITED/);
+    assert.match(adapterErrors, /ADAPTER_AUTH_FAILED/);
+    assert.match(adapterErrors, /ADAPTER_SIGNATURE_INVALID/);
+    assert.match(adapterErrors, /ADAPTER_SEND_REJECTED/);
     assert.match(lineAdapter, /Shudesu\/line-harness-oss/);
     assert.match(xAdapter, /Shudesu\/x-harness-oss/);
     assert.match(instagramAdapter, /Shudesu\/ig-harness-oss/);
