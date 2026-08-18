@@ -72,6 +72,9 @@ Initialize Communication Planner as a contract-aligned MVP project and prepare i
 | Add provider operation executable tests | Done |
 | Sync docs/tests to GitHub main | Done |
 | Verify local production build | Done |
+| Add production env example | Done |
+| Add production deployment runbook | Done |
+| Add Platform Admin registration handoff | Done |
 | Create or link Vercel production project | Blocked |
 | Configure production runtime env vars | Blocked |
 | Register Communication Planner runtime URL in Platform Admin | Blocked |
