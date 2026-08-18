@@ -39,6 +39,22 @@ Reviewed via GitHub metadata on 2026-08-17:
 
 No source files are copied into Communication Planner. The current implementation reuses the repositories as architecture references and records adapter attribution in dry-run send results.
 
+## 2026-08-17 Code Structure Review
+
+The remaining Sprint 1 OSS review steps are now recorded as implementation decisions:
+
+| Step | Repository | Observed structure | Reuse decision |
+| --- | --- | --- | --- |
+| 1 | `chatwoot/chatwoot` | Ruby omni-channel support desk with conversation, inbox, dashboard, and assignment patterns | Use only as unified inbox UX/reference architecture; do not adopt its customer/support-desk domain model |
+| 2 | `Shudesu/line-harness-oss` | TypeScript monorepo with SDK, LINE SDK, MCP server, update engine, Cloudflare deployment tooling, D1-oriented operations | Use webhook, identity, SDK, idempotency, and provider operations patterns as reference only until license is clarified |
+| 3 | `Shudesu/x-harness-oss` | TypeScript packages for SDK, X SDK, DB, MCP tools, installer, engagement gates, growth, campaigns, usage, and posting flows | Use DM/provider API, OAuth, rate-limit, and error handling references; exclude growth, campaigns, follower automation, and bulk actions |
+| 4 | `Shudesu/ig-harness-oss` | TypeScript packages for SDK, IG SDK, DB, MCP server, installer, webhook, media, comments, DM, and LINE cross-link operations | Use Instagram webhook, DM, account, and media identity patterns; exclude engagement gates, broadcast-like scenarios, and cross-channel marketing automation |
+| 5 | `Shudesu/line-harness-oss` license gate | GitHub repository metadata still has no declared license | No source copy, vendoring, or package dependency until a license is explicitly recorded |
+| 6 | Provider production gate | Credentials, signature verification, rate-limit policy, and provider error mapping are not yet production-configured | Keep live provider send blocked behind `/api/adapters/readiness`; fallback remains `dry_run` |
+| 7 | Route-level testing | Static route contract tests existed; executable request/response tests remain the next expansion | Add contract coverage for readiness endpoint and live-send fallback before provider credentials are used |
+
+This review keeps Communication Planner's core narrow: wrong-person prevention, scoped context, draft safety, and send audit remain owned by Communication Planner.
+
 ## What To Reuse First
 
 ### Unified Inbox Patterns
@@ -98,8 +114,8 @@ Those belong to Growth Engine, SNS Planner, AI Platform Core, or other platform 
 | Task | Output |
 | --- | --- |
 | Review Chatwoot inbox and conversation concepts | Inbox model notes and UI candidate list |
-| Review LINE Harness adapter architecture | LINE adapter event mapping and dry-run send evidence |
-| Review X Harness and IG Harness adapter architecture | X/Instagram adapter event mapping and dry-run send evidence |
+| Review LINE Harness adapter architecture | LINE adapter event mapping, dry-run send evidence, and license gate |
+| Review X Harness and IG Harness adapter architecture | X/Instagram adapter event mapping, exclusions, and dry-run send evidence |
 | Define OSS license review checklist | Production adoption gate |
 | Add adapter boundary document | Clear split between ChannelAdapterState and core domain |
 
