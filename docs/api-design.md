@@ -111,6 +111,22 @@ Must emit:
 
 - `communication.message.received.v1`
 
+### `GET /api/adapters/readiness`
+
+Returns provider send readiness for LINE, X, and Instagram.
+
+The endpoint must not return secret values. It returns only:
+
+- requested delivery mode
+- effective delivery mode
+- per-channel readiness
+- missing readiness blockers by key name
+- adapter reference
+- webhook signature secret readiness by key name only
+- active provider rate-limit policy settings
+
+Live provider send remains disabled unless credentials, webhook signature verification, rate-limit policy, and provider error mapping are configured.
+
 ### `GET /api/inbox`
 
 Returns conversations for one workspace.
