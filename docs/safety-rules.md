@@ -55,6 +55,10 @@ SafetyCheck should verify:
 - Provider adapter delivery must resolve a matching `ChannelIdentity` before send.
 - Current provider delivery must stay `dry_run` until production credentials, signature verification, rate-limit handling, and provider error mapping are configured.
 - `ReplySendDecision.adapterDelivery` must store delivery mode, adapter reference, idempotency key, and external provider/dry-run message id.
+- If live provider delivery is requested but `/api/adapters/readiness` reports any blocker, the effective provider delivery mode must remain `dry_run`.
+- Provider webhook payloads must pass signature verification before ingestion when enforcement is enabled.
+- Provider sends must pass the configured rate-limit policy before adapter delivery.
+- Provider-specific errors must be mapped into stable Communication Planner adapter outcomes before being returned by API routes.
 
 ## AI Platform Core Boundary
 
