@@ -41,6 +41,9 @@ The current test suite verifies that:
 - Adapter webhook responses do not echo raw provider payloads.
 - Provider message ingestion is idempotent by `workspaceId + channel + direction + externalMessageId`.
 - Adapter webhook error codes remain documented and implemented.
+- Adapter readiness exposes live-send blockers without exposing secret values.
+- Provider send falls back to `dry_run` until live-send readiness gates pass.
+- Provider webhook signature verification, provider send rate limiting, and provider error mapping are covered by executable contract tests.
 - CORS and `OPTIONS` preflight support remain present.
 - API response envelope helpers preserve CORS, `traceId`, `correlationId`, event names, timestamps, and error shape.
 - Request-scoped routes pass request metadata through success and error envelopes.
