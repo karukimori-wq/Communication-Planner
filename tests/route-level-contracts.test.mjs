@@ -49,12 +49,18 @@ describe("route-level contract guards", () => {
     const lineRoute = read("src/app/api/adapters/line/webhook/route.ts");
     const xRoute = read("src/app/api/adapters/x/webhook/route.ts");
     const instagramRoute = read("src/app/api/adapters/instagram/webhook/route.ts");
+    const readinessRoute = read("src/app/api/adapters/readiness/route.ts");
 
     assert.match(lineRoute, /createAdapterWebhookRoute\("line"\)/);
     assert.match(xRoute, /createAdapterWebhookRoute\("x"\)/);
     assert.match(instagramRoute, /createAdapterWebhookRoute\("instagram"\)/);
+    assert.match(readinessRoute, /getAllProviderSendReadiness/);
+    assert.match(readinessRoute, /effectiveDefault/);
     assert.match(webhookRoute, /normalizeAdapterWebhookPayload\(channel, body\)/);
+    assert.match(webhookRoute, /verifyAdapterWebhookSignature/);
+    assert.match(webhookRoute, /const rawBody = await request\.text\(\)/);
     assert.match(webhookRoute, /const \{ raw: _raw, \.\.\.responseEvent \} = normalized\.event/);
+    assert.match(webhookRoute, /signatureVerification/);
     assert.match(webhookRoute, /normalizedEvent: responseEvent/);
     assert.match(webhookRoute, /communication\.message\.received\.v1/);
     assert.match(normalizer, /firstObjectAt\(payload, \["events", "messages", "entries"\]\) \?\? payload/);
