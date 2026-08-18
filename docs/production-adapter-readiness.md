@@ -68,6 +68,12 @@ Deployment readiness was checked on 2026-08-18.
 
 Until those blockers are cleared, provider delivery must remain `dry_run`.
 
+Operational follow-up is documented in:
+
+- `docs/production-deployment-runbook.md`
+- `docs/platform-admin-registration.md`
+- `.env.example`
+
 ## Provider Error Mapping
 
 Provider adapters must map provider failures into stable Communication Planner outcomes before live delivery is enabled:
