@@ -236,6 +236,38 @@ p {
   border-color: #2d8a57;
 }
 
+.send-confirmation-card {
+  background: #f7f8fa;
+  border: 1px solid #e5e9f0;
+  border-radius: 8px;
+  margin: 12px 0;
+  padding: 12px;
+}
+
+.send-confirmation-card dl {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.send-confirmation-card div {
+  display: grid;
+  gap: 3px;
+}
+
+.send-confirmation-card dt {
+  color: #5d6b7f;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.send-confirmation-card dd {
+  font-weight: 700;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
 .status-pill.warning {
   background: #fff4d6;
   color: #765100;
