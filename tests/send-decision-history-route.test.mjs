@@ -10,6 +10,7 @@ describe("send decision history route contract", () => {
   it("requires full draft scope before returning send decisions", () => {
     const route = read("src/app/api/reply-drafts/[replyDraftId]/send-decisions/route.ts");
     const store = read("src/lib/store.ts");
+    const types = read("src/lib/types.ts");
 
     assert.match(route, /const \{ searchParams \} = new URL\(request\.url\)/);
     assert.match(route, /const workspaceId = searchParams\.get\("workspaceId"\)/);
@@ -20,7 +21,8 @@ describe("send decision history route contract", () => {
     assert.match(route, /if \(!conversationId\) return fail\("VALIDATION_ERROR", "conversationId is required", 400, meta\)/);
     assert.match(route, /return fail\("NOT_FOUND", "ReplyDraft not found", 404, meta\)/);
     assert.match(route, /return fail\("REPLY_DRAFT_SCOPE_MISMATCH", "Scope does not match reply draft", 403, meta\)/);
-    assert.match(route, /function toSendDecisionHistoryItem\(decision: ReplySendDecision\)/);
+    assert.match(route, /import type \{ ReplySendDecision, SendDecisionHistoryItem \} from "@\/lib\/types"/);
+    assert.match(route, /function toSendDecisionHistoryItem\(decision: ReplySendDecision\): SendDecisionHistoryItem/);
     assert.match(route, /deliveryMode: decision\.adapterDelivery\.deliveryMode/);
     assert.match(route, /adapterReference: decision\.adapterDelivery\.adapterReference/);
     assert.match(route, /providerStatus: decision\.adapterDelivery\.providerStatus/);
@@ -34,6 +36,12 @@ describe("send decision history route contract", () => {
     assert.match(store, /decision\.workspaceId === input\.workspaceId/);
     assert.match(store, /decision\.personId === input\.personId/);
     assert.match(store, /decision\.conversationId === input\.conversationId/);
+    assert.match(types, /export type SendDecisionHistoryItem = \{/);
+    assert.match(types, /deliveryMode: ReplySendDecision\["adapterDelivery"\]\["deliveryMode"\]/);
+    assert.match(types, /providerStatus\?: number/);
+    assert.match(types, /providerCode\?: string/);
+    assert.doesNotMatch(types, /SendDecisionHistoryItem[\s\S]*idempotencyKey/);
+    assert.doesNotMatch(types, /SendDecisionHistoryItem[\s\S]*checks:/);
   });
 
   it("keeps route documentation and endpoint metadata aligned", () => {
@@ -51,6 +59,7 @@ describe("send decision history route contract", () => {
     assert.match(apiDesign, /The request scope must match the draft's `workspaceId \+ personId \+ conversationId`/);
     assert.match(apiDesign, /channel that was confirmed at send time and adapter delivery evidence/);
     assert.match(apiDesign, /The history response is a sanitized audit projection/);
+    assert.match(apiDesign, /The response shape is represented by `SendDecisionHistoryItem`/);
     assert.match(apiDesign, /does not return adapter idempotency keys or internal gate check objects/);
     assert.match(localApiCheck, /send-decisions\?workspaceId=ws_demo&personId=\{personId\}&conversationId=\{conversationId\}/);
     assert.match(testing, /Send decision history route requires `workspaceId \+ personId \+ conversationId` before returning audit records/);
