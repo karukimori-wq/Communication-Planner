@@ -215,6 +215,27 @@ export function CommunicationDashboard({ snapshot }: { snapshot: DashboardSnapsh
             </span>
           </div>
           <p className="gate-reason">API readiness: {selectedConversation.safety.blockedReason ?? "ready"}</p>
+          <div className="send-confirmation-card" aria-label="send confirmation summary">
+            <p className="eyebrow">Send Confirmation</p>
+            <dl>
+              <div>
+                <dt>Person</dt>
+                <dd>{selectedConversation.displayName}</dd>
+              </div>
+              <div>
+                <dt>Conversation</dt>
+                <dd>{selectedConversation.conversationId}</dd>
+              </div>
+              <div>
+                <dt>Channel</dt>
+                <dd>{selectedConversation.channel}</dd>
+              </div>
+              <div>
+                <dt>Draft hash</dt>
+                <dd>{selectedConversation.replyDraft?.contentHash ?? "draft required"}</dd>
+              </div>
+            </dl>
+          </div>
           <div className="check-list">
             {gateChecks.map((check) => (
               <label key={check.id} className="check-row" htmlFor={check.id}>
