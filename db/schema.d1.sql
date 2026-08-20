@@ -1,0 +1,135 @@
+PRAGMA foreign_keys = ON;
+
+CREATE TABLE IF NOT EXISTS communication_persons (
+  id TEXT PRIMARY KEY,
+  workspace_id TEXT NOT NULL,
+  display_name TEXT NOT NULL,
+  profile_summary TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_communication_persons_workspace ON communication_persons(workspace_id);
+
+CREATE TABLE IF NOT EXISTS channel_identities (
+  id TEXT PRIMARY KEY,
+  workspace_id TEXT NOT NULL,
+  person_id TEXT NOT NULL REFERENCES communication_persons(id) ON DELETE CASCADE,
+  channel TEXT NOT NULL CHECK(channel IN ('line','x','instagram')),
+  channel_user_id TEXT NOT NULL,
+  display_name TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  UNIQUE(workspace_id, channel, channel_user_id)
+);
+CREATE INDEX IF NOT EXISTS idx_channel_identities_person ON channel_identities(workspace_id, person_id);
+
+CREATE TABLE IF NOT EXISTS conversations (
+  id TEXT PRIMARY KEY,
+  workspace_id TEXT NOT NULL,
+  person_id TEXT NOT NULL REFERENCES communication_persons(id) ON DELETE CASCADE,
+  channel_identity_id TEXT NOT NULL REFERENCES channel_identities(id) ON DELETE RESTRICT,
+  channel TEXT NOT NULL CHECK(channel IN ('line','x','instagram')),
+  external_thread_id TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'open' CHECK(status IN ('open','pending','closed')),
+  last_message_at TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  UNIQUE(workspace_id, channel, external_thread_id)
+);
+CREATE INDEX IF NOT EXISTS idx_conversations_inbox ON conversations(workspace_id, status, last_message_at DESC);
+CREATE INDEX IF NOT EXISTS idx_conversations_person ON conversations(workspace_id, person_id, last_message_at DESC);
+
+CREATE TABLE IF NOT EXISTS messages (
+  id TEXT PRIMARY KEY,
+  workspace_id TEXT NOT NULL,
+  person_id TEXT NOT NULL REFERENCES communication_persons(id) ON DELETE CASCADE,
+  conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+  channel TEXT NOT NULL CHECK(channel IN ('line','x','instagram')),
+  external_message_id TEXT NOT NULL,
+  direction TEXT NOT NULL CHECK(direction IN ('inbound','outbound')),
+  body TEXT NOT NULL,
+  received_at TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  UNIQUE(workspace_id, channel, external_message_id)
+);
+CREATE INDEX IF NOT EXISTS idx_messages_conversation ON messages(workspace_id, conversation_id, received_at DESC);
+
+CREATE TABLE IF NOT EXISTS conversation_contexts (
+  id TEXT PRIMARY KEY,
+  workspace_id TEXT NOT NULL,
+  person_id TEXT NOT NULL REFERENCES communication_persons(id) ON DELETE CASCADE,
+  summary TEXT NOT NULL,
+  promises_json TEXT NOT NULL DEFAULT '[]',
+  next_actions_json TEXT NOT NULL DEFAULT '[]',
+  updated_at TEXT NOT NULL,
+  UNIQUE(workspace_id, person_id)
+);
+
+CREATE TABLE IF NOT EXISTS topics (
+  id TEXT PRIMARY KEY,
+  workspace_id TEXT NOT NULL,
+  person_id TEXT NOT NULL REFERENCES communication_persons(id) ON DELETE CASCADE,
+  conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+  source_message_id TEXT NOT NULL REFERENCES messages(id) ON DELETE CASCADE,
+  label TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_topics_person ON topics(workspace_id, person_id, created_at DESC);
+
+CREATE TABLE IF NOT EXISTS promises (
+  id TEXT PRIMARY KEY,
+  workspace_id TEXT NOT NULL,
+  person_id TEXT NOT NULL REFERENCES communication_persons(id) ON DELETE CASCADE,
+  conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+  source_message_id TEXT NOT NULL REFERENCES messages(id) ON DELETE CASCADE,
+  body TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_promises_person ON promises(workspace_id, person_id, created_at DESC);
+
+CREATE TABLE IF NOT EXISTS communication_next_actions (
+  id TEXT PRIMARY KEY,
+  workspace_id TEXT NOT NULL,
+  person_id TEXT NOT NULL REFERENCES communication_persons(id) ON DELETE CASCADE,
+  conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+  source_message_id TEXT NOT NULL REFERENCES messages(id) ON DELETE CASCADE,
+  body TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'open' CHECK(status IN ('open','done')),
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_next_actions_person ON communication_next_actions(workspace_id, person_id, status, created_at DESC);
+
+CREATE TABLE IF NOT EXISTS reply_drafts (
+  id TEXT PRIMARY KEY,
+  workspace_id TEXT NOT NULL,
+  person_id TEXT NOT NULL REFERENCES communication_persons(id) ON DELETE CASCADE,
+  conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+  body TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'draft' CHECK(status IN ('draft','safety_checked','sent','blocked')),
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_reply_drafts_conversation ON reply_drafts(workspace_id, conversation_id, created_at DESC);
+
+CREATE TABLE IF NOT EXISTS safety_checks (
+  id TEXT PRIMARY KEY,
+  workspace_id TEXT NOT NULL,
+  person_id TEXT NOT NULL REFERENCES communication_persons(id) ON DELETE CASCADE,
+  conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+  reply_draft_id TEXT NOT NULL REFERENCES reply_drafts(id) ON DELETE CASCADE,
+  status TEXT NOT NULL CHECK(status IN ('passed','blocked','warning')),
+  issues_json TEXT NOT NULL DEFAULT '[]',
+  checked_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_safety_checks_draft ON safety_checks(workspace_id, reply_draft_id, checked_at DESC);
+
+CREATE TABLE IF NOT EXISTS channel_adapter_states (
+  id TEXT PRIMARY KEY,
+  workspace_id TEXT NOT NULL,
+  channel TEXT NOT NULL CHECK(channel IN ('line','x','instagram')),
+  status TEXT NOT NULL,
+  cursor_value TEXT,
+  last_synced_at TEXT,
+  updated_at TEXT NOT NULL,
+  UNIQUE(workspace_id, channel)
+);
