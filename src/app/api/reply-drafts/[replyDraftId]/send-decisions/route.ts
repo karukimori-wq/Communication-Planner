@@ -1,10 +1,10 @@
 import { fail, ok, requestMeta } from "@/lib/http";
 import { getReplyDraft, getReplySendDecisions } from "@/lib/store";
-import type { ReplySendDecision } from "@/lib/types";
+import type { ReplySendDecision, SendDecisionHistoryItem } from "@/lib/types";
 
 type RouteContext = { params: Promise<{ replyDraftId: string }> };
 
-function toSendDecisionHistoryItem(decision: ReplySendDecision) {
+function toSendDecisionHistoryItem(decision: ReplySendDecision): SendDecisionHistoryItem {
   return {
     sendDecisionId: decision.sendDecisionId,
     replyDraftId: decision.replyDraftId,
