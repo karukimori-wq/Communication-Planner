@@ -1,9 +1,10 @@
 import { CommunicationDashboard } from "./dashboard-client";
 import { dashboardSeedWorkspaceId } from "@/lib/dashboard";
+import { withDashboardSendDecisionHistory } from "@/lib/dashboard-send-history";
 import { getDashboardSnapshot } from "@/lib/store";
 
 export default async function Home() {
-  const snapshot = await getDashboardSnapshot(dashboardSeedWorkspaceId);
+  const snapshot = withDashboardSendDecisionHistory(await getDashboardSnapshot(dashboardSeedWorkspaceId));
 
   return (
     <main className="app-shell">
