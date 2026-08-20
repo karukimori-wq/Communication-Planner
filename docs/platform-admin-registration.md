@@ -26,6 +26,23 @@ COMMUNICATION_PLANNER_BASE_URL=<pending production URL>
 | GET | `/contracts/status` | Contract readiness |
 | GET | `/api/adapters/readiness` | Provider readiness and dry-run/live gate visibility |
 
+## Machine-Readable Registration Endpoint
+
+Platform Admin can read registration metadata from:
+
+```text
+GET /api/platform-admin/registration
+```
+
+The response includes:
+
+- app identity
+- required runtime URL environment key
+- monitored endpoint paths
+- stable events
+- source-of-truth ownership boundaries
+- registration gate conditions
+
 ## Stable Events
 
 - `communication.message.received.v1`
@@ -34,6 +51,7 @@ COMMUNICATION_PLANNER_BASE_URL=<pending production URL>
 - `communication.promise.created.v1`
 - `communication.next_action.created.v1`
 - `communication.reply_draft.created.v1`
+- `communication.reply_draft.updated.v1`
 - `communication.reply_safety.checked.v1`
 - `communication.person_channel.linked.v1`
 
