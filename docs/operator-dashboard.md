@@ -49,6 +49,21 @@ It must display:
 
 This summary is built from the existing dashboard snapshot fields and is not a replacement for the API send gate. The API still rejects mismatched `workspaceId + personId + conversationId + channel` requests.
 
+## Send Decision History
+
+The Reply Draft panel shows send decision history for the selected draft after the Safety Gate.
+
+Each entry must show:
+
+- confirmed channel
+- adapter delivery mode
+- SafetyCheck id
+- ReplyDraft content hash
+- adapter reference
+- decision timestamp
+
+This history is a read-only audit summary. It is derived from `reply_send_decisions` and does not unlock sending by itself.
+
 ## AI Platform Core Boundary
 
 The dashboard exposes the three expected AI operations as task boundaries:
