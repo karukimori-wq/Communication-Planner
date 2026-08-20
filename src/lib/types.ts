@@ -215,6 +215,25 @@ export type ReplySendDecision = {
   decidedAt: string;
 };
 
+export type SendDecisionHistoryItem = {
+  sendDecisionId: string;
+  replyDraftId: string;
+  safetyCheckId: string;
+  messageId: string;
+  workspaceId: string;
+  personId: string;
+  conversationId: string;
+  channel: Channel;
+  contentHash: string;
+  deliveryMode: ReplySendDecision["adapterDelivery"]["deliveryMode"];
+  adapterReference: string;
+  accepted: boolean;
+  externalMessageId?: string;
+  providerStatus?: number;
+  providerCode?: string;
+  decidedAt: string;
+};
+
 export type UpdateReplyDraftInput = {
   workspaceId?: string;
   personId?: string;
