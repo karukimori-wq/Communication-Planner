@@ -22,6 +22,17 @@ type DashboardSafety = {
   blockedReason?: string;
 };
 
+type DashboardSendDecision = {
+  sendDecisionId: string;
+  safetyCheckId: string;
+  messageId: string;
+  channel: Channel;
+  contentHash: string;
+  deliveryMode: "dry_run" | "live";
+  adapterReference: string;
+  decidedAt: string;
+};
+
 export type DashboardConversation = {
   conversationId: string;
   personId: string;
@@ -32,6 +43,7 @@ export type DashboardConversation = {
   context: DashboardContext;
   replyDraft: DashboardReplyDraft | null;
   safety: DashboardSafety;
+  sendDecisions?: DashboardSendDecision[];
 };
 
 export type DashboardSnapshot = {
