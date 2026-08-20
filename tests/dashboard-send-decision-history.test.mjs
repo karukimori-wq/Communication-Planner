@@ -18,9 +18,13 @@ describe("dashboard send decision history", () => {
 
     assert.match(dashboardTypes, /sendDecisions\?: DashboardSendDecision\[\]/);
     assert.match(dashboardSendHistory, /getReplySendDecisions\(\{/);
-    assert.match(dashboardSendHistory, /sendDecisions: sendDecisions\.map/);
+    assert.match(dashboardSendHistory, /sendDecisions: visibleSendDecisions\.map/);
     assert.match(dashboardSendHistory, /adapterDelivery\.deliveryMode/);
     assert.match(dashboardSendHistory, /adapterDelivery\.adapterReference/);
+    assert.match(dashboardSendHistory, /getDemoSendDecisions/);
+    assert.match(dashboardSendHistory, /dashboardSeedWorkspaceId/);
+    assert.match(dashboardSendHistory, /demo-send-decision-line-001/);
+    assert.match(dashboardSendHistory, /visibleSendDecisions = sendDecisions\.length > 0 \? sendDecisions : getDemoSendDecisions/);
     assert.match(dashboardRoute, /withDashboardSendDecisionHistory\(await getDashboardSnapshot\(workspaceId\)\)/);
     assert.match(page, /withDashboardSendDecisionHistory\(await getDashboardSnapshot\(dashboardSeedWorkspaceId\)\)/);
     assert.match(dashboardClient, /aria-label="send decision history"/);
