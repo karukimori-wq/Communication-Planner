@@ -268,6 +268,45 @@ p {
   overflow-wrap: anywhere;
 }
 
+.send-history-card {
+  border: 1px solid #d8dee8;
+  border-radius: 8px;
+  margin-top: 16px;
+  padding: 14px;
+}
+
+.history-heading {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.send-history-card ul {
+  display: grid;
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.send-history-card li {
+  background: #f7f8fa;
+  border-radius: 8px;
+  display: grid;
+  gap: 4px;
+  padding: 10px;
+}
+
+.send-history-card span {
+  font-weight: 700;
+}
+
+.send-history-card small,
+.history-empty {
+  color: #5d6b7f;
+}
+
 .status-pill.warning {
   background: #fff4d6;
   color: #765100;
