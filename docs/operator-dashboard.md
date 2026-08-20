@@ -36,6 +36,19 @@ These UI rules mirror the API send gate. The API remains the source of truth and
 
 The UI additionally displays the API readiness reason, such as `SAFETY_CHECK_REQUIRED`, `STALE_SAFETY_CHECK`, or `REPLY_DRAFT_ALREADY_SENT`, so operators can see why a send is blocked.
 
+## Send Confirmation Summary
+
+The Safety Gate shows a compact confirmation summary immediately before the send action.
+
+It must display:
+
+- visible person name
+- `conversationId`
+- original conversation `channel`
+- current ReplyDraft content hash
+
+This summary is built from the existing dashboard snapshot fields and is not a replacement for the API send gate. The API still rejects mismatched `workspaceId + personId + conversationId + channel` requests.
+
 ## AI Platform Core Boundary
 
 The dashboard exposes the three expected AI operations as task boundaries:
