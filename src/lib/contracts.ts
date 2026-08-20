@@ -10,6 +10,22 @@ export type EndpointContract = {
   safetyRules: string[];
 };
 
+export type PlatformAdminRegistration = {
+  appName: "communication-planner";
+  displayName: "Communication Planner";
+  runtimeUrlEnvKey: "COMMUNICATION_PLANNER_BASE_URL";
+  runtimeUrlStatus: "pending" | "configured";
+  requiredHealthEndpoints: {
+    method: "GET";
+    path: string;
+    purpose: string;
+  }[];
+  stableEvents: string[];
+  sourceOfTruth: string[];
+  prohibitedSourceOfTruth: string[];
+  registrationGate: string[];
+};
+
 export const prohibitedOwnedPayloadFields = [
   "customerMaster",
   "leadLifecycle",
@@ -22,6 +38,72 @@ export const prohibitedOwnedPayloadFields = [
   "velvetMemory",
   "aiUsage"
 ];
+
+export const communicationPlannerSourceOfTruth = [
+  "Unified Inbox",
+  "Communication Person projection",
+  "ChannelIdentity",
+  "Conversation",
+  "Message",
+  "ConversationContext",
+  "Topic",
+  "Promise",
+  "Communication NextAction",
+  "ReplyDraft",
+  "SafetyCheck",
+  "ReplySendDecision",
+  "ChannelAdapter integration state"
+];
+
+export const communicationPlannerStableEvents = [
+  "communication.message.received.v1",
+  "communication.message.sent.v1",
+  "communication.context.updated.v1",
+  "communication.promise.created.v1",
+  "communication.next_action.created.v1",
+  "communication.reply_draft.created.v1",
+  "communication.reply_draft.updated.v1",
+  "communication.reply_safety.checked.v1",
+  "communication.person_channel.linked.v1"
+];
+
+export const platformAdminRegistration: PlatformAdminRegistration = {
+  appName: "communication-planner",
+  displayName: "Communication Planner",
+  runtimeUrlEnvKey: "COMMUNICATION_PLANNER_BASE_URL",
+  runtimeUrlStatus: process.env.COMMUNICATION_PLANNER_BASE_URL ? "configured" : "pending",
+  requiredHealthEndpoints: [
+    {
+      method: "GET",
+      path: "/health",
+      purpose: "Runtime health"
+    },
+    {
+      method: "GET",
+      path: "/version",
+      purpose: "Build and version metadata"
+    },
+    {
+      method: "GET",
+      path: "/contracts/status",
+      purpose: "Contract readiness"
+    },
+    {
+      method: "GET",
+      path: "/api/adapters/readiness",
+      purpose: "Provider readiness and dry-run/live gate visibility"
+    }
+  ],
+  stableEvents: communicationPlannerStableEvents,
+  sourceOfTruth: communicationPlannerSourceOfTruth,
+  prohibitedSourceOfTruth: prohibitedOwnedPayloadFields,
+  registrationGate: [
+    "Production runtime URL is finalized",
+    "Health endpoints return HTTP 200",
+    "/contracts/status returns success",
+    "/api/adapters/readiness confirms dry_run unless every live-send gate is configured"
+  ]
+};
 
 export const endpointContracts: EndpointContract[] = [
   {
@@ -63,6 +145,16 @@ export const endpointContracts: EndpointContract[] = [
     prohibitedPayloadFields: prohibitedOwnedPayloadFields,
     sourceOfTruth: ["Communication Planner API contract registry"],
     safetyRules: ["Expose endpoint metadata for Platform Admin and integration checks"]
+  },
+  {
+    method: "GET",
+    path: "/api/platform-admin/registration",
+    operation: "platformAdmin.registration.read",
+    status: "implemented",
+    requiredFields: [],
+    prohibitedPayloadFields: prohibitedOwnedPayloadFields,
+    sourceOfTruth: ["Communication Planner app registration metadata"],
+    safetyRules: ["Expose registration metadata without secrets or business-owned records"]
   },
   {
     method: "POST",
