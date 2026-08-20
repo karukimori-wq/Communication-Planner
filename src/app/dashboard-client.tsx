@@ -119,6 +119,7 @@ export function CommunicationDashboard({ snapshot }: { snapshot: DashboardSnapsh
     { id: "safety-passed", label: "latest SafetyCheck passed for current draft hash", checked: safetyPassed, setChecked: setSafetyPassed }
   ];
   const sendUnlocked = gateChecks.every((check) => check.checked) && selectedConversation.safety.sendReady;
+  const sendDecisions = selectedConversation.sendDecisions ?? [];
 
   return (
     <div className="dashboard-grid">
@@ -270,6 +271,30 @@ export function CommunicationDashboard({ snapshot }: { snapshot: DashboardSnapsh
           <p className="action-status" aria-live="polite">
             {actionStatus}
           </p>
+        </div>
+
+        <div className="send-history-card" aria-label="send decision history">
+          <div className="history-heading">
+            <p className="eyebrow">Send History</p>
+            <strong>{sendDecisions.length} decisions</strong>
+          </div>
+          {sendDecisions.length === 0 ? (
+            <p className="history-empty">No send decision recorded for this draft.</p>
+          ) : (
+            <ul>
+              {sendDecisions.map((decision) => (
+                <li key={decision.sendDecisionId}>
+                  <span>
+                    {decision.channel} / {decision.deliveryMode}
+                  </span>
+                  <small>
+                    SafetyCheck {decision.safetyCheckId} / Hash {decision.contentHash} / {decision.decidedAt}
+                  </small>
+                  <small>Adapter {decision.adapterReference}</small>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </section>
 
