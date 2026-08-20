@@ -1,7 +1,29 @@
 import { fail, ok, requestMeta } from "@/lib/http";
 import { getReplyDraft, getReplySendDecisions } from "@/lib/store";
+import type { ReplySendDecision } from "@/lib/types";
 
 type RouteContext = { params: Promise<{ replyDraftId: string }> };
+
+function toSendDecisionHistoryItem(decision: ReplySendDecision) {
+  return {
+    sendDecisionId: decision.sendDecisionId,
+    replyDraftId: decision.replyDraftId,
+    safetyCheckId: decision.safetyCheckId,
+    messageId: decision.messageId,
+    workspaceId: decision.workspaceId,
+    personId: decision.personId,
+    conversationId: decision.conversationId,
+    channel: decision.channel,
+    contentHash: decision.contentHash,
+    deliveryMode: decision.adapterDelivery.deliveryMode,
+    adapterReference: decision.adapterDelivery.adapterReference,
+    accepted: decision.adapterDelivery.accepted,
+    externalMessageId: decision.adapterDelivery.externalMessageId,
+    providerStatus: decision.adapterDelivery.providerStatus,
+    providerCode: decision.adapterDelivery.providerCode,
+    decidedAt: decision.decidedAt
+  };
+}
 
 export async function GET(request: Request, context: RouteContext) {
   const meta = requestMeta(request);
@@ -24,5 +46,7 @@ export async function GET(request: Request, context: RouteContext) {
     return fail("REPLY_DRAFT_SCOPE_MISMATCH", "Scope does not match reply draft", 403, meta);
   }
 
-  return ok({ sendDecisions: getReplySendDecisions({ replyDraftId, workspaceId, personId, conversationId }) }, meta);
+  const sendDecisions = getReplySendDecisions({ replyDraftId, workspaceId, personId, conversationId }).map(toSendDecisionHistoryItem);
+
+  return ok({ sendDecisions }, meta);
 }
