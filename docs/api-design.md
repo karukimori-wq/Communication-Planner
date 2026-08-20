@@ -276,4 +276,4 @@ Query fields:
 
 The request scope must match the draft's `workspaceId + personId + conversationId`. The response must include only `ReplySendDecision` records scoped to the requested draft and confirmed request scope. Stored decisions include the channel that was confirmed at send time and adapter delivery evidence.
 
-The history response is a sanitized audit projection. It includes the confirmed scope, `channel`, `contentHash`, `deliveryMode`, `adapterReference`, provider status/code when available, and `decidedAt`. It does not return adapter idempotency keys or internal gate check objects.
+The history response is a sanitized audit projection. The response shape is represented by `SendDecisionHistoryItem`. It includes the confirmed scope, `channel`, `contentHash`, `deliveryMode`, `adapterReference`, provider status/code when available, and `decidedAt`. It does not return adapter idempotency keys or internal gate check objects.
