@@ -8,6 +8,10 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
+  "vars": {
+    "COMMUNICATION_PERSISTENCE_DRIVER": "d1",
+    "CLOUDFLARE_D1_ENABLED": "true"
+  },
   "d1_databases": [
     {
       "binding": "DB",
