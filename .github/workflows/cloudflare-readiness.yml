@@ -1,0 +1,39 @@
+name: Cloudflare Migration Readiness
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [infra/cloudflare-d1-migration]
+
+permissions:
+  contents: read
+
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Regenerate migration lockfile
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Install dependencies
+        run: npm ci
+      - name: Contract tests
+        run: npm test
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Next.js build
+        run: npm run build
+      - name: Generate Cloudflare binding types
+        run: npm run cf-typegen
+      - name: Apply D1 schema locally
+        run: npm run d1:schema:local
+      - name: Verify D1 schema and foreign keys
+        run: npm run d1:verify:local
+      - name: Cloudflare deployment dry run
+        run: npm run deploy:dry-run
