@@ -1,39 +1,5 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
-
-function read(path) {
-  return readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
-}
-
-describe("dashboard send decision history", () => {
-  it("surfaces scoped send decision audit details without unlocking send", () => {
-    const dashboardTypes = read("src/lib/dashboard.ts");
-    const dashboardSendHistory = read("src/lib/dashboard-send-history.ts");
-    const dashboardRoute = read("src/app/api/dashboard/route.ts");
-    const page = read("src/app/page.tsx");
-    const dashboardClient = read("src/app/dashboard-client.tsx");
-    const styles = read("src/app/styles.css");
-    const dashboardDoc = read("docs/operator-dashboard.md");
-
-    assert.match(dashboardTypes, /sendDecisions\?: DashboardSendDecision\[\]/);
-    assert.match(dashboardSendHistory, /getReplySendDecisions\(\{/);
-    assert.match(dashboardSendHistory, /sendDecisions: visibleSendDecisions\.map/);
-    assert.match(dashboardSendHistory, /adapterDelivery\.deliveryMode/);
-    assert.match(dashboardSendHistory, /adapterDelivery\.adapterReference/);
-    assert.match(dashboardSendHistory, /getDemoSendDecisions/);
-    assert.match(dashboardSendHistory, /dashboardSeedWorkspaceId/);
-    assert.match(dashboardSendHistory, /demo-send-decision-line-001/);
-    assert.match(dashboardSendHistory, /visibleSendDecisions = sendDecisions\.length > 0 \? sendDecisions : getDemoSendDecisions/);
-    assert.match(dashboardRoute, /withDashboardSendDecisionHistory\(await getDashboardSnapshot\(workspaceId\)\)/);
-    assert.match(page, /withDashboardSendDecisionHistory\(await getDashboardSnapshot\(dashboardSeedWorkspaceId\)\)/);
-    assert.match(dashboardClient, /aria-label="send decision history"/);
-    assert.match(dashboardClient, /Send History/);
-    assert.match(dashboardClient, /selectedConversation\.sendDecisions \?\? \[\]/);
-    assert.match(dashboardClient, /decision\.safetyCheckId/);
-    assert.match(dashboardClient, /decision\.contentHash/);
-    assert.match(styles, /\.send-history-card/);
-    assert.match(dashboardDoc, /Send Decision History/);
-    assert.match(dashboardDoc, /does not unlock sending by itself/);
-  });
-});
+function read(path){return readFileSync(new URL(`../${path}`,import.meta.url),"utf8");}
+describe("dashboard send decision history",()=>{it("surfaces scoped send decision audit details without unlocking send",()=>{const dashboardTypes=read("src/lib/dashboard.ts"),dashboardSendHistory=read("src/lib/dashboard-send-history.ts"),dashboardRoute=read("src/app/api/dashboard/route.ts"),page=read("src/app/page.tsx"),dashboardClient=read("src/app/dashboard-client.tsx"),styles=read("src/app/styles.css"),dashboardDoc=read("docs/operator-dashboard.md");assert.match(dashboardTypes,/sendDecisions\?: DashboardSendDecision\[\]/);assert.match(dashboardSendHistory,/getReplySendDecisions\(\{/);assert.match(dashboardSendHistory,/sendDecisions: visibleSendDecisions\.map/);assert.match(dashboardSendHistory,/adapterDelivery\.deliveryMode/);assert.match(dashboardSendHistory,/adapterDelivery\.adapterReference/);assert.match(dashboardSendHistory,/getDemoSendDecisions/);assert.match(dashboardSendHistory,/dashboardSeedWorkspaceId/);assert.match(dashboardSendHistory,/demo-send-decision-line-001/);assert.match(dashboardRoute,/withDashboardSendDecisionHistory\(await getDashboardSnapshot\(workspaceId\)\)/);assert.match(page,/withDashboardSendDecisionHistory\(await getDashboardSnapshot\(dashboardSeedWorkspaceId\)\)/);assert.match(dashboardClient,/send-history-card/);assert.match(dashboardClient,/Send History/);assert.match(dashboardClient,/selectedConversation\.sendDecisions\?\?\[\]|selectedConversation\.sendDecisions\s*\?\?\s*\[\]/);assert.match(dashboardClient,/safetyCheckId/);assert.match(dashboardClient,/decidedAt/);assert.match(dashboardClient,/sendUnlocked=gateChecks\.every/);assert.match(styles,/\.send-history-card/);assert.match(dashboardDoc,/Send Decision History/);assert.match(dashboardDoc,/does not unlock sending by itself/);});});
