@@ -29,7 +29,7 @@ jobs:
         run: |
           if npx wrangler d1 execute communication-planner --remote --command="SELECT checked_content_hash FROM safety_checks LIMIT 0;" --yes >/tmp/hash-column.txt 2>&1; then echo "checked_content_hash already exists"; else npx wrangler d1 execute communication-planner --remote --file=db/migrations/0002_safety_check_content_hash.sql --yes; fi
       - run: npm run deploy
-      - name: Verify health and D1 roundtrip
+      - name: Verify health, D1 and provider readiness
         run: |
           sleep 5
           curl -fsS "$PRODUCTION_URL/health"
@@ -38,6 +38,10 @@ jobs:
           node -e 'const x=require("/tmp/p.json");if(x.data.driver!=="d1"||!x.data.d1Reachable||!x.data.databaseBackedPersistenceReady)process.exit(1)'
           curl -fsS -X POST "$PRODUCTION_URL/api/persistence/roundtrip" | tee /tmp/r.json
           node -e 'const x=require("/tmp/r.json");if(!x.data.roundtripReady||x.data.persistenceDriver!=="d1")process.exit(1)'
+          curl -fsS "$PRODUCTION_URL/api/adapters/readiness" | tee /tmp/readiness.json
+          node - <<'NODE'
+          const x=require('/tmp/readiness.json'); const adapters=x.data.adapters;if(!Array.isArray(adapters)||adapters.length!==3)process.exit(1);for(const a of adapters){if(!['line','x','instagram'].includes(a.channel))process.exit(1);if(!['dry_run','live'].includes(a.effectiveDeliveryMode))process.exit(1);for(const group of [a.credentialRequirements,a.webhookSignatureSecrets,a.operationalRequirements])for(const r of group){if(typeof r.met!=='boolean'||Object.prototype.hasOwnProperty.call(r,'value'))process.exit(1)}}const raw=JSON.stringify(x);if(/Bearer |access_token|api_secret|channel_secret/i.test(raw))process.exit(1);
+          NODE
       - name: Verify anti-misdelivery, dashboard isolation and successful send flow
         shell: bash
         run: |
