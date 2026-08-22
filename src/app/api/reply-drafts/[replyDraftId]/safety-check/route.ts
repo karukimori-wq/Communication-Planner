@@ -1,16 +1,8 @@
-import { fail, ok, readJson, requestMeta } from "@/lib/http";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
+import { fail,ok,readJson,requestMeta } from "@/lib/http";
+import { getPersistenceReadiness } from "@/lib/persistence/driver";
+import { D1CommunicationRepository,type D1DatabaseLike } from "@/lib/persistence/d1";
 import { createSafetyCheck } from "@/lib/store";
 import type { SafetyCheckInput } from "@/lib/types";
-
-type RouteContext = { params: Promise<{ replyDraftId: string }> };
-
-export async function POST(request: Request, context: RouteContext) {
-  const meta = requestMeta(request);
-  const { replyDraftId } = await context.params;
-  const body = (await readJson<SafetyCheckInput>(request)) ?? {};
-
-  const safetyCheck = await createSafetyCheck(replyDraftId, body);
-  if (!safetyCheck) return fail("NOT_FOUND", "ReplyDraft not found", 404, meta);
-
-  return ok({ safetyCheck }, { ...meta, eventName: "communication.reply_safety.checked.v1" });
-}
+type RouteContext={params:Promise<{replyDraftId:string}>};
+export async function POST(request:Request,context:RouteContext){const meta=requestMeta(request),{replyDraftId}=await context.params,body=(await readJson<SafetyCheckInput>(request))??{},readiness=getPersistenceReadiness();if(readiness.driver==="d1"){if(!body.workspaceId||!body.personId||!body.conversationId)return fail("VALIDATION_ERROR","workspaceId, personId, and conversationId are required",400,meta);const status=body.status??"passed";if(!["passed","blocked","warning"].includes(status))return fail("VALIDATION_ERROR","status must be passed, blocked, or warning",400,meta);try{const db=getCloudflareContext().env.DB as unknown as D1DatabaseLike,repo=new D1CommunicationRepository(db),scope={workspaceId:body.workspaceId,personId:body.personId,conversationId:body.conversationId,replyDraftId};if(!await repo.getReplyDraft(scope))return fail("REPLY_DRAFT_SCOPE_MISMATCH","Scope does not match reply draft",403,meta);const safetyCheckId=crypto.randomUUID(),checkedAt=new Date().toISOString();await repo.createSafetyCheck({...scope,safetyCheckId,status:status as "passed"|"blocked"|"warning",issues:body.issues??[],checkedAt});return ok({safetyCheck:{safetyCheckId,replyDraftId,...scope,status,issues:body.issues??[],checkedAt},persistenceDriver:"d1"},{...meta,eventName:"communication.reply_safety.checked.v1"});}catch{return fail("PERSISTENCE_ERROR","SafetyCheck could not be persisted",503,meta);}}const safetyCheck=await createSafetyCheck(replyDraftId,body);if(!safetyCheck)return fail("NOT_FOUND","ReplyDraft not found",404,meta);return ok({safetyCheck,persistenceDriver:readiness.driver},{...meta,eventName:"communication.reply_safety.checked.v1"});}
