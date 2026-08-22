@@ -1,18 +1,8 @@
-import { fail, ok, readJson, requestMeta } from "@/lib/http";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
+import { fail,ok,readJson,requestMeta } from "@/lib/http";
+import { getPersistenceReadiness } from "@/lib/persistence/driver";
+import { D1CommunicationRepository,type D1DatabaseLike } from "@/lib/persistence/d1";
 import { updateReplyDraft } from "@/lib/store";
 import type { UpdateReplyDraftInput } from "@/lib/types";
-
-type RouteContext = { params: Promise<{ replyDraftId: string }> };
-
-export async function PATCH(request: Request, context: RouteContext) {
-  const meta = requestMeta(request);
-  const { replyDraftId } = await context.params;
-  const body = (await readJson<UpdateReplyDraftInput>(request)) ?? {};
-  const result = await updateReplyDraft(replyDraftId, body);
-
-  if (!result.ok) {
-    return fail(result.code, result.message, result.code === "NOT_FOUND" ? 404 : 409, meta);
-  }
-
-  return ok({ replyDraft: result.draft }, { ...meta, eventName: "communication.reply_draft.updated.v1" });
-}
+type RouteContext={params:Promise<{replyDraftId:string}>};
+export async function PATCH(request:Request,context:RouteContext){const meta=requestMeta(request),{replyDraftId}=await context.params,body=(await readJson<UpdateReplyDraftInput>(request))??{},readiness=getPersistenceReadiness();if(readiness.driver==="d1"){if(!body.workspaceId||!body.personId||!body.conversationId)return fail("VALIDATION_ERROR","workspaceId, personId, and conversationId are required",400,meta);if(typeof body.body!=="string")return fail("VALIDATION_ERROR","body is required",400,meta);try{const db=getCloudflareContext().env.DB as unknown as D1DatabaseLike,repo=new D1CommunicationRepository(db),scope={workspaceId:body.workspaceId,personId:body.personId,conversationId:body.conversationId,replyDraftId};const draft=await repo.getReplyDraft(scope);if(!draft)return fail("REPLY_DRAFT_SCOPE_MISMATCH","Scope does not match reply draft",403,meta);await repo.updateReplyDraft({...scope,body:body.body,updatedAt:new Date().toISOString()});return ok({replyDraft:await repo.getReplyDraft(scope),persistenceDriver:"d1"},{...meta,eventName:"communication.reply_draft.updated.v1"});}catch{return fail("PERSISTENCE_ERROR","Reply draft could not be updated",503,meta);}}const result=await updateReplyDraft(replyDraftId,body);if(!result.ok)return fail(result.code,result.message,result.code==="NOT_FOUND"?404:409,meta);return ok({replyDraft:result.draft,persistenceDriver:readiness.driver},{...meta,eventName:"communication.reply_draft.updated.v1"});}
