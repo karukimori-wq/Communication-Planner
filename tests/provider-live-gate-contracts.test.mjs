@@ -1,0 +1,9 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { describe,it } from "node:test";
+function read(path){return readFileSync(new URL(`../${path}`,import.meta.url),"utf8");}
+describe("provider live gate contracts",()=>{
+ it("requires every credential and operational gate before live delivery",()=>{const r=read("src/lib/adapters/readiness.ts");for(const key of ["LINE_CHANNEL_ACCESS_TOKEN","LINE_CHANNEL_SECRET","X_API_KEY","X_API_SECRET","X_ACCESS_TOKEN","X_ACCESS_TOKEN_SECRET","INSTAGRAM_PAGE_ACCESS_TOKEN","INSTAGRAM_APP_SECRET","COMMUNICATION_PLANNER_WEBHOOK_SIGNATURE_VERIFICATION","COMMUNICATION_PLANNER_PROVIDER_RATE_LIMIT_POLICY","COMMUNICATION_PLANNER_PROVIDER_ERROR_MAPPING"])assert.match(r,new RegExp(key));assert.match(r,/liveSendReady = blockers\.length === 0/);assert.match(r,/requestedDeliveryMode === "live" && liveSendReady \? "live" : "dry_run"/);});
+ it("keeps readiness output boolean-only for secrets",()=>{const r=read("src/lib/adapters/readiness.ts"),route=read("src/app/api/adapters/readiness/route.ts");assert.match(r,/met: configured\(process\.env\[key\]\)/);assert.match(r,/met: secret\.configured/);assert.doesNotMatch(route,/process\.env/);assert.doesNotMatch(route,/ACCESS_TOKEN.*value|API_SECRET.*value|CHANNEL_SECRET.*value/);});
+ it("keeps provider send routed through readiness and rate-limit guards",()=>{const s=read("src/lib/adapters/send.ts");assert.match(s,/getProviderSendReadiness/);assert.match(s,/enforceProviderRateLimit/);assert.match(s,/effectiveDeliveryMode === "dry_run"/);assert.match(s,/mapProviderError/);});
+});
