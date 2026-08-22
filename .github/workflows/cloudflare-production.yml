@@ -61,7 +61,7 @@ jobs:
         shell: bash
         run: |
           curl --fail --silent --show-error -X POST "$PRODUCTION_URL/api/persistence/roundtrip" | tee /tmp/roundtrip.json
-          node -e 'const fs=require("fs"); const x=JSON.parse(fs.readFileSync("/tmp/roundtrip.json","utf8")); if(x?.data?.roundtripReady!==true||x?.data?.driver!=="d1") process.exit(1)'
+          node -e 'const fs=require("fs"); const x=JSON.parse(fs.readFileSync("/tmp/roundtrip.json","utf8")); if(x?.data?.roundtripReady!==true||x?.data?.persistenceDriver!=="d1") process.exit(1)'
       - name: Verify D1 message ingestion and idempotency
         shell: bash
         run: |
