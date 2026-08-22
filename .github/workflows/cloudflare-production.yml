@@ -23,16 +23,11 @@ jobs:
       - run: npm run build
       - run: npx wrangler whoami
       - run: npx wrangler d1 info communication-planner
-      - name: Apply base D1 schema
-        run: npx wrangler d1 execute communication-planner --remote --file=db/schema.d1.sql --yes
+      - run: npx wrangler d1 execute communication-planner --remote --file=db/schema.d1.sql --yes
       - name: Apply SafetyCheck hash migration when needed
         shell: bash
         run: |
-          if npx wrangler d1 execute communication-planner --remote --command="SELECT checked_content_hash FROM safety_checks LIMIT 0;" --yes >/tmp/hash-column.txt 2>&1; then
-            echo "checked_content_hash already exists"
-          else
-            npx wrangler d1 execute communication-planner --remote --file=db/migrations/0002_safety_check_content_hash.sql --yes
-          fi
+          if npx wrangler d1 execute communication-planner --remote --command="SELECT checked_content_hash FROM safety_checks LIMIT 0;" --yes >/tmp/hash-column.txt 2>&1; then echo "checked_content_hash already exists"; else npx wrangler d1 execute communication-planner --remote --file=db/migrations/0002_safety_check_content_hash.sql --yes; fi
       - run: npm run deploy
       - name: Verify health and D1 roundtrip
         run: |
@@ -43,25 +38,29 @@ jobs:
           node -e 'const x=require("/tmp/p.json");if(x.data.driver!=="d1"||!x.data.d1Reachable||!x.data.databaseBackedPersistenceReady)process.exit(1)'
           curl -fsS -X POST "$PRODUCTION_URL/api/persistence/roundtrip" | tee /tmp/r.json
           node -e 'const x=require("/tmp/r.json");if(!x.data.roundtripReady||x.data.persistenceDriver!=="d1")process.exit(1)'
-      - name: Verify D1 business and stale SafetyCheck flow
+      - name: Verify anti-misdelivery and successful send flow
         shell: bash
         run: |
           ID="e2e-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
-          MSG=$(node -e 'let i=process.argv[1];process.stdout.write(JSON.stringify({workspaceId:"ws_e2e",channel:"line",externalUserId:"user_e2e",externalMessageId:i,externalThreadId:"thread_e2e",displayName:"E2E Person",body:"D1 E2E message",direction:"inbound"}))' "$ID")
-          curl -fsS -H 'content-type: application/json' -d "$MSG" "$PRODUCTION_URL/api/channel-events/messages" | tee /tmp/m1.json
-          curl -fsS -H 'content-type: application/json' -d "$MSG" "$PRODUCTION_URL/api/channel-events/messages" | tee /tmp/m2.json
-          node -e 'let a=require("/tmp/m1.json"),b=require("/tmp/m2.json");if(a.data.persistenceDriver!=="d1"||a.data.duplicate||!b.data.duplicate)process.exit(1)'
-          PERSON=$(node -e 'process.stdout.write(require("/tmp/m1.json").data.personId)'); CONV=$(node -e 'process.stdout.write(require("/tmp/m1.json").data.conversationId)')
-          for URL in "api/inbox?workspaceId=ws_e2e" "api/persons/$PERSON?workspaceId=ws_e2e" "api/persons/$PERSON/context?workspaceId=ws_e2e" "api/persons/$PERSON/conversations?workspaceId=ws_e2e"; do curl -fsS "$PRODUCTION_URL/$URL" >/dev/null; done
-          DRAFT=$(node -e 'process.stdout.write(JSON.stringify({workspaceId:"ws_e2e",personId:process.argv[1],conversationId:process.argv[2],purpose:"e2e reply",body:"Scoped D1 reply"}))' "$PERSON" "$CONV")
-          curl -fsS -H 'content-type: application/json' -d "$DRAFT" "$PRODUCTION_URL/api/conversations/$CONV/reply-drafts" | tee /tmp/draft.json
-          DRAFT_ID=$(node -e 'process.stdout.write(require("/tmp/draft.json").data.replyDraft.replyDraftId)')
-          SAFETY=$(node -e 'process.stdout.write(JSON.stringify({workspaceId:"ws_e2e",personId:process.argv[1],conversationId:process.argv[2],status:"passed",issues:[]}))' "$PERSON" "$CONV")
-          curl -fsS -H 'content-type: application/json' -d "$SAFETY" "$PRODUCTION_URL/api/reply-drafts/$DRAFT_ID/safety-check" >/tmp/safety.json
-          PATCH=$(node -e 'process.stdout.write(JSON.stringify({workspaceId:"ws_e2e",personId:process.argv[1],conversationId:process.argv[2],body:"Changed after SafetyCheck"}))' "$PERSON" "$CONV")
-          curl -fsS -X PATCH -H 'content-type: application/json' -d "$PATCH" "$PRODUCTION_URL/api/reply-drafts/$DRAFT_ID" >/tmp/patch.json
-          SEND=$(node -e 'process.stdout.write(JSON.stringify({workspaceId:"ws_e2e",personId:process.argv[1],conversationId:process.argv[2],channel:"line"}))' "$PERSON" "$CONV")
-          STATUS=$(curl -sS -o /tmp/stale.json -w '%{http_code}' -H 'content-type: application/json' -d "$SEND" "$PRODUCTION_URL/api/reply-drafts/$DRAFT_ID/send")
-          test "$STATUS" = "409"
-          node -e 'const x=require("/tmp/stale.json");if(x?.error?.code!=="STALE_SAFETY_CHECK")process.exit(1)'
-          npx wrangler d1 execute communication-planner --remote --command="SELECT id,status,checked_content_hash FROM safety_checks WHERE workspace_id='ws_e2e' AND reply_draft_id='$DRAFT_ID';" --yes
+          mkmsg(){ node -e 'process.stdout.write(JSON.stringify({workspaceId:"ws_e2e",channel:process.argv[1],externalUserId:process.argv[2],externalMessageId:process.argv[3],externalThreadId:process.argv[4],displayName:process.argv[5],body:"D1 E2E message",direction:"inbound"}))' "$1" "$2" "$3" "$4" "$5"; }
+          curl -fsS -H 'content-type: application/json' -d "$(mkmsg line user_a ${ID}-a thread_a 'E2E Person A')" "$PRODUCTION_URL/api/channel-events/messages" | tee /tmp/a.json
+          curl -fsS -H 'content-type: application/json' -d "$(mkmsg instagram user_b ${ID}-b thread_b 'E2E Person B')" "$PRODUCTION_URL/api/channel-events/messages" | tee /tmp/b.json
+          PA=$(node -e 'process.stdout.write(require("/tmp/a.json").data.personId)'); CA=$(node -e 'process.stdout.write(require("/tmp/a.json").data.conversationId)'); PB=$(node -e 'process.stdout.write(require("/tmp/b.json").data.personId)'); CB=$(node -e 'process.stdout.write(require("/tmp/b.json").data.conversationId)')
+          DRAFT=$(node -e 'process.stdout.write(JSON.stringify({workspaceId:"ws_e2e",personId:process.argv[1],conversationId:process.argv[2],purpose:"e2e reply",body:"Scoped reply for A"}))' "$PA" "$CA")
+          curl -fsS -H 'content-type: application/json' -d "$DRAFT" "$PRODUCTION_URL/api/conversations/$CA/reply-drafts" | tee /tmp/draft.json
+          DID=$(node -e 'process.stdout.write(require("/tmp/draft.json").data.replyDraft.replyDraftId)')
+          WRONG=$(node -e 'process.stdout.write(JSON.stringify({workspaceId:"ws_e2e",personId:process.argv[1],conversationId:process.argv[2],status:"passed",issues:[]}))' "$PB" "$CB")
+          STATUS=$(curl -sS -o /tmp/wrong.json -w '%{http_code}' -H 'content-type: application/json' -d "$WRONG" "$PRODUCTION_URL/api/reply-drafts/$DID/safety-check"); test "$STATUS" = "403"; node -e 'const x=require("/tmp/wrong.json");if(x?.error?.code!=="REPLY_DRAFT_SCOPE_MISMATCH")process.exit(1)'
+          SAFETY=$(node -e 'process.stdout.write(JSON.stringify({workspaceId:"ws_e2e",personId:process.argv[1],conversationId:process.argv[2],status:"passed",issues:[]}))' "$PA" "$CA")
+          curl -fsS -H 'content-type: application/json' -d "$SAFETY" "$PRODUCTION_URL/api/reply-drafts/$DID/safety-check" >/tmp/safety.json
+          WRONG_CHANNEL=$(node -e 'process.stdout.write(JSON.stringify({workspaceId:"ws_e2e",personId:process.argv[1],conversationId:process.argv[2],channel:"instagram"}))' "$PA" "$CA")
+          STATUS=$(curl -sS -o /tmp/channel.json -w '%{http_code}' -H 'content-type: application/json' -d "$WRONG_CHANNEL" "$PRODUCTION_URL/api/reply-drafts/$DID/send"); test "$STATUS" = "409"; node -e 'const x=require("/tmp/channel.json");if(x?.error?.code!=="SEND_SCOPE_MISMATCH")process.exit(1)'
+          PATCH=$(node -e 'process.stdout.write(JSON.stringify({workspaceId:"ws_e2e",personId:process.argv[1],conversationId:process.argv[2],body:"Changed after SafetyCheck"}))' "$PA" "$CA")
+          curl -fsS -X PATCH -H 'content-type: application/json' -d "$PATCH" "$PRODUCTION_URL/api/reply-drafts/$DID" >/dev/null
+          SEND=$(node -e 'process.stdout.write(JSON.stringify({workspaceId:"ws_e2e",personId:process.argv[1],conversationId:process.argv[2],channel:"line"}))' "$PA" "$CA")
+          STATUS=$(curl -sS -o /tmp/stale.json -w '%{http_code}' -H 'content-type: application/json' -d "$SEND" "$PRODUCTION_URL/api/reply-drafts/$DID/send"); test "$STATUS" = "409"; node -e 'const x=require("/tmp/stale.json");if(x?.error?.code!=="STALE_SAFETY_CHECK")process.exit(1)'
+          curl -fsS -H 'content-type: application/json' -d "$SAFETY" "$PRODUCTION_URL/api/reply-drafts/$DID/safety-check" >/dev/null
+          curl -fsS -H 'content-type: application/json' -d "$SEND" "$PRODUCTION_URL/api/reply-drafts/$DID/send" | tee /tmp/sent.json
+          node -e 'const x=require("/tmp/sent.json");if(x.data.persistenceDriver!=="d1"||x.data.replyDraft.status!=="sent"||x.data.message.direction!=="outbound")process.exit(1)'
+          STATUS=$(curl -sS -o /tmp/repeat.json -w '%{http_code}' -H 'content-type: application/json' -d "$SEND" "$PRODUCTION_URL/api/reply-drafts/$DID/send"); test "$STATUS" = "409"; node -e 'const x=require("/tmp/repeat.json");if(x?.error?.code!=="REPLY_DRAFT_ALREADY_SENT")process.exit(1)'
+          npx wrangler d1 execute communication-planner --remote --command="SELECT id,direction,channel FROM messages WHERE workspace_id='ws_e2e' AND conversation_id='$CA' ORDER BY created_at DESC LIMIT 2; SELECT id,channel,delivery_mode FROM reply_send_decisions WHERE workspace_id='ws_e2e' AND reply_draft_id='$DID';" --yes
