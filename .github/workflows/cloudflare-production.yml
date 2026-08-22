@@ -14,10 +14,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 22, cache: npm }
+        with: { node-version: 22 }
       - run: test -n "$CLOUDFLARE_API_TOKEN" && test -n "$CLOUDFLARE_ACCOUNT_ID"
-      - run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
-      - run: npm ci
+      - name: Install dependencies from package manifest
+        run: npm install --ignore-scripts --no-audit --no-fund
       - run: npm test
       - run: npm run typecheck
       - run: npm run build
