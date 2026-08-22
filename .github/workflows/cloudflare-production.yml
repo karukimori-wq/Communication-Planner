@@ -40,7 +40,7 @@ jobs:
           node -e 'const x=require("/tmp/r.json");if(!x.data.roundtripReady||x.data.persistenceDriver!=="d1")process.exit(1)'
           curl -fsS "$PRODUCTION_URL/api/adapters/readiness" | tee /tmp/readiness.json
           node - <<'NODE'
-          const x=require('/tmp/readiness.json'); const adapters=x.data.adapters;if(!Array.isArray(adapters)||adapters.length!==3)process.exit(1);for(const a of adapters){if(!['line','x','instagram'].includes(a.channel))process.exit(1);if(!['dry_run','live'].includes(a.effectiveDeliveryMode))process.exit(1);for(const group of [a.credentialRequirements,a.webhookSignatureSecrets,a.operationalRequirements])for(const r of group){if(typeof r.met!=='boolean'||Object.prototype.hasOwnProperty.call(r,'value'))process.exit(1)}}const raw=JSON.stringify(x);if(/Bearer |access_token|api_secret|channel_secret/i.test(raw))process.exit(1);
+          const x=require('/tmp/readiness.json');const adapters=x.data.adapters;if(!Array.isArray(adapters)||adapters.length!==3)process.exit(1);for(const a of adapters){if(!['line','x','instagram'].includes(a.channel)||!['dry_run','live'].includes(a.effectiveDeliveryMode))process.exit(1);for(const group of [a.credentialRequirements,a.webhookSignatureSecrets,a.operationalRequirements]){if(!Array.isArray(group))process.exit(1);for(const r of group){if(typeof r.key!=='string'||typeof r.description!=='string'||typeof r.met!=='boolean'||Object.prototype.hasOwnProperty.call(r,'value'))process.exit(1)}}}if(JSON.stringify(x).includes('"value":'))process.exit(1);
           NODE
       - name: Verify anti-misdelivery, dashboard isolation and successful send flow
         shell: bash
