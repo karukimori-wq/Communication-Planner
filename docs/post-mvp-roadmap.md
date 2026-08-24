@@ -7,8 +7,9 @@ MVP production safety gate is complete. The next phase is controlled real-provid
 1. Keep `COMMUNICATION_PLANNER_PROVIDER_DELIVERY_MODE=dry_run` by default.
 2. Configure credentials independently for LINE, X, and Instagram; never expose values through APIs or logs.
 3. Require webhook signature verification, provider rate-limit policy, and provider error mapping before any channel can become live-send ready.
-4. Use `/api/adapters/readiness` as the machine-readable readiness surface for Platform Admin.
-5. Enable live delivery channel-by-channel only after provider-specific inbound and outbound verification.
+4. Use `/contracts/status` as the primary Platform Admin readiness surface, including `adapterReadinessSummary`.
+5. Use `/api/adapters/readiness` for per-channel blocker drilldown without exposing secret values.
+6. Enable live delivery channel-by-channel only after provider-specific inbound and outbound verification.
 
 ## Phase B — production operator UX
 
@@ -30,5 +31,6 @@ A provider may be enabled for live send only when:
 - signature verification is enabled;
 - provider rate limiting is enabled;
 - provider error mapping is enabled;
+- provider-specific inbound and outbound verification are enabled;
 - Production E2E remains green;
 - wrong-person, wrong-channel, stale-check, and duplicate-send guards remain green.
