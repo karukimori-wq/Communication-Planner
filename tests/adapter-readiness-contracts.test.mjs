@@ -18,6 +18,7 @@ describe("adapter readiness contract guards", () => {
     assert.match(route, /effectiveDefault/);
     assert.match(readiness, /credentialRequirements/);
     assert.match(readiness, /webhookSignatureSecrets/);
+    assert.match(readiness, /providerVerificationRequirements/);
     assert.match(readiness, /operationalRequirements/);
     assert.match(readiness, /rateLimitPolicy/);
     assert.match(readiness, /blockers/);
@@ -45,6 +46,8 @@ describe("adapter readiness contract guards", () => {
     assert.match(readiness, /COMMUNICATION_PLANNER_WEBHOOK_SIGNATURE_VERIFICATION/);
     assert.match(readiness, /COMMUNICATION_PLANNER_PROVIDER_RATE_LIMIT_POLICY/);
     assert.match(readiness, /COMMUNICATION_PLANNER_PROVIDER_ERROR_MAPPING/);
+    assert.match(readiness, /LINE_PROVIDER_INBOUND_VERIFIED/);
+    assert.match(readiness, /INSTAGRAM_PROVIDER_OUTBOUND_VERIFIED/);
     assert.match(readiness, /getProviderRateLimitPolicy/);
     assert.match(readiness, /getWebhookSignatureSecretStatus/);
     assert.match(readiness, /requestedDeliveryMode === "live" && liveSendReady \? "live" : "dry_run"/);
