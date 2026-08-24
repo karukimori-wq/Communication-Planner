@@ -82,7 +82,7 @@ The Operations panel lists LINE, X, and Instagram adapter readiness with the cor
 
 Adapters may normalize provider events and prepare provider sends, but final outbound sends remain blocked by Communication Planner's SafetyCheck and send confirmation rules.
 
-Adapter readiness should show blocker categories by key name: `credentialRequirements`, `webhookSignatureSecrets`, `providerVerificationRequirements`, `operationalRequirements`, and `rateLimitPolicy`.
+Adapter readiness should show the endpoint `summary` first, then blocker categories by key name: `credentialRequirements`, `webhookSignatureSecrets`, `providerVerificationRequirements`, `operationalRequirements`, and `rateLimitPolicy`.
 
 ## Pilot Readiness
 
