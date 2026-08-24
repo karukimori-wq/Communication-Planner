@@ -9,6 +9,7 @@ function read(path) {
 describe("Platform Admin registration metadata", () => {
   it("exposes a machine-readable registration endpoint without secrets or business-owned records", () => {
     const route = read("src/app/api/platform-admin/registration/route.ts");
+    const statusRoute = read("src/app/contracts/status/route.ts");
     const contracts = read("src/lib/contracts.ts");
     const registrationDoc = read("docs/platform-admin-registration.md");
 
@@ -21,6 +22,10 @@ describe("Platform Admin registration metadata", () => {
     assert.match(contracts, /platformAdmin\.registration\.read/);
     assert.match(contracts, /prohibitedSourceOfTruth: prohibitedOwnedPayloadFields/);
     assert.match(registrationDoc, /GET \/api\/platform-admin\/registration/);
+    assert.match(statusRoute, /adapterReadinessSummary/);
+    assert.match(statusRoute, /blockedChannels/);
+    assert.match(statusRoute, /blockerCount/);
+    assert.match(registrationDoc, /adapterReadinessSummary/);
     assert.doesNotMatch(route, /process\.env\.[A-Z0-9_]*(SECRET|TOKEN|KEY)/);
   });
 });
