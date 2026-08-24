@@ -16,6 +16,8 @@ Returns build metadata.
 
 Returns contract readiness status for Platform Admin.
 
+Includes `adapterReadinessSummary` with total channels, live-ready channels, blocked channels, blocker count, and all-live-ready state. This mirrors `/api/adapters/readiness` summary without exposing secret values.
+
 ### `GET /api/contracts/endpoints`
 
 Returns endpoint-level contract metadata.
