@@ -53,7 +53,7 @@ SafetyCheck should verify:
 - The send decision is stored and can be read only when `replyDraftId + workspaceId + personId + conversationId` match the draft.
 - Provider adapter delivery may run only after the API send gate passes.
 - Provider adapter delivery must resolve a matching `ChannelIdentity` before send.
-- Current provider delivery must stay `dry_run` until production credentials, signature verification, rate-limit handling, and provider error mapping are configured.
+- Current provider delivery must stay `dry_run` until production credentials, signature verification, provider-specific inbound/outbound verification, rate-limit handling, and provider error mapping are configured.
 - `ReplySendDecision.adapterDelivery` must store delivery mode, adapter reference, idempotency key, and external provider/dry-run message id.
 - If live provider delivery is requested but `/api/adapters/readiness` reports any blocker, the effective provider delivery mode must remain `dry_run`.
 - Provider webhook payloads must pass signature verification before ingestion when enforcement is enabled.
