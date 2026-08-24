@@ -6,7 +6,7 @@ Communication Planner currently keeps provider sends in `dry_run` unless all liv
 
 `GET /api/adapters/readiness`
 
-The endpoint returns per-channel readiness without exposing secret values.
+The endpoint returns a readiness summary and per-channel readiness without exposing secret values. The summary includes `totalChannels`, `liveReadyChannels`, `blockedChannels`, `blockerCount`, and `allLiveReady` so Platform Admin can show the rollout state without parsing every blocker row.
 
 ## Live Send Gate
 
@@ -65,14 +65,13 @@ Each value must be `enabled` or `true`. These flags are intentionally separate f
 
 ## Production Rollout Status
 
-Deployment readiness was checked on 2026-08-18.
+Deployment readiness was checked on 2026-08-25.
 
 | Step | Status | Notes |
 | --- | --- | --- |
-| GitHub main source sync | Done | Latest synced commit: `a38d081f800cb77c8376e40929423f7bfc480e2c` |
-| Local production build | Done | `npm run build` completed successfully |
-| Vercel project discovery | Blocked | No existing `communication-planner` project was found in the connected Vercel team |
-| Vercel production deploy | Blocked | Vercel CLI is logged out and the connector deploy call returned `INVALID_ARGUMENT` without a linked project |
+| GitHub main source sync | Done | Latest verified checkpoint before this readiness refresh: `1697c1dfa108f4777696bdd5447629836421cfbe` |
+| Local dependency-free contract tests | Done | 50 tests passed across 15 suites |
+| Full dependency install/typecheck | Blocked | Scratch npm still attempts to create `/root/.npm`, so dependency-backed tests and typecheck were not completed here |
 | Production runtime URL | Blocked | Cannot be finalized until a Vercel project or approved hosting target exists |
 | Production env vars | Blocked | Provider credentials and secrets must be supplied outside source control |
 | Platform Admin runtime URL registration | Blocked | Requires the finalized Communication Planner production URL |
