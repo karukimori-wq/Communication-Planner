@@ -177,7 +177,8 @@ Current production-safe behavior:
 - LINE, X, and Instagram adapters return `deliveryMode: "dry_run"` until production credentials and provider-specific delivery are configured.
 - `ReplySendDecision.adapterDelivery` stores adapter reference, delivery mode, idempotency key, accepted flag, and provider/dry-run message id.
 - `GET /api/adapters/readiness` reports whether each provider can move from requested live delivery to effective live delivery.
-- If live delivery is requested but any credential, signature verification, rate-limit, or provider error mapping gate is missing, the effective adapter delivery mode remains `dry_run`.
+- If live delivery is requested but any credential, signature verification, provider verification, rate-limit, or provider error mapping gate is missing, the effective adapter delivery mode remains `dry_run`.
+- `providerVerificationRequirements` reports provider-specific inbound/outbound verification flags without exposing secret values.
 - Webhook signature verification runs before normalization when `COMMUNICATION_PLANNER_WEBHOOK_SIGNATURE_VERIFICATION=enabled`.
 - Provider send requests pass through the configured rate-limit policy before adapter delivery.
 - Provider failures are mapped to stable Communication Planner codes such as `ADAPTER_AUTH_FAILED`, `ADAPTER_SIGNATURE_INVALID`, `ADAPTER_RATE_LIMITED`, and `ADAPTER_SEND_REJECTED`.
@@ -190,6 +191,6 @@ Harness references verified on 2026-08-17:
 | X | `Shudesu/x-harness-oss` | DM/reply adapter reference; dry-run send enabled, marketing automation excluded |
 | Instagram | `Shudesu/ig-harness-oss` | DM adapter reference; dry-run send enabled |
 
-Live provider sends must remain disabled until credentials, rate-limit handling, webhook signature checks, and provider-specific error mapping are added.
+Live provider sends must remain disabled until credentials, provider verification, rate-limit handling, webhook signature checks, and provider-specific error mapping are added.
 
 See [production-adapter-readiness.md](production-adapter-readiness.md) for the concrete environment gates and provider error mapping requirements.
