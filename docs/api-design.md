@@ -123,9 +123,10 @@ The endpoint must not return secret values. It returns only:
 - missing readiness blockers by key name
 - adapter reference
 - webhook signature secret readiness by key name only
+- provider-specific inbound/outbound verification readiness by key name only
 - active provider rate-limit policy settings
 
-Live provider send remains disabled unless credentials, webhook signature verification, rate-limit policy, and provider error mapping are configured.
+Live provider send remains disabled unless credentials, webhook signature verification, provider-specific inbound/outbound verification, rate-limit policy, and provider error mapping are configured.
 
 ### `GET /api/inbox`
 
