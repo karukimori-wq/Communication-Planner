@@ -52,7 +52,7 @@ describe("adapter readiness contract guards", () => {
     assert.match(readiness, /getWebhookSignatureSecretStatus/);
     assert.match(readiness, /requestedDeliveryMode === "live" && liveSendReady \? "live" : "dry_run"/);
     assert.match(readinessDoc, /If any requirement is missing, the effective delivery mode remains `dry_run`/);
-    assert.match(safetyRules, /effective provider delivery mode must remain `dry_run`/);
+    assert.match(safetyRules, /provider-specific inbound\/outbound verification/);
     assert.match(testing, /Provider send falls back to `dry_run` until live-send readiness gates pass/);
   });
 
