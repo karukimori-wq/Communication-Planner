@@ -4,10 +4,10 @@ This runbook tracks the remaining production rollout steps for Communication Pla
 
 ## Current State
 
-As of 2026-08-24:
+As of 2026-08-25:
 
-- GitHub main is synced through `d4713dbdb829515c8a7ca2da21e9c11b9e15b60c`.
-- Local dependency-free `node --test` contract coverage passes with 48 tests across 15 suites.
+- Latest verified GitHub main checkpoint before this runbook refresh is `ceb412be133772ce927eedc808831d72e652cb00`.
+- Local dependency-free `node --test` contract coverage passes with 50 tests across 15 suites.
 - Full dependency install, typecheck, and dependency-backed tests have not completed in the scratch workspace because npm attempts to create `/root/.npm` under the active sandbox.
 - A hosted project has not been linked or verified from this workspace.
 - Provider secrets and provider verification evidence have not been supplied. Provider sends remain `dry_run` by default.
