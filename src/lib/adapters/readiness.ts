@@ -16,6 +16,7 @@ export type ProviderReadiness = {
   adapterReference: string;
   credentialRequirements: ProviderReadinessRequirement[];
   webhookSignatureSecrets: ProviderReadinessRequirement[];
+  providerVerificationRequirements: ProviderReadinessRequirement[];
   operationalRequirements: ProviderReadinessRequirement[];
   rateLimitPolicy: {
     enabled: boolean;
@@ -35,6 +36,12 @@ const credentialKeys: Record<ProviderReadiness["channel"], string[]> = {
   line: ["LINE_CHANNEL_ACCESS_TOKEN", "LINE_CHANNEL_SECRET"],
   x: ["X_API_KEY", "X_API_SECRET", "X_ACCESS_TOKEN", "X_ACCESS_TOKEN_SECRET"],
   instagram: ["INSTAGRAM_PAGE_ACCESS_TOKEN", "INSTAGRAM_APP_SECRET"]
+};
+
+const providerVerificationKeys: Record<ProviderReadiness["channel"], string[]> = {
+  line: ["LINE_PROVIDER_INBOUND_VERIFIED", "LINE_PROVIDER_OUTBOUND_VERIFIED"],
+  x: ["X_PROVIDER_INBOUND_VERIFIED", "X_PROVIDER_OUTBOUND_VERIFIED"],
+  instagram: ["INSTAGRAM_PROVIDER_INBOUND_VERIFIED", "INSTAGRAM_PROVIDER_OUTBOUND_VERIFIED"]
 };
 
 const operationalKeys = [
@@ -68,12 +75,17 @@ export function getProviderSendReadiness(channel: ProviderReadiness["channel"]):
     description: `${channel} webhook signature secret may verify inbound provider payloads`,
     met: secret.configured
   }));
+  const providerVerificationRequirements = providerVerificationKeys[channel].map((key) => ({
+    key,
+    description: `${channel} provider-specific inbound and outbound behavior must be verified before live provider send`,
+    met: enabled(process.env[key])
+  }));
   const operationalRequirements = operationalKeys.map((key) => ({
     key,
     description: `${key} must be enabled before live provider send`,
     met: enabled(process.env[key])
   }));
-  const blockers = [...credentialRequirements, ...webhookSignatureSecrets, ...operationalRequirements]
+  const blockers = [...credentialRequirements, ...webhookSignatureSecrets, ...providerVerificationRequirements, ...operationalRequirements]
     .filter((requirement) => !requirement.met)
     .map((requirement) => requirement.key);
   const liveSendReady = blockers.length === 0;
@@ -86,6 +98,7 @@ export function getProviderSendReadiness(channel: ProviderReadiness["channel"]):
     adapterReference: adapterReferences[channel],
     credentialRequirements,
     webhookSignatureSecrets,
+    providerVerificationRequirements,
     operationalRequirements,
     rateLimitPolicy,
     blockers
