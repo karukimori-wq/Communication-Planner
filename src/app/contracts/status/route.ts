@@ -4,6 +4,7 @@ import { getAllProviderSendReadiness } from "@/lib/adapters/readiness";
 
 export function GET() {
   const adapterReadiness = getAllProviderSendReadiness();
+  const blockedAdapterChannels = adapterReadiness.filter((adapter) => !adapter.liveSendReady).map((adapter) => adapter.channel);
 
   return ok({
     appName: "communication-planner",
@@ -33,6 +34,13 @@ export function GET() {
         adapter.operationalRequirements.some((requirement) => requirement.key === "COMMUNICATION_PLANNER_PROVIDER_ERROR_MAPPING" && requirement.met)
       ),
       providerLiveSendReady: adapterReadiness.every((adapter) => adapter.liveSendReady)
+    },
+    adapterReadinessSummary: {
+      totalChannels: adapterReadiness.length,
+      liveReadyChannels: adapterReadiness.filter((adapter) => adapter.liveSendReady).length,
+      blockedChannels: blockedAdapterChannels,
+      blockerCount: adapterReadiness.reduce((count, adapter) => count + adapter.blockers.length, 0),
+      allLiveReady: blockedAdapterChannels.length === 0
     },
     adapterReadinessPath: "/api/adapters/readiness",
     sourceOfTruth: [
