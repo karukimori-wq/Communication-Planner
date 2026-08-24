@@ -16,6 +16,12 @@ describe("adapter readiness contract guards", () => {
     assert.match(route, /getAllProviderSendReadiness/);
     assert.match(route, /requested/);
     assert.match(route, /effectiveDefault/);
+    assert.match(route, /summary/);
+    assert.match(route, /totalChannels/);
+    assert.match(route, /liveReadyChannels/);
+    assert.match(route, /blockedChannels/);
+    assert.match(route, /blockerCount/);
+    assert.match(route, /allLiveReady/);
     assert.match(readiness, /credentialRequirements/);
     assert.match(readiness, /webhookSignatureSecrets/);
     assert.match(readiness, /providerVerificationRequirements/);
@@ -31,6 +37,7 @@ describe("adapter readiness contract guards", () => {
     assert.match(contracts, /without returning secret values/);
     assert.match(apiDesign, /GET \/api\/adapters\/readiness/);
     assert.match(apiDesign, /must not return secret values/);
+    assert.match(apiDesign, /readiness summary/);
   });
 
   it("keeps live provider sends blocked behind production gates", () => {
