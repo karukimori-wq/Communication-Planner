@@ -62,4 +62,5 @@ Register the app in Platform Admin only after:
 - production URL is known
 - health endpoints return HTTP 200
 - `/contracts/status` returns `status: "success"`
+- `/contracts/status` includes `adapterReadinessSummary` so Platform Admin can show blocked provider channels without reading secret values.
 - `/api/adapters/readiness` confirms `dry_run` unless every live-send gate is configured
