@@ -4,14 +4,13 @@ This runbook tracks the remaining production rollout steps for Communication Pla
 
 ## Current State
 
-As of 2026-08-18:
+As of 2026-08-24:
 
-- GitHub main is synced through `fd59cf4f0dc8c6f929109cc79fe4cbeb41c6e1f7`.
-- Local `node --test tests/*.test.mjs` passes with 38 tests.
-- Local `npm run build` succeeds.
-- The connected Vercel team does not yet contain a `communication-planner` project.
-- The local Vercel CLI is logged out.
-- Provider secrets have not been supplied.
+- GitHub main is synced through `d4713dbdb829515c8a7ca2da21e9c11b9e15b60c`.
+- Local dependency-free `node --test` contract coverage passes with 48 tests across 15 suites.
+- Full dependency install, typecheck, and dependency-backed tests have not completed in the scratch workspace because npm attempts to create `/root/.npm` under the active sandbox.
+- A hosted project has not been linked or verified from this workspace.
+- Provider secrets and provider verification evidence have not been supplied. Provider sends remain `dry_run` by default.
 
 ## 1. Create Or Link Vercel Project
 
@@ -41,16 +40,22 @@ COMMUNICATION_PLANNER_PROVIDER_RATE_LIMIT_POLICY=enabled
 COMMUNICATION_PLANNER_PROVIDER_RATE_LIMIT_WINDOW_MS=60000
 COMMUNICATION_PLANNER_PROVIDER_RATE_LIMIT_MAX=60
 COMMUNICATION_PLANNER_PROVIDER_ERROR_MAPPING=enabled
+LINE_PROVIDER_INBOUND_VERIFIED=disabled
+LINE_PROVIDER_OUTBOUND_VERIFIED=disabled
+X_PROVIDER_INBOUND_VERIFIED=disabled
+X_PROVIDER_OUTBOUND_VERIFIED=disabled
+INSTAGRAM_PROVIDER_INBOUND_VERIFIED=disabled
+INSTAGRAM_PROVIDER_OUTBOUND_VERIFIED=disabled
 ```
 
-Only switch to live delivery after provider credentials and webhook signatures are configured:
+Only switch to live delivery after provider credentials, webhook signatures, provider-specific inbound/outbound verification, rate-limit policy, and provider error mapping are configured:
 
 ```text
 COMMUNICATION_PLANNER_PROVIDER_DELIVERY_MODE=live
 COMMUNICATION_PLANNER_WEBHOOK_SIGNATURE_VERIFICATION=enabled
 ```
 
-Required provider credentials are listed in `.env.example` and `docs/production-adapter-readiness.md`.
+Required provider credentials and verification flags are listed in `.env.example` and `docs/production-adapter-readiness.md`.
 
 ## 3. Verify Production Endpoints
 
@@ -97,6 +102,7 @@ Do not run live E2E until the following are complete:
 - Provider webhook callback URLs point at production.
 - `COMMUNICATION_PLANNER_WEBHOOK_SIGNATURE_VERIFICATION=enabled`.
 - `COMMUNICATION_PLANNER_PROVIDER_DELIVERY_MODE=live`.
+- Provider-specific inbound/outbound verification flags are enabled for each target channel.
 - Rate limit policy and provider error mapping are enabled.
 
 Live E2E must verify:
