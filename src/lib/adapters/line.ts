@@ -9,7 +9,14 @@ export const lineAdapter: ChannelAdapter = {
   async send(request: ProviderSendRequest) {
     if(request.deliveryMode!=="live")return{accepted:true,deliveryMode:"dry_run",adapterReference:"Shudesu/line-harness-oss",idempotencyKey:request.idempotencyKey,externalMessageId:`line-dry-run:${request.replyDraftId}`,reason:"LINE provider delivery remains dry-run until the live readiness gate passes."};
     const token=process.env.LINE_CHANNEL_ACCESS_TOKEN;
-    if(!token)return{accepted:false,deliveryMode:"live",adapterReference:"LINE Messaging API",idempotencyKey:request.idempotencyKey,reason:"LINE credential is not configured",providerCode:"LINE_CREDENTIAL_MISSING"};
+    if(!token)return{
+      accepted:false,
+      deliveryMode:"live",
+      adapterReference:"LINE Messaging API",
+      idempotencyKey:request.idempotencyKey,
+      reason:"LINE credential is not configured",
+      providerCode:"LINE_CREDENTIAL_MISSING"
+    };
     try{
       const response=await fetch(LINE_PUSH_URL,{method:"POST",headers:{authorization:`Bearer ${token}`,"content-type":"application/json","x-line-retry-key":request.idempotencyKey},body:JSON.stringify({to:request.externalUserId,messages:[{type:"text",text:request.body}]})});
       const requestId=response.headers.get("x-line-request-id")??undefined;
