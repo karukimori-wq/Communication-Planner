@@ -208,7 +208,7 @@ export const endpointContracts: EndpointContract[] = [
     requiredFields: [],
     prohibitedPayloadFields: prohibitedOwnedPayloadFields,
     sourceOfTruth: ["ChannelAdapter integration state", "Provider credential readiness"],
-    safetyRules: ["Expose provider send readiness without returning secret values", "Live provider send must fall back to dry_run until credentials and operational gates pass"]
+    safetyRules: ["Expose provider send readiness without returning secret values", "Live provider send must fall back to dry_run until credentials, provider verification, and operational gates pass"]
   },
   {
     method: "GET",
