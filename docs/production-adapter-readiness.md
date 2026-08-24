@@ -17,7 +17,7 @@ Live provider delivery requires:
 - `COMMUNICATION_PLANNER_WEBHOOK_SIGNATURE_VERIFICATION=enabled`
 - `COMMUNICATION_PLANNER_PROVIDER_RATE_LIMIT_POLICY=enabled`
 - `COMMUNICATION_PLANNER_PROVIDER_ERROR_MAPPING=enabled`
-- provider request/response behavior covered by executable tests
+- provider-specific inbound and outbound behavior verified for the target channel
 
 If any requirement is missing, the effective delivery mode remains `dry_run`.
 
@@ -51,6 +51,18 @@ The limit key is `workspaceId + channel + externalUserId`, so one person's provi
 | X | `X_API_KEY`, `X_API_SECRET`, `X_ACCESS_TOKEN`, `X_ACCESS_TOKEN_SECRET` | `Shudesu/x-harness-oss` |
 | Instagram | `INSTAGRAM_PAGE_ACCESS_TOKEN`, `INSTAGRAM_APP_SECRET` | `Shudesu/ig-harness-oss` |
 
+## Provider Verification Gates
+
+Readiness also requires explicit evidence that each channel's inbound webhook and outbound send behavior has been verified against the configured provider environment.
+
+| Channel | Required verification env vars |
+| --- | --- |
+| LINE | `LINE_PROVIDER_INBOUND_VERIFIED`, `LINE_PROVIDER_OUTBOUND_VERIFIED` |
+| X | `X_PROVIDER_INBOUND_VERIFIED`, `X_PROVIDER_OUTBOUND_VERIFIED` |
+| Instagram | `INSTAGRAM_PROVIDER_INBOUND_VERIFIED`, `INSTAGRAM_PROVIDER_OUTBOUND_VERIFIED` |
+
+Each value must be `enabled` or `true`. These flags are intentionally separate from credentials so a copied secret cannot accidentally make a channel live before provider callbacks and sends have been checked.
+
 ## Production Rollout Status
 
 Deployment readiness was checked on 2026-08-18.
@@ -64,7 +76,7 @@ Deployment readiness was checked on 2026-08-18.
 | Production runtime URL | Blocked | Cannot be finalized until a Vercel project or approved hosting target exists |
 | Production env vars | Blocked | Provider credentials and secrets must be supplied outside source control |
 | Platform Admin runtime URL registration | Blocked | Requires the finalized Communication Planner production URL |
-| LINE/X/Instagram live E2E verification | Blocked | Requires provider credentials, webhook URLs, and real provider callback configuration |
+| LINE/X/Instagram live E2E verification | Blocked | Requires provider credentials, webhook URLs, real provider callback configuration, and provider verification flags |
 
 Until those blockers are cleared, provider delivery must remain `dry_run`.
 
