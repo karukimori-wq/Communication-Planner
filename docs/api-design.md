@@ -119,6 +119,7 @@ The endpoint must not return secret values. It returns only:
 
 - requested delivery mode
 - effective delivery mode
+- readiness summary for total channels, live-ready channels, blocked channels, blocker count, and all-live-ready state
 - per-channel readiness
 - missing readiness blockers by key name
 - adapter reference
