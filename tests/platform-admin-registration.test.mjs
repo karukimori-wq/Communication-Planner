@@ -12,6 +12,7 @@ describe("Platform Admin registration metadata", () => {
     const statusRoute = read("src/app/contracts/status/route.ts");
     const contracts = read("src/lib/contracts.ts");
     const registrationDoc = read("docs/platform-admin-registration.md");
+    const roadmap = read("docs/post-mvp-roadmap.md");
 
     assert.match(route, /platformAdminRegistration/);
     assert.match(route, /requestMeta\(request\)/);
@@ -26,6 +27,9 @@ describe("Platform Admin registration metadata", () => {
     assert.match(statusRoute, /blockedChannels/);
     assert.match(statusRoute, /blockerCount/);
     assert.match(registrationDoc, /adapterReadinessSummary/);
+    assert.match(roadmap, /\/contracts\/status` as the primary Platform Admin readiness surface/);
+    assert.match(roadmap, /\/api\/adapters\/readiness` for per-channel blocker drilldown/);
+    assert.match(roadmap, /provider-specific inbound and outbound verification are enabled/);
     assert.doesNotMatch(route, /process\.env\.[A-Z0-9_]*(SECRET|TOKEN|KEY)/);
   });
 });
