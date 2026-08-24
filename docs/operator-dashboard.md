@@ -82,6 +82,8 @@ The Operations panel lists LINE, X, and Instagram adapter readiness with the cor
 
 Adapters may normalize provider events and prepare provider sends, but final outbound sends remain blocked by Communication Planner's SafetyCheck and send confirmation rules.
 
+Adapter readiness should show blocker categories by key name: `credentialRequirements`, `webhookSignatureSecrets`, `providerVerificationRequirements`, `operationalRequirements`, and `rateLimitPolicy`.
+
 ## Pilot Readiness
 
 Minimum pilot readiness requires:
@@ -91,3 +93,4 @@ Minimum pilot readiness requires:
 - SafetyCheck creation through the scoped SafetyCheck API.
 - Send attempts blocked by the API until the dashboard and API agree on scope, channel, and current draft hash.
 - Adapter operations shown as readiness state, with provider delivery still behind the send gate.
+- Provider verification blockers visible before any live delivery request is treated as ready.
