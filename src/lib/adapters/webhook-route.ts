@@ -45,7 +45,8 @@ export function createAdapterWebhookRoute(channel: Exclude<Channel, "unknown">) 
         const db = getCloudflareContext().env.DB as unknown as D1DatabaseLike;
         result = await new D1CommunicationRepository(db).ingestChannelMessage({
           ...input,
-          channel
+          channel,
+          direction: input.direction ?? "inbound"
         });
       } catch {
         return fail("PERSISTENCE_ERROR", "Provider message could not be persisted", 503, meta);
