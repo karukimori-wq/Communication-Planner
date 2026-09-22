@@ -24,7 +24,6 @@ jobs:
           cache: npm
 
       - name: Regenerate migration lockfile
-        if: github.event_name == 'pull_request'
         run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
 
       - name: Install dependencies
